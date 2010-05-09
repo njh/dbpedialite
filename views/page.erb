@@ -1,0 +1,21 @@
+<div id="header">
+  <h1 id="title">About: <%= link_to(@article.title, @article.uri) %></h1>
+  <div id="uri"><%= @article.uri %></div>
+</div>
+
+<div id="content">
+  <table class="description"><tr><th>Property</th><th>Value</th></tr>
+   <% @article.each_statement do |s| %>
+    <tr>
+      <td><%= h(s.predicate) %></td>
+      <% if s.object.uri? %>
+      <td><%= link_to(s.object) %></td>
+      <% elsif !s.object.has_datatype? %>
+      <td><%= nl2p(s.object.value) %></td>
+      <% else %>
+      <td><%= h(s.object) %></td>
+      <% end %>
+    </tr>
+   <% end %>
+  </table>
+</div>

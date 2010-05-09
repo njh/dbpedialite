@@ -1,55 +1,65 @@
 require 'rubygems'
-require 'net/http'
-require 'json'
-require 'cgi'
-require 'uri'
+require 'wikipedia_api'
+require 'spira'
 
-class WikipediaArticle < OpenStruct
-  USER_AGENT = 'DbpediaLite/1'
-  WIKIPEDIA_API = URI.parse('http://en.wikipedia.org/w/api.php')
+GEO = RDF::Vocabulary.new('http://www.w3.org/2003/01/geo/wgs84_pos#')
 
-  def self.find(args)
+
+class WikipediaArticle
+  include Spira::Resource
   
-    data = api_get({:action => 'query', :redirects => 1, :prop => 'info'}.merge(args))
-    puts data
+  base_uri "http://dbpedialite.org/resource"  
+  type RDF::OWL.Thing
+  
+  property :title, :predicate => RDF::RDFS.label, :type => String
+  property :abstract, :predicate => RDF::RDFS.comment, :type => String
+  property :page, :predicate => RDF::FOAF.page, :type => RDF::URI
+  property :latitude, :predicate => GEO.lat, :type => Float
+  property :longitude, :predicate => GEO.long, :type => Float
+  
+  # FIXME: this should apply to the document, not the thing
+  #property :updated_at, :predicate => RDF::DC.modified, :type => DateTime
+  
+  # Additionally:
+  #  foaf:depiction
+  #  skos:subject
+  #  foaf:page
+  #  dbpedia-owl:abstract
+  #  dbpprop:reference (External Links)
+  #  dbpprop:redirect
+  #  dbpprop:disambiguates
+  
+  # Document properties
+  #  lasttouched, lastrevid, ns, length, counter
     
-    # FIXME: check that a single page has been returned
-    data['query']['pages'].values.first
+  def initialize(identifier, opts = {})
+    if identifier.nil? and opts[:title]
+      data = WikipediaApi.query(:titles => opts[:title])
+      identifier = data['pageid']
+    end
+    
+    super(identifier, opts)
   end
   
-  def self.api_get(args)
-    items = ['format=json']
-    args.each_pair do |key,value|
-     items.unshift CGI::escape(key.to_s)+'='+CGI::escape(value.to_s)
-    end
-
-    uri = WIKIPEDIA_API.clone
-    uri.query = items.join('&')
-    res = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
-    end
-    
-    # Throw exception if unsuccessful
-    res.value
-    
-    JSON.parse(res.body)
-  end
-  
-  def initialize(args=nil)
-    super
-  
-    case args
-      when Hash
-        args.each_pair do |key,value|
-          self.send("#{key}=", value)
-        end
-      when String
-        self.title = args
-      when Integer
-        self.pageid = args
-      else
-        raise "Don't know to create a WikipediaArticle from a #{args.class}"
+  def load
+    data = WikipediaApi.parse(pageid)
+    self.class.properties.each do |name,property|
+      if data.has_key?(name)
+        self.send("#{name}=", data[name])
+      end
     end
   end
+  
+  def title=(title)
+    attribute_set(:title, title)
 
+    # The FOAF::page is derived from the title
+    uri_str = WikipediaApi.title_to_uri(title)
+    self.page = RDF::URI.parse(uri_str)
+  end
+  
+  def pageid
+    self.uri.path =~ /(\d+)$/
+    $1.to_i
+  end
 end

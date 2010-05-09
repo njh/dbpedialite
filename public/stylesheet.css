@@ -1,0 +1,40 @@
+#header
+{
+	margin-bottom: 10px;
+	padding: 0px 0px 2px 0px;
+	border-bottom: 2px #BBB solid;
+}
+
+h1
+{
+	margin: 0px;
+	padding: 0px;
+}
+
+#uri { font-family: monospace; }
+
+th
+{
+	text-align: left;
+	padding: 5px;
+}
+
+td
+{
+	vertical-align: top;
+	border: 0px;
+	padding: 5px;
+}
+
+p
+{
+	margin: 0px;
+	padding: 0px;
+}
+
+#footer
+{
+	border-top: 2px #BBB solid;
+	margin-top: 10px;
+	padding-top: 4px;
+}

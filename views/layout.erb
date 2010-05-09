@@ -3,9 +3,20 @@
         "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>dbpedia lite</title>
+  <title>dbpedia lite<%= " - #{h(@article.title)}" unless @article.nil? %></title>
+  <link type="text/css" rel="stylesheet" href="/stylesheet.css" />
 </head>
 <body>
+
 <%= yield %>
+
+<div id="footer">
+  Powered by: 
+  <a href="http://heroku.com/">heroku</a>, 
+  <a href="http://github.com/bhuga/spira">Spira</a>, 
+  <a href="http://rdf.rubyforge.org/">RDF.rb</a>, 
+  <a href="http://github.com/hpricot/hpricot">hpricot</a>.
+</div>
+
 </body>
 </html>
