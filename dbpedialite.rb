@@ -17,7 +17,7 @@ helpers do
   end
   
   def nl2p(text)
-    paragraphs = text.to_s.split(/[\n\r]/)
+    paragraphs = text.to_s.split(/[\n\r]+/)
     paragraphs.map {|para| "<p>#{para}</p>"}.join
   end
 end
@@ -33,8 +33,13 @@ get '/title/:title' do
 end
 
 get '/resource/:pageid' do
-  # FIXME: add support for content negotiation
-  redirect "/page/#{params[:pageid]}", 303
+  headers 'Vary' => 'Accept'
+  case request.accept.first
+    when 'text/plain', 'application/rdf+xml' then
+      redirect "/data/#{params[:pageid]}", 303
+    else
+      redirect "/page/#{params[:pageid]}", 303
+  end
 end
 
 get '/page/:pageid' do
