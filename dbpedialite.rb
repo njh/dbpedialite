@@ -34,11 +34,13 @@ end
 
 get '/resource/:pageid' do
   headers 'Vary' => 'Accept'
-  case request.accept.first
-    when 'text/plain', 'application/rdf+xml' then
-      redirect "/data/#{params[:pageid]}", 303
-    else
+  accept = request.accept.first
+  accept.sub!(/;.+$/,'') unless accept.nil?
+  case accept
+    when 'application/xml', 'application/xhtml+xml', 'text/html' then
       redirect "/page/#{params[:pageid]}", 303
+    else
+      redirect "/data/#{params[:pageid]}", 303
   end
 end
 
