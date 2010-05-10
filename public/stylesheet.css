@@ -1,40 +1,146 @@
+body
+{
+	background: url(/images/background.gif) repeat-x left top;
+	font: normal 12px "lucida grande", helvetica, arial, sans-serif;
+	text-align: left;
+	width: 740px;
+	margin: 0 auto;
+	padding: 0;
+}
+
+input,
+textarea { font: normal 12px "bitstream vera sans", verdana, sans-serif; }
+
+abbr  { border: none; }
+cite  { font-style: normal; }
+a img { border: none; padding: 0; margin: 0; }
+
+a:link,  a:visited { color: #930; }
+a:hover, a:active  { color: #fff; background: #000; }
+
+
+/*--------------------------------------------------------------
+ Header
+ --------------------------------------------------------------*/
+
 #header
 {
-	margin-bottom: 10px;
-	padding: 0px 0px 2px 0px;
-	border-bottom: 2px #BBB solid;
+	min-height: 60px;
+	margin: 0 0 10px 0;
+	padding: 0 0 10px 0;
+	border: 0;
+	background: url(/images/header_shadow.gif) repeat-x left bottom;
 }
 
-h1
+#header a:link,
+#header a:visited {
+	color:#000;
+	text-decoration: none;
+}
+
+#header a:hover,
+#header a:active {
+	color:#930; background: transparent;
+	text-decoration: none;
+}
+
+#header h1
 {
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	font-family: georgia, 'bitstream vera serif', serif;
+	font-size: 4em;
+	font-weight: normal;
+	letter-spacing: -1px;
 }
 
-#uri { font-family: monospace; }
-
-th
-{
-	text-align: left;
-	padding: 5px;
+#header h2 {
+	font: normal 12px helvetica, arial, sans-serif;
+	margin: 0;
 }
 
-td
+
+/*--------------------------------------------------------------
+ Content
+ --------------------------------------------------------------*/
+
+#content {}
+
+#content p {
+	line-height: 15px;
+	margin: 0 0 1.2em;
+}
+
+#content ul,
+#content ol {
+	margin: 1em;
+	padding:0;
+}
+
+#content ul {
+	list-style-type: square;
+}
+
+#content li {
+	line-height: 15px; 
+	margin: 0 0 0 1em; padding: 0;
+}
+
+#content blockquote {
+	color: #555;
+	border-left: 5px solid #ccc;
+	margin: 1.3em 1em; padding: 0 1em;
+}
+
+#content code {
+	font: normal 12px monaco "lucida console", "courier new", courier, monospace;
+}
+
+#content pre {
+	color: #63FF00;
+	background: #000;
+	overflow: auto;
+	font: normal 12px monaco "lucida console", "courier new", courier, monospace;
+	margin: 0.9em 0; padding: 8px;
+}
+
+.description th
 {
 	vertical-align: top;
+	text-align: left;
 	border: 0px;
 	padding: 5px;
 }
 
-p
+.description td
 {
-	margin: 0px;
-	padding: 0px 0px 5px 0px;
+	vertical-align: top;
+	text-align: left;
+	border: 0px;
+	padding: 5px;
 }
+
+
+/*--------------------------------------------------------------
+ Footer
+ --------------------------------------------------------------*/
 
 #footer
 {
-	border-top: 2px #BBB solid;
-	margin-top: 10px;
-	padding-top: 4px;
+	height: 40px;
+	margin: 10px 0 0;
+	padding: 10px 0 0;
+	clear: both;
+	border-top: 1px solid #ccc;
+	font-size: 90%;
+}
+
+#footer a:link,
+#footer a:visited {
+	color: #000;
+}
+
+#footer a:hover,
+#footer a:active {
+	color: #fff;
+	background: #000;
 }
