@@ -48,7 +48,7 @@ get '/resource/:pageid' do
 end
 
 get '/page/:pageid' do
-  @article = WikipediaArticle.new(params[:pageid].to_i)
+  @article = WikipediaArticle.new(params[:pageid])
   @article.load
 
   headers 'Cache-Control' => 'public,max-age=600'
@@ -57,7 +57,7 @@ end
 
 get '/data/:pageid' do
   # FIXME: add support for content negotiation
-  @article = WikipediaArticle.new(params[:pageid].to_i)
+  @article = WikipediaArticle.new(params[:pageid])
   @article.load
 
   headers 'Content-Type' => 'text/plain',
