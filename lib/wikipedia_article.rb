@@ -72,7 +72,7 @@ class WikipediaArticle
     end
   end
 
-  def has_cordinates?
+  def has_coordinates?
     !(latitude.nil? || longitude.nil?)
   end
 end
