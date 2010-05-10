@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'net/http'
-require 'hpricot'
 require 'json'
+require 'nokogiri'
 require 'uri'
 require 'cgi'
 
@@ -49,26 +49,26 @@ module WikipediaApi
 
     # Perform the screen-scraping    
     data = {}
-    doc = Hpricot(res.body, :fixup_tags => true)
+    doc = Nokogiri::HTML(res.body)
 
     # Extract the title of the page
-    data[:title] = (doc/"#firstHeading").inner_text
+    data[:title] = doc.at('#firstHeading').inner_text
 
     # Extract the last modified date
-    lastmod = (doc/"#lastmod").inner_text.sub('This page was last modified on ','')
+    lastmod = doc.at('#lastmod').inner_text.sub('This page was last modified on ','')
     data[:updated_at] = DateTime.parse(lastmod)  
-    
+
     # Extract the coordinates
-    coordinates = (doc/"#coordinates//span.geo").inner_text.split(/[^\d\-\.]+/)
-    unless coordinates.empty?
+    coordinates = doc.at('#coordinates//span.geo')
+    unless coordinates.nil?
+      coordinates = coordinates.inner_text.split(/[^\d\-\.]+/)
       data[:latitude] = coordinates[0].to_f
       data[:longitude] = coordinates[1].to_f
     end
-    
+
     # Extract the abstract
     data[:abstract] = ''
-    paragraphs = (doc/"#content//p")
-    paragraphs.each do |para|
+    doc.search("#content//p").each do |para|
       # FIXME: filter out non-abstract spans properly
       next if para.inner_text =~ /^Coordinates:/
       # FIXME: stop at the contents table
@@ -77,10 +77,8 @@ module WikipediaApi
     end
     data[:abstract].gsub!(/\[\d+\]/,'')
     
+    
     data
-  end
-  
-  def self.title_to_uri(title)
   end
 
 end

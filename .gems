@@ -1,6 +1,6 @@
-json --version 1.2.3
 rdf --version 0.1.9
 rdf-isomorphic --version 0.1.2
 rdf-json --version 0.1.0
 promise --version 0.1.0
-hpricot
+json
+nokogiri
