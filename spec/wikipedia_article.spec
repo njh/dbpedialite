@@ -16,6 +16,10 @@ describe WikipediaArticle do
     it "should have the correct URI" do
       @article.uri.to_s.should == 'http://dbpedialite.org/resource/52780'
     end
+    
+    it "should not have co-ordinates" do
+      @article.should_not have_coordinates
+    end
   end
 
   context "creating a new article from a page title" do
@@ -78,7 +82,7 @@ describe WikipediaArticle do
       @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
     end
 
-    it "should encode the dbpedia URL correctly" do
+    it "should encode the dbpedia URI correctly" do
       @article.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
     end
   end
@@ -116,6 +120,10 @@ describe WikipediaArticle do
       @article.title.should == 'Ceres, Fife'
     end
     
+    it "should have co-ordinates" do
+      @article.should have_coordinates
+    end
+    
     it "should have the correct latitude" do
       @article.latitude.should == 56.293431
     end
@@ -126,6 +134,14 @@ describe WikipediaArticle do
     
     it "should encode the Wikipedia page URL correctly" do
       @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
+    end
+    
+    it "should encode the dbpedia URI correctly" do
+      @article.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
+    end
+    
+    it "should extract the abstract correctly" do
+      @article.abstract.should =~ /^Ceres is a village in Fife, Scotland/
     end
   end
 end
