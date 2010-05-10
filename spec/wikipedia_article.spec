@@ -77,6 +77,10 @@ describe WikipediaArticle do
     it "should encode the Wikipedia page URL correctly" do
       @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
     end
+
+    it "should encode the dbpedia URL correctly" do
+      @article.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
+    end
   end
 
   context "serializing an article to N-Triples" do

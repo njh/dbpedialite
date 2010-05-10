@@ -81,10 +81,6 @@ module WikipediaApi
   end
   
   def self.title_to_uri(title)
-    unless title.nil?
-      url_key = CGI::escape(title.gsub(' ','_'))
-      "http://en.wikipedia.org/wiki/#{url_key}"
-    end
   end
 
 end

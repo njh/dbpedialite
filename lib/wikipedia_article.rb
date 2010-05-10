@@ -16,6 +16,7 @@ class WikipediaArticle
   property :page, :predicate => RDF::FOAF.page, :type => RDF::URI
   property :latitude, :predicate => GEO.lat, :type => Float
   property :longitude, :predicate => GEO.long, :type => Float
+  property :dbpedia, :predicate => RDF::OWL.sameAs, :type => RDF::URI
   
   # FIXME: this should apply to the document, not the thing
   #property :updated_at, :predicate => RDF::DC.modified, :type => DateTime
@@ -54,13 +55,21 @@ class WikipediaArticle
     attribute_set(:title, title)
 
     # The FOAF::page is derived from the title
-    uri_str = WikipediaApi.title_to_uri(title)
-    self.page = RDF::URI.parse(uri_str)
+    unless title.nil?
+      self.page = RDF::URI.parse("http://en.wikipedia.org/wiki/#{escaped_title}")
+      self.dbpedia = RDF::URI.parse("http://dbpedia.org/resource/#{escaped_title}")
+    end
   end
-  
+
   def pageid
     self.uri.path =~ /(\d+)$/
     $1.to_i
+  end
+
+  def escaped_title
+    unless title.nil?
+      CGI::escape(title.gsub(' ','_'))
+    end
   end
 
   def has_cordinates?
