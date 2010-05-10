@@ -62,4 +62,8 @@ class WikipediaArticle
     self.uri.path =~ /(\d+)$/
     $1.to_i
   end
+
+  def has_cordinates?
+    !(latitude.nil? || longitude.nil?)
+  end
 end

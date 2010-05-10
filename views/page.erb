@@ -4,7 +4,20 @@
 </div>
 
 <div id="content">
-  <table class="description"><tr><th>Property</th><th>Value</th></tr>
+  <% if @article.has_cordinates? %>
+    <div id="map"></div>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAArv9G1BkO0gxnWS5UwgAUcxTpFJMlrih0EInfmgkti7-ZKQDRBRTphKY0sV9v8PuRfqpo9onlsV4ZPw" type="text/javascript"></script>
+    <script type="text/javascript">
+    if (GBrowserIsCompatible()) {
+      var map = new GMap2(document.getElementById("map"));
+      map.setCenter(new GLatLng(<%= @article.latitude %>,<%= @article.longitude %>), 13);
+      map.addControl(new GSmallMapControl());
+    }
+    </script>
+  <% end %>
+
+  <table id="description">
+   <tr><th>Property</th><th>Value</th></tr>
    <% @article.each_statement do |s| %>
     <tr>
       <td><%= h(s.predicate) %></td>
@@ -18,4 +31,5 @@
     </tr>
    <% end %>
   </table>
+
 </div>
