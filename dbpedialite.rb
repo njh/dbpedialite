@@ -24,11 +24,14 @@ end
 
 
 get '/' do
+  headers 'Cache-Control' => 'public,max-age=600'
   erb :index
 end
 
 get '/title/:title' do
   @article = WikipediaArticle.new(nil, :title => params[:title])
+
+  headers 'Cache-Control' => 'public,max-age=3600'
   redirect "/resource/#{@article.pageid}", 301
 end
 
@@ -47,13 +50,17 @@ end
 get '/page/:pageid' do
   @article = WikipediaArticle.new(params[:pageid].to_i)
   @article.load
+
+  headers 'Cache-Control' => 'public,max-age=600'
   erb :page
 end
 
 get '/data/:pageid' do
   # FIXME: add support for content negotiation
-  headers 'Content-Type' => 'text/plain'
   @article = WikipediaArticle.new(params[:pageid].to_i)
   @article.load
+
+  headers 'Content-Type' => 'text/plain',
+          'Cache-Control' => 'public,max-age=600'
   @article.dump(:ntriples)
 end
