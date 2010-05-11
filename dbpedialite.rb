@@ -49,7 +49,8 @@ get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
     format.sub!(/;.+$/,'')
   end
 
-  headers 'Cache-Control' => 'public,max-age=600'
+  headers 'Vary' => 'Accept',
+          'Cache-Control' => 'public,max-age=600'
   case format
     when 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
       content_type 'text/html'
