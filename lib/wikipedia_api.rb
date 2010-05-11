@@ -18,6 +18,12 @@ module WikipediaApi
     data['query']['pages'].values.first
   end
   
+  def self.search(query, args={})
+    data = self.get('query', {:list => 'search', :prop => 'info', :srsearch => query}.merge(args))
+  
+    data['query']['search']
+  end
+  
   def self.get(action, args={})
     items = []
     args.merge!(:action => action, :format => 'json')

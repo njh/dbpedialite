@@ -25,8 +25,21 @@ end
 
 
 get '/' do
-  headers 'Cache-Control' => 'public,max-age=600'
+  headers 'Cache-Control' => 'public,max-age=3600'
   erb :index
+end
+
+get '/search' do
+  headers 'Cache-Control' => 'public,max-age=600'
+  redirect '/' if params[:q].nil? or params[:q].empty?
+
+  @results = WikipediaApi.search(params[:q], :srlimit => 20)
+  @results.each do |r|
+    escaped = CGI::escape(r['title'].gsub(' ','_'))
+    r['url'] = "/titles/#{escaped}"
+  end
+
+  erb :search
 end
 
 get '/titles/:title' do |title|
@@ -34,7 +47,7 @@ get '/titles/:title' do |title|
 
   # FIXME: 404 if not found
 
-  headers 'Cache-Control' => 'public,max-age=3600'
+  headers 'Cache-Control' => 'public,max-age=600'
   redirect "/things/#{@article.pageid}", 301
 end
 

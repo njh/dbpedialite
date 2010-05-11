@@ -1,7 +1,7 @@
 body
 {
 	background: url(/images/background.gif) repeat-x left top;
-	font: normal 12px "lucida grande", helvetica, arial, sans-serif;
+	font: normal 9pt "lucida grande", helvetica, arial, sans-serif;
 	text-align: left;
 	width: 740px;
 	margin: 0 auto;
@@ -9,7 +9,7 @@ body
 }
 
 input,
-textarea { font: normal 12px "bitstream vera sans", verdana, sans-serif; }
+textarea { font: normal 9pt "bitstream vera sans", verdana, sans-serif; }
 
 abbr  { border: none; }
 cite  { font-style: normal; }
@@ -101,6 +101,18 @@ a:hover, a:active  { color: #fff; background: #000; }
 	overflow: auto;
 	font: normal 12px monaco "lucida console", "courier new", courier, monospace;
 	margin: 0.9em 0; padding: 8px;
+}
+
+#search-results .result
+{
+    width: 500px;
+	padding-bottom: 7px;
+}
+
+#search-results .result .title
+{
+    font-size: 120%;
+	display: block;
 }
 
 #description th

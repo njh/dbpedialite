@@ -1,0 +1,14 @@
+<div id="header">
+  <h1>dbpedia lite search</h1>
+</div>
+
+<div id="content">
+  <ul id="search-results">
+  <% @results.each do |result| %>
+    <li class="result">
+      <span class="title"><%= link_to(result['title'], result['url']) %></span>
+      <span class="snippet"><%= result['snippet'] %></span>
+    </li>
+  <% end %>
+  </ul>
+</div>
