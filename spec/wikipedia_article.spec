@@ -12,11 +12,11 @@ describe WikipediaArticle do
     it "should return an object of type WikipediaArticle" do
       @article.class.should == WikipediaArticle
     end
-    
+
     it "should have the correct URI" do
       @article.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
     end
-    
+
     it "should not have co-ordinates" do
       @article.should_not have_coordinates
     end
@@ -31,12 +31,12 @@ describe WikipediaArticle do
     it "should return an object of type WikipediaArticle" do
       @article.class.should == WikipediaArticle
     end
-    
+
     it "should have the correct URI" do
       @article.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
     end
   end
-  
+
   context "creating a new article with data provided" do
     before :each do
       @article = WikipediaArticle.new(934787,
@@ -53,31 +53,31 @@ describe WikipediaArticle do
     it "should return an object of type WikipediaArticle" do
       @article.class.should == WikipediaArticle
     end
-    
+
     it "should have the correct URI" do
       @article.uri.to_s.should == 'http://dbpedialite.org/things/934787#thing'
     end
-    
+
     it "should have the correct title" do
       @article.title.should == 'Ceres, Fife'
     end
-        
+
     it "should have the correct abstract" do
       @article.abstract.should == 'Ceres is a village in Fife, Scotland.'
     end
-    
+
     it "should have a pageid method to get the page id from the uri" do
       @article.pageid.should == 934787
     end
-    
+
     it "should have the correct latitude" do
       @article.latitude.should == 56.293431
     end
-    
+
     it "should have the correct longitude" do
       @article.longitude.should == -2.970134
     end
-    
+
     it "should encode the Wikipedia page URL correctly" do
       @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
     end
@@ -95,7 +95,7 @@ describe WikipediaArticle do
       )
       @ntriples = @article.dump(:ntriples)
     end
-    
+
     it "should serialise to a string" do
       @ntriples.class.should == String
     end
@@ -104,7 +104,7 @@ describe WikipediaArticle do
       @ntriples.split(/[\r\n]+/).count.should == 3
     end
   end
-  
+
   context "loading a page from wikipedia" do
     before :each do
       # FIXME: mock out HTTP request
@@ -119,27 +119,27 @@ describe WikipediaArticle do
     it "should had the correct title" do
       @article.title.should == 'Ceres, Fife'
     end
-    
+
     it "should have co-ordinates" do
       @article.should have_coordinates
     end
-    
+
     it "should have the correct latitude" do
       @article.latitude.should == 56.293431
     end
-    
+
     it "should have the correct longitude" do
       @article.longitude.should == -2.970134
     end
-    
+
     it "should encode the Wikipedia page URL correctly" do
       @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
     end
-    
+
     it "should encode the dbpedia URI correctly" do
       @article.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
     end
-    
+
     it "should extract the abstract correctly" do
       @article.abstract.should =~ /^Ceres is a village in Fife, Scotland/
     end

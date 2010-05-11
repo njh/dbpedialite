@@ -17,13 +17,13 @@ module WikipediaApi
     # FIXME: check that a single page has been returned
     data['query']['pages'].values.first
   end
-  
+
   def self.search(query, args={})
     data = self.get('query', {:list => 'search', :prop => 'info', :srsearch => query}.merge(args))
-  
+
     data['query']['search']
   end
-  
+
   def self.get(action, args={})
     items = []
     args.merge!(:action => action, :format => 'json')
@@ -36,10 +36,10 @@ module WikipediaApi
     res = Net::HTTP.start(uri.host, uri.port) do |http|
       http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
     end
-    
+
     # Throw exception if unsuccessful
     res.value
-    
+
     JSON.parse(res.body)
   end
 
@@ -49,11 +49,11 @@ module WikipediaApi
     res = Net::HTTP.start(uri.host, uri.port) do |http|
       http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
     end
-    
+
     # Throw exception if unsuccessful
     res.value
 
-    # Perform the screen-scraping    
+    # Perform the screen-scraping
     data = {}
     doc = Nokogiri::HTML(res.body)
 
@@ -62,7 +62,7 @@ module WikipediaApi
 
     # Extract the last modified date
     lastmod = doc.at('#lastmod').inner_text.sub('This page was last modified on ','')
-    data[:updated_at] = DateTime.parse(lastmod)  
+    data[:updated_at] = DateTime.parse(lastmod)
 
     # Extract the coordinates
     coordinates = doc.at('#coordinates//span.geo')
@@ -82,8 +82,8 @@ module WikipediaApi
       break if data[:abstract].size > ABSTRACT_MAX_LENGTH
     end
     data[:abstract].gsub!(/\[\d+\]/,'')
-    
-    
+
+
     data
   end
 
