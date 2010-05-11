@@ -140,6 +140,23 @@ a:hover, a:active  { color: #fff; background: #000; }
 	border: 1px #888 solid;
 }
 
+#alternates
+{
+	width: 250px;
+	margin: 9px auto 8px auto;
+	padding: 8px;
+	border: 1px #888 solid;
+	text-align: center;
+	background-color: #F8F8F8;
+}
+
+#alternates h4
+{
+	padding: 0;
+	margin: 0;
+	font-weight: bold;
+}
+
 
 /*--------------------------------------------------------------
  Footer

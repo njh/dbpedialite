@@ -33,3 +33,9 @@
   </table>
 
 </div>
+
+<div id="alternates">
+  <h4>Alternative formats:</h4>
+  <%= link_to('N-Triples', "/things/#{@article.pageid}.nt") %> |
+  <%= link_to('JSON', "/things/#{@article.pageid}.json") %>
+</div>
