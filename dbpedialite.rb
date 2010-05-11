@@ -34,9 +34,9 @@ get '/search' do
   redirect '/' if params[:q].nil? or params[:q].empty?
 
   @results = WikipediaApi.search(params[:q], :srlimit => 20)
-  @results.each do |r|
-    escaped = CGI::escape(r['title'].gsub(' ','_'))
-    r['url'] = "/titles/#{escaped}"
+  @results.each do |result|
+    escaped = CGI::escape(result['title'].gsub(' ','_'))
+    result['url'] = "/titles/#{escaped}"
   end
 
   erb :search
