@@ -14,7 +14,7 @@ describe WikipediaArticle do
     end
     
     it "should have the correct URI" do
-      @article.uri.to_s.should == 'http://dbpedialite.org/resource/52780'
+      @article.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
     end
     
     it "should not have co-ordinates" do
@@ -33,7 +33,7 @@ describe WikipediaArticle do
     end
     
     it "should have the correct URI" do
-      @article.uri.to_s.should == 'http://dbpedialite.org/resource/52780'
+      @article.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
     end
   end
   
@@ -55,7 +55,7 @@ describe WikipediaArticle do
     end
     
     it "should have the correct URI" do
-      @article.uri.to_s.should == 'http://dbpedialite.org/resource/934787'
+      @article.uri.to_s.should == 'http://dbpedialite.org/things/934787#thing'
     end
     
     it "should have the correct title" do

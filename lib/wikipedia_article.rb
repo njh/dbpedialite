@@ -7,20 +7,20 @@ GEO = RDF::Vocabulary.new('http://www.w3.org/2003/01/geo/wgs84_pos#')
 
 class WikipediaArticle
   include Spira::Resource
-  
-  base_uri "http://dbpedialite.org/resource"  
+
+  base_uri "http://dbpedialite.org/things"
   type RDF::OWL.Thing
-  
+
   property :title, :predicate => RDF::RDFS.label, :type => String
   property :abstract, :predicate => RDF::RDFS.comment, :type => String
   property :page, :predicate => RDF::FOAF.page, :type => RDF::URI
   property :latitude, :predicate => GEO.lat, :type => Float
   property :longitude, :predicate => GEO.long, :type => Float
   property :dbpedia, :predicate => RDF::OWL.sameAs, :type => RDF::URI
-  
+
   # FIXME: this should apply to the document, not the thing
   #property :updated_at, :predicate => RDF::DC.modified, :type => DateTime
-  
+
   # Additionally:
   #  foaf:depiction
   #  skos:subject
@@ -29,19 +29,23 @@ class WikipediaArticle
   #  dbpprop:reference (External Links)
   #  dbpprop:redirect
   #  dbpprop:disambiguates
-  
+
   # Document properties
   #  lasttouched, lastrevid, ns, length, counter
-    
+
   def initialize(identifier, opts = {})
     if identifier.nil? and opts[:title]
       data = WikipediaApi.query(:titles => opts[:title])
       identifier = data['pageid']
     end
-    
+
+    unless identifier.is_a?(RDF::URI)
+      identifier = RDF::URI.parse("#{self.class.base_uri}/#{identifier}#thing")
+    end
+
     super(identifier, opts)
   end
-  
+
   def load
     data = WikipediaApi.parse(pageid)
     self.class.properties.each do |name,property|
@@ -50,7 +54,7 @@ class WikipediaArticle
       end
     end
   end
-  
+
   def title=(title)
     attribute_set(:title, title)
 
