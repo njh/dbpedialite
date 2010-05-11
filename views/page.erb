@@ -16,17 +16,17 @@
     </script>
   <% end %>
 
-  <table id="description">
+  <table id="description" about="<%= h @article.uri %>">
    <tr><th>Property</th><th>Value</th></tr>
    <% @article.each_statement do |s| %>
     <tr>
       <td><%= h(s.predicate) %></td>
       <% if s.object.uri? %>
-      <td><%= link_to(s.object) %></td>
+      <td><%= link_to(s.object, s.object, :rel => s.predicate) %></td>
       <% elsif !s.object.has_datatype? %>
-      <td><%= nl2p(s.object.value) %></td>
+      <td property="<%= h s.predicate %>"><%= nl2p(s.object.value) %></td>
       <% else %>
-      <td><%= h(s.object) %></td>
+      <td property="<%= h s.predicate %>"><%= h(s.object) %></td>
       <% end %>
     </tr>
    <% end %>
