@@ -12,9 +12,11 @@ helpers do
   include Rack::Utils
   alias_method :h, :escape_html
 
-  def link_to(title, url=nil)
+  def link_to(title, url=nil, attr={})
     url = title if url.nil?
-    "<a href=\"#{h url}\">#{h title}</a>"
+    attr.merge!('href' => url.to_s)
+    attr_str = attr.keys.map {|k| "#{h k}=\"#{h attr[k]}\""}.join(' ')
+    "<a #{attr_str}>#{h title}</a>"
   end
 
   def nl2p(text)
