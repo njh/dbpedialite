@@ -16,17 +16,23 @@
     </script>
   <% end %>
 
-  <table id="description" about="<%= h @article.uri %>">
+  <table id="description" about="<%= h @article.uri %>"
+         xmlns:dcterms="http://purl.org/dc/terms/"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  >
    <tr><th>Property</th><th>Value</th></tr>
    <% @article.each_statement do |s| %>
     <tr>
-      <td><%= h(s.predicate) %></td>
+      <td><%= shorten(s.predicate) %></td>
       <% if s.object.uri? %>
-      <td><%= link_to(s.object, s.object, :rel => s.predicate) %></td>
-      <% elsif !s.object.has_datatype? %>
-      <td property="<%= h s.predicate %>"><%= nl2p(s.object.value) %></td>
+      <td><%= link_to(s.object, s.object, :rel => shorten(s.predicate)) %></td>
+      <% elsif s.object.to_s =~ /[\n\r]/ %>
+      <td property="<%= shorten(s.predicate) %>"><%= nl2p(s.object.value) %></td>
       <% else %>
-      <td property="<%= h s.predicate %>"><%= h(s.object) %></td>
+      <td property="<%= shorten(s.predicate) %>"><%= h(s.object.value) %></td>
       <% end %>
     </tr>
    <% end %>
