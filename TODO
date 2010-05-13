@@ -1,5 +1,9 @@
+- 404s
 - Categories
 - Images
-- 404s
+- jquery autocomplete in the search box
 - RDF/XML
 - Use Wikipedia API to parse pages
+- default to HTML response
+- implement qnames properly
+- Test more of WikipediaApi

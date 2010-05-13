@@ -58,12 +58,17 @@ module WikipediaApi
     doc = Nokogiri::HTML(res.body)
 
     # Extract the title of the page
-    data['title'] = doc.at('#firstHeading').inner_text
+    title = doc.at('#firstHeading')
+    data['title'] = title.inner_text unless title.nil?
 
     # Extract the last modified date
-    lastmod = doc.at('#lastmod').inner_text.sub('This page was last modified on ','')
-    data['updated_at'] = DateTime.parse(lastmod)
-
+    lastmod = doc.at('#footer-info-lastmod')
+    unless lastmod.nil?
+      data['updated_at'] = DateTime.parse(
+        lastmod.inner_text.sub('This page was last modified on ','')
+      )
+    end
+    
     # Extract the coordinates
     coordinates = doc.at('#coordinates//span.geo')
     unless coordinates.nil?
