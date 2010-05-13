@@ -6,6 +6,7 @@ require 'rubygems'
 require 'sinatra'
 require 'lib/wikipedia_article'
 require 'rdf/json'
+require 'redcloth'
 require 'erb'
 
 helpers do
@@ -41,6 +42,7 @@ end
 
 get '/' do
   headers 'Cache-Control' => 'public,max-age=3600'
+  @readme = File.read(File.join(File.dirname(__FILE__), 'README.textile'))
   erb :index
 end
 

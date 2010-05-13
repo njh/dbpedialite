@@ -3,6 +3,8 @@
 </div>
 
 <div id="content">
+  <p><%= textilize(@readme) %></p>
+
   <h2>Search<h2>
   <form action="/search" method="get">
     <input name="q" type="text" size="15" />
