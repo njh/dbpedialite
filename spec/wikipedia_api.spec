@@ -33,7 +33,60 @@ describe WikipediaApi do
     it "should return the artitle title" do
       @data['abstract'].should =~ /Ceres is a village in Fife, Scotland/
     end
+  end
+  
+  context "querying by title" do
+    before :each do
+      response = mock(
+        :value => nil,
+        :body => fixture_data('query-u2.json')
+      )
+      Net::HTTP.expects(:start).once.returns(response)
+      @data = WikipediaApi.query(:titles => 'U2')
+    end
 
+    it "should return the title" do
+      @data['title'].should == 'U2'
+    end
+
+    it "should return the pageid" do
+      @data['pageid'].should == 52780
+    end
+
+    it "should return the namespace" do
+      @data['ns'].should == 0
+    end
+
+    it "should return the last modified date" do
+      @data['touched'].should == "2010-05-12T22:44:49Z"
+    end
+  end
+  
+  context "searching for Rat" do
+    before :each do
+      response = mock(
+        :value => nil,
+        :body => fixture_data('search-rat.json')
+      )
+      Net::HTTP.expects(:start).once.returns(response)
+      @data = WikipediaApi.search('Rat', :srlimit => 20)
+    end
+
+    it "the first result should have a title" do
+      @data.first['title'].should == 'Rat'
+    end
+
+    it "the first result should have a timestamp" do
+      @data.first['timestamp'].should == '2010-05-01T09:22:19Z'
+    end
+
+    it "the first result should have a namespace" do
+      @data.first['ns'].should == 0
+    end
+
+    it "the first result should have a snippet" do
+      @data.first['snippet'].should =~ /^"True rats" are members of the genus Rattus/
+    end
   end
 
 end
