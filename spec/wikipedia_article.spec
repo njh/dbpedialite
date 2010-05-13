@@ -5,7 +5,7 @@ describe WikipediaArticle do
 
   context "creating a new article from a page id" do
     before :each do
-      # FIXME: mock out HTTP request
+      WikipediaApi.expects(:query).never
       @article = WikipediaArticle.new(52780)
     end
 
@@ -24,7 +24,7 @@ describe WikipediaArticle do
 
   context "creating a new article from a page title" do
     before :each do
-      # FIXME: mock out HTTP request
+      WikipediaApi.expects(:query).once.returns({'pageid' => 52780})
       @article = WikipediaArticle.new(nil, :title => 'U2')
     end
 
@@ -39,6 +39,7 @@ describe WikipediaArticle do
 
   context "creating a new article with data provided" do
     before :each do
+      WikipediaApi.expects(:query).never
       @article = WikipediaArticle.new(934787,
         :title => 'Ceres, Fife',
         :latitude => 56.293431,
@@ -87,27 +88,15 @@ describe WikipediaArticle do
     end
   end
 
-  context "serializing an article to N-Triples" do
-    before :each do
-      @article = WikipediaArticle.new(52780,
-        :title => 'U2',
-        :abstract => "U2 are an Irish rock band."
-      )
-      @ntriples = @article.dump(:ntriples)
-    end
-
-    it "should serialise to a string" do
-      @ntriples.class.should == String
-    end
-
-    it "should serialise to 3 triples" do
-      @ntriples.split(/[\r\n]+/).count.should == 3
-    end
-  end
-
   context "loading a page from wikipedia" do
     before :each do
-      # FIXME: mock out HTTP request
+      data = {'title' => 'Ceres, Fife',
+              'longitude' => -2.970134,
+              'latitude' => 56.293431,
+              'abstract' => 'Ceres is a village in Fife, Scotland'
+             }
+      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:parse).once.returns(data)
       @article = WikipediaArticle.new(934787)
       @article.load
     end
@@ -132,6 +121,10 @@ describe WikipediaArticle do
       @article.longitude.should == -2.970134
     end
 
+    it "should escape titles correctly" do
+      @article.escaped_title.should == 'Ceres%2C_Fife'
+    end
+
     it "should encode the Wikipedia page URL correctly" do
       @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
     end
@@ -142,6 +135,25 @@ describe WikipediaArticle do
 
     it "should extract the abstract correctly" do
       @article.abstract.should =~ /^Ceres is a village in Fife, Scotland/
+    end
+  end
+
+  context "serializing an article to N-Triples" do
+    before :each do
+      WikipediaApi.expects(:query).never
+      @article = WikipediaArticle.new(52780,
+        :title => 'U2',
+        :abstract => "U2 are an Irish rock band."
+      )
+      @ntriples = @article.dump(:ntriples)
+    end
+
+    it "should serialise to a string" do
+      @ntriples.class.should == String
+    end
+
+    it "should serialise to 3 triples" do
+      @ntriples.split(/[\r\n]+/).count.should == 3
     end
   end
 end

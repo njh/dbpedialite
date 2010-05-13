@@ -58,30 +58,30 @@ module WikipediaApi
     doc = Nokogiri::HTML(res.body)
 
     # Extract the title of the page
-    data[:title] = doc.at('#firstHeading').inner_text
+    data['title'] = doc.at('#firstHeading').inner_text
 
     # Extract the last modified date
     lastmod = doc.at('#lastmod').inner_text.sub('This page was last modified on ','')
-    data[:updated_at] = DateTime.parse(lastmod)
+    data['updated_at'] = DateTime.parse(lastmod)
 
     # Extract the coordinates
     coordinates = doc.at('#coordinates//span.geo')
     unless coordinates.nil?
       coordinates = coordinates.inner_text.split(/[^\d\-\.]+/)
-      data[:latitude] = coordinates[0].to_f
-      data[:longitude] = coordinates[1].to_f
+      data['latitude'] = coordinates[0].to_f
+      data['longitude'] = coordinates[1].to_f
     end
 
     # Extract the abstract
-    data[:abstract] = ''
+    data['abstract'] = ''
     doc.search("#content//p").each do |para|
       # FIXME: filter out non-abstract spans properly
       next if para.inner_text =~ /^Coordinates:/
       # FIXME: stop at the contents table
-      data[:abstract] += para.inner_text + "\n";
-      break if data[:abstract].size > ABSTRACT_MAX_LENGTH
+      data['abstract'] += para.inner_text + "\n";
+      break if data['abstract'].size > ABSTRACT_MAX_LENGTH
     end
-    data[:abstract].gsub!(/\[\d+\]/,'')
+    data['abstract'].gsub!(/\[\d+\]/,'')
 
 
     data

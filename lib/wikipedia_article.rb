@@ -49,6 +49,7 @@ class WikipediaArticle
   def load
     data = WikipediaApi.parse(pageid)
     self.class.properties.each do |name,property|
+      name = name.to_s
       if data.has_key?(name)
         self.send("#{name}=", data[name])
       end
