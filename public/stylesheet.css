@@ -15,9 +15,6 @@ abbr  { border: none; }
 cite  { font-style: normal; }
 a img { border: none; padding: 0; margin: 0; }
 
-a:link,  a:visited { color: #930; }
-a:hover, a:active  { color: #fff; background: #000; }
-
 
 /*--------------------------------------------------------------
  Header
@@ -103,6 +100,9 @@ a:hover, a:active  { color: #fff; background: #000; }
 	margin: 0.9em 0; padding: 8px;
 }
 
+#content a:link,  a:visited { color: #930; }
+#content a:hover, a:active  { color: #fff; background: #000; }
+
 #search-results .result
 {
     width: 500px;
@@ -157,7 +157,6 @@ a:hover, a:active  { color: #fff; background: #000; }
 	font-weight: bold;
 }
 
-
 /*--------------------------------------------------------------
  Footer
  --------------------------------------------------------------*/
@@ -172,13 +171,19 @@ a:hover, a:active  { color: #fff; background: #000; }
 	font-size: 90%;
 }
 
-#footer a:link,
-#footer a:visited {
+#footer .links a:link,
+#footer .links a:visited {
 	color: #000;
 }
 
-#footer a:hover,
-#footer a:active {
+#footer .links a:hover,
+#footer .links a:active {
 	color: #fff;
 	background: #000;
 }
+
+.valid-badge
+{
+    float: right;
+}
+

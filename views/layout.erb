@@ -12,7 +12,14 @@
 <%= yield %>
 
 <div id="footer">
-  <div>
+  <div class="valid-badge" about=""
+     resource="http://www.w3.org/TR/rdfa-syntax"
+     rel="dc:conformsTo" xmlns:dc="http://purl.org/dc/terms/">
+    <a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml-rdfa"
+        alt="Valid XHTML + RDFa" height="31" width="88" /></a>
+  </div>
+  <div class="links">
     Powered by:
     <a href="http://heroku.com/">heroku</a>,
     <a href="http://www.sinatrarb.com/">Sinatra</a>,
@@ -20,7 +27,7 @@
     <a href="http://rdf.rubyforge.org/">RDF.rb</a>,
     <a href="http://nokogiri.org/">nokogiri</a>
   </div>
-  <div>
+  <div class="links">
     Source code: <%= link_to('http://github.com/njh/dbpedialite') %>
   </div>
 </div>
