@@ -25,7 +25,7 @@ describe WikipediaArticle do
   context "creating a new article from a page title" do
     before :each do
       WikipediaApi.expects(:query).once.returns({'pageid' => 52780})
-      @article = WikipediaArticle.new(nil, :title => 'U2')
+      @article = WikipediaArticle.find_title('U2')
     end
 
     it "should return an object of type WikipediaArticle" do
@@ -34,6 +34,17 @@ describe WikipediaArticle do
 
     it "should have the correct URI" do
       @article.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
+    end
+  end
+
+  context "creating a new article from a non-existant page title" do
+    before :each do
+      WikipediaApi.expects(:query).once.returns({"title"=>"zsefpfs", "ns"=>0, "missing"=>""})
+      @article = WikipediaArticle.find_title('zsefpfs')
+    end
+
+    it "should return an object of type WikipediaArticle" do
+      @article.should == nil
     end
   end
 
@@ -93,12 +104,16 @@ describe WikipediaArticle do
       data = {'title' => 'Ceres, Fife',
               'longitude' => -2.970134,
               'latitude' => 56.293431,
+              'valid' => true,
               'abstract' => 'Ceres is a village in Fife, Scotland'
              }
       WikipediaApi.expects(:query).never
       WikipediaApi.expects(:parse).once.returns(data)
-      @article = WikipediaArticle.new(934787)
-      @article.load
+      @article = WikipediaArticle.load(934787)
+    end
+
+    it "should return a WikipediaArticle" do
+      @article.class.should == WikipediaArticle
     end
 
     it "should had the correct page id" do
@@ -135,6 +150,19 @@ describe WikipediaArticle do
 
     it "should extract the abstract correctly" do
       @article.abstract.should =~ /^Ceres is a village in Fife, Scotland/
+    end
+  end
+
+  context "loading a non-existant page from wikipedia" do
+    before :each do
+      data = {'valid' => false}
+      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:parse).once.returns(data)
+      @article = WikipediaArticle.load(999999)
+    end
+
+    it "should return nil" do
+      @article.should == nil
     end
   end
 

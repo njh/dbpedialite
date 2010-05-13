@@ -57,6 +57,25 @@ module WikipediaApi
     data = {}
     doc = Nokogiri::HTML(res.body)
 
+    # Extract the abstract
+    data['abstract'] = ''
+    doc.search("#content//p").each do |para|
+      # FIXME: filter out non-abstract spans properly
+      next if para.inner_text =~ /^Coordinates:/
+      # FIXME: stop at the contents table
+      data['abstract'] += para.inner_text + "\n";
+      break if data['abstract'].size > ABSTRACT_MAX_LENGTH
+    end
+    data['abstract'].gsub!(/\[\d+\]/,'')
+    
+    # Is this a Not Found page?
+    if data['abstract'] =~ /^The requested page title is invalid/
+      data['valid'] = false
+      return data
+    else
+      data['valid'] = true
+    end
+
     # Extract the title of the page
     title = doc.at('#firstHeading')
     data['title'] = title.inner_text unless title.nil?
@@ -76,17 +95,6 @@ module WikipediaApi
       data['latitude'] = coordinates[0].to_f
       data['longitude'] = coordinates[1].to_f
     end
-
-    # Extract the abstract
-    data['abstract'] = ''
-    doc.search("#content//p").each do |para|
-      # FIXME: filter out non-abstract spans properly
-      next if para.inner_text =~ /^Coordinates:/
-      # FIXME: stop at the contents table
-      data['abstract'] += para.inner_text + "\n";
-      break if data['abstract'].size > ABSTRACT_MAX_LENGTH
-    end
-    data['abstract'].gsub!(/\[\d+\]/,'')
 
 
     data

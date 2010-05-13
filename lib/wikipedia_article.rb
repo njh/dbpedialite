@@ -34,26 +34,37 @@ class WikipediaArticle
   #  lasttouched, lastrevid, ns, length, counter
 
   def initialize(identifier, opts = {})
-    if identifier.nil? and opts[:title]
-      data = WikipediaApi.query(:titles => opts[:title])
-      identifier = data['pageid']
-    end
-
     unless identifier.is_a?(RDF::URI)
       identifier = RDF::URI.parse("#{self.class.base_uri}/#{identifier}#thing")
     end
 
     super(identifier, opts)
   end
+  
+  def self.find_title(title)
+    data = WikipediaApi.query(:titles => title)
+    unless data['pageid'].nil?
+      self.new(data['pageid'])
+    else
+      nil
+    end
+  end
+
+  def self.load(identifier, opts={})
+    @article = self.new(identifier, opts)
+    @article.load ? @article : nil
+  end
 
   def load
     data = WikipediaApi.parse(pageid)
+    return false unless data['valid']
     self.class.properties.each do |name,property|
       name = name.to_s
       if data.has_key?(name)
         self.send("#{name}=", data[name])
       end
     end
+    true
   end
 
   def title=(title)

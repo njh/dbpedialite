@@ -3,7 +3,7 @@ require 'wikipedia_api'
 
 describe WikipediaApi do
 
-  context "paring an HTML page" do
+  context "parsing an HTML page" do
     before :each do
       response = mock(
         :value => nil,
@@ -11,6 +11,10 @@ describe WikipediaApi do
       )
       Net::HTTP.expects(:start).once.returns(response)
       @data = WikipediaApi.parse(934787)
+    end
+
+    it "should return valid == true" do
+      @data['valid'].should be_true
     end
 
     it "should return the artitle title" do
@@ -32,6 +36,21 @@ describe WikipediaApi do
 
     it "should return the artitle title" do
       @data['abstract'].should =~ /Ceres is a village in Fife, Scotland/
+    end
+  end
+
+  context "parsing a non-existant HTML page" do
+    before :each do
+      response = mock(
+        :value => nil,
+        :body => fixture_data('notfound.html')
+      )
+      Net::HTTP.expects(:start).once.returns(response)
+      @data = WikipediaApi.parse(504825766)
+    end
+
+    it "should return valid == false" do
+      @data['valid'].should be_false
     end
   end
   

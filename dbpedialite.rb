@@ -60,19 +60,16 @@ get '/search' do
 end
 
 get '/titles/:title' do |title|
-  @article = WikipediaArticle.new(nil, :title => title)
-
-  # FIXME: 404 if not found
+  @article = WikipediaArticle.find_title(title)
+  not_found("Title not found.") if @article.nil?
 
   headers 'Cache-Control' => 'public,max-age=600'
   redirect "/things/#{@article.pageid}", 301
 end
 
 get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
-  @article = WikipediaArticle.new(pageid)
-  @article.load
-
-  # FIXME: 404 if not found
+  @article = WikipediaArticle.load(pageid)
+  not_found("Thing not found.") if @article.nil?
 
   if format.empty?
     format = request.accept.first || ''
