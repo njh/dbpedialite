@@ -1,4 +1,5 @@
 - Add <link rel="alternate" .../> to pages
+- Add RDF for documents and link with foaf:primaryTopic
 - Categories
 - Images
 - jquery autocomplete in the search box

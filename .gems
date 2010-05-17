@@ -1,3 +1,5 @@
+sinatra
+sinatra-content-for
 rdf --version 0.1.9
 rdf-isomorphic --version 0.1.2
 rdf-json --version 0.1.0

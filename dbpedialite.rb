@@ -4,10 +4,15 @@ $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'lib')))
 
 require 'rubygems'
 require 'sinatra'
+require 'sinatra/content_for'
 require 'lib/wikipedia_article'
-require 'rdf/json'
 require 'redcloth'
 require 'erb'
+
+# Serialisers
+require 'rdf/json'
+require 'rdf/ntriples'
+
 
 helpers do
   include Rack::Utils
@@ -76,13 +81,23 @@ get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
     format.sub!(/;.+$/,'')
   end
 
+  # FIXME: do this better
+  # @namespaces = [:dc, :foaf, :geo, :owl, :rdfs]
+  @namespaces =
+    ' xmlns:dcterms="http://purl.org/dc/terms/"'+
+    ' xmlns:foaf="http://xmlns.com/foaf/0.1/"'+
+    ' xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"'+
+    ' xmlns:owl="http://www.w3.org/2002/07/owl#"'+
+    ' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"'
+
+
   headers 'Vary' => 'Accept',
           'Cache-Control' => 'public,max-age=600'
   case format
-    when 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
+    when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
       content_type 'text/html'
       erb :page
-    when '', '*/*', 'nt', 'ntriples', 'text/plain' then
+    when 'nt', 'ntriples', 'text/plain' then
       content_type 'text/plain'
       @article.dump(:ntriples)
     when 'json', 'application/json', 'text/json' then
