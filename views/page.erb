@@ -3,6 +3,10 @@
   <h2><%= link_to(@article.uri) %></h2>
 </div>
 
+<% content_for :head do %>
+  <link rel="foaf:primaryTopic" href="<%= @article.uri %>" />
+<% end %>
+
 <div id="content">
   <% if @article.has_coordinates? %>
     <div id="map"></div>
@@ -16,13 +20,7 @@
     </script>
   <% end %>
 
-  <table id="description" about="<%= h @article.uri %>"
-         xmlns:dcterms="http://purl.org/dc/terms/"
-         xmlns:foaf="http://xmlns.com/foaf/0.1/"
-         xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
-         xmlns:owl="http://www.w3.org/2002/07/owl#"
-         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-  >
+  <table id="description" about="<%= h @article.uri %>">
    <tr><th>Property</th><th>Value</th></tr>
    <% @article.each_statement do |s| %>
     <tr>

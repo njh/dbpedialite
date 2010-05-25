@@ -1,7 +1,8 @@
-rdf
-rdf-isomorphic
-rdf-json
-spira
 json
-RedCloth
 nokogiri
+rdf
+rdf-json
+RedCloth
+sinatra
+sinatra-content-for
+spira
