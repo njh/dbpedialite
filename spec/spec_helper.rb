@@ -5,7 +5,6 @@ require 'rubygems'
 require 'spira'
 require 'spec'
 require 'mocha'
-require 'rack/test'
 
 Spira.add_repository! :default, RDF::Repository.new
 
@@ -20,5 +19,6 @@ end
 
 Spec::Runner.configure do |config|
   config.mock_with :mocha
-  config.include Rack::Test::Methods
 end
+
+# FIXME: setup mock to never expect HTTP requests
