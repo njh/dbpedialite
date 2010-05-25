@@ -13,10 +13,10 @@ class WikipediaArticle
 
   property :title, :predicate => RDF::RDFS.label, :type => String
   property :abstract, :predicate => RDF::RDFS.comment, :type => String
-  property :page, :predicate => RDF::FOAF.page, :type => RDF::URI
+  property :page, :predicate => RDF::FOAF.page
   property :latitude, :predicate => GEO.lat, :type => Float
   property :longitude, :predicate => GEO.long, :type => Float
-  property :dbpedia, :predicate => RDF::OWL.sameAs, :type => RDF::URI
+  property :dbpedia, :predicate => RDF::OWL.sameAs
 
   # FIXME: this should apply to the document, not the thing
   #property :updated_at, :predicate => RDF::DC.modified, :type => DateTime
@@ -90,5 +90,9 @@ class WikipediaArticle
 
   def has_coordinates?
     !(latitude.nil? || longitude.nil?)
+  end
+
+  def dump(args)
+    RDF::Writer.for(*args).dump(self)
   end
 end

@@ -1,8 +1,12 @@
 $:.unshift(File.join(File.dirname(__FILE__),'..','lib'))
 
 require 'rubygems'
+require 'spira'
 require 'spec'
 require 'mocha'
+
+Spira.add_repository! :default, RDF::Repository.new
+
 
 def fixture(filename)
   File.join(File.dirname(__FILE__),'fixtures',filename)
