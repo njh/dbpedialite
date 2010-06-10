@@ -1,8 +1,7 @@
 require 'rubygems'
 require 'wikipedia_api'
 require 'spira'
-
-GEO = RDF::Vocabulary.new('http://www.w3.org/2003/01/geo/wgs84_pos#')
+require 'rdf/geo'
 
 
 class WikipediaArticle
@@ -14,8 +13,8 @@ class WikipediaArticle
   property :title, :predicate => RDF::RDFS.label, :type => String
   property :abstract, :predicate => RDF::RDFS.comment, :type => String
   property :page, :predicate => RDF::FOAF.page
-  property :latitude, :predicate => GEO.lat, :type => Float
-  property :longitude, :predicate => GEO.long, :type => Float
+  property :latitude, :predicate => RDF::GEO.lat, :type => Float
+  property :longitude, :predicate => RDF::GEO.long, :type => Float
   property :dbpedia, :predicate => RDF::OWL.sameAs
 
   # FIXME: this should apply to the document, not the thing
