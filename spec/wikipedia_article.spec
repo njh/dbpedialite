@@ -24,7 +24,7 @@ describe WikipediaArticle do
 
   context "creating an article from a page title" do
     before :each do
-      WikipediaApi.expects(:query).once.returns({'pageid' => 52780})
+      WikipediaApi.expects(:query).once.returns({'52780'=>{'pageid'=>52780}})
       @article = WikipediaArticle.for_title('U2')
     end
 
@@ -39,7 +39,7 @@ describe WikipediaArticle do
 
   context "creating an article from a non-existant page title" do
     before :each do
-      WikipediaApi.expects(:query).once.returns({"title"=>"zsefpfs", "ns"=>0, "missing"=>""})
+      WikipediaApi.expects(:query).once.returns({'zsefpfs'=>{"title"=>"zsefpfs", "ns"=>0, "missing"=>""}})
       @article = WikipediaArticle.for_title('zsefpfs')
     end
 

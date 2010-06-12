@@ -17,6 +17,8 @@ class WikipediaArticle
   property :longitude, :predicate => GEO.long, :type => Float
   property :dbpedia, :predicate => OWL.sameAs, :type => URI
 
+  #has_many :categories, :predicate => SKOS.subject, :type => :Category
+
   # FIXME: this should apply to the document, not the thing
   #property :updated_at, :predicate => DC.modified, :type => DateTime
 
@@ -40,9 +42,9 @@ class WikipediaArticle
   end
   
   def self.for_title(title)
-    data = WikipediaApi.query(:titles => title)
-    unless data['pageid'].nil?
-      self.for(data['pageid'])
+    data = WikipediaApi.title_to_pageid(title)
+    if data.size and data.values.first
+      self.for(data.values.first)
     else
       nil
     end

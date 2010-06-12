@@ -39,7 +39,7 @@ describe WikipediaApi do
     end
 
     it "should return an array of categories" do
-      @data['categories'].should == ['Villages_in_Fife', 'Churches_in_Fife']
+      @data['categories'].should == ['Category:Villages in Fife', 'Category:Churches in Fife']
     end
   end
 
@@ -57,7 +57,7 @@ describe WikipediaApi do
       @data['valid'].should be_false
     end
   end
-  
+
   context "querying by title" do
     before :each do
       response = mock(
@@ -65,7 +65,7 @@ describe WikipediaApi do
         :body => fixture_data('query-u2.json')
       )
       Net::HTTP.expects(:start).once.returns(response)
-      @data = WikipediaApi.query(:titles => 'U2')
+      @data = WikipediaApi.query(:titles => 'U2').values.first
     end
 
     it "should return the title" do
@@ -84,7 +84,7 @@ describe WikipediaApi do
       @data['touched'].should == "2010-05-12T22:44:49Z"
     end
   end
-  
+
   context "searching for Rat" do
     before :each do
       response = mock(
@@ -109,6 +109,60 @@ describe WikipediaApi do
 
     it "the first result should have a snippet" do
       @data.first['snippet'].should =~ /^"True rats" are members of the genus Rattus/
+    end
+  end
+
+  context "resolving a single title to a pageid" do
+    before :each do
+      response = mock(
+        :value => nil,
+        :body => fixture_data('query-U2.json')
+      )
+      Net::HTTP.expects(:start).once.returns(response)
+      @data = WikipediaApi.title_to_pageid('U2')
+    end
+
+    it "should return a single result" do
+      @data.size.should == 1
+    end
+
+    it "should include the title as a key in the result" do
+      @data.keys.should include('U2')
+    end
+
+    it "should return the right pageid for the title key" do
+      @data['U2'].should == 52780
+    end
+  end
+
+  context "resolving multiple titles to pageids" do
+    before :each do
+      response = mock(
+        :value => nil,
+        :body => fixture_data('query-villages-churches.json')
+      )
+      Net::HTTP.expects(:start).once.returns(response)
+      @data = WikipediaApi.title_to_pageid(['Category:Villages in Fife','Category:Churches in Fife'])
+    end
+
+    it "should return two results" do
+      @data.size.should == 2
+    end
+
+    it "should include the first title as a key in the result" do
+      @data.keys.should include('Category:Villages in Fife')
+    end
+
+    it "should return the right pageid for the first title" do
+      @data['Category:Villages in Fife'].should == 4309010
+    end
+
+    it "should include the second title as a key in the result" do
+      @data.keys.should include('Category:Churches in Fife')
+    end
+
+    it "should return the right pageid for the second title" do
+      @data['Category:Churches in Fife'].should == 8528555
     end
   end
 

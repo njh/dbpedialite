@@ -15,7 +15,7 @@ module WikipediaApi
     data = self.get('query', {:redirects => 1, :prop => 'info'}.merge(args))
 
     # FIXME: check that a single page has been returned
-    data['query']['pages'].values.first
+    data['query']['pages']
   end
 
   def self.search(query, args={})
@@ -67,7 +67,7 @@ module WikipediaApi
       break if data['abstract'].size > ABSTRACT_MAX_LENGTH
     end
     data['abstract'].gsub!(/\[\d+\]/,'')
-    
+
     # Is this a Not Found page?
     if data['abstract'] =~ /^The requested page title is invalid/
       data['valid'] = false
@@ -87,7 +87,7 @@ module WikipediaApi
         lastmod.inner_text.sub('This page was last modified on ','')
       )
     end
-    
+
     # Extract the coordinates
     coordinates = doc.at('#coordinates//span.geo')
     unless coordinates.nil?
@@ -99,14 +99,25 @@ module WikipediaApi
     # Extract the categories
     data['categories'] = []
     doc.search("#catlinks//a").each do |catlink|
-      if catlink.has_attribute?('href')
-        href = catlink.attribute('href').value
-        if href.is_a?(String) and href =~ %r[^/wiki/Category:(.+)$]
-          data['categories'] << $1
+      if catlink.has_attribute?('title')
+        title = catlink.attribute('title').value
+        if title.is_a?(String) and title =~ /^Category:/
+          data['categories'] << title
         end
       end
     end
 
+    data
+  end
+
+  def self.title_to_pageid(titles)
+    # FIXME: do caching
+    titles = titles.join('|') if titles.is_a?(Array)
+    response = query(:titles => titles)
+    data = {}
+    response.values.each do |r|
+      data[r['title']] = r['pageid']
+    end
     data
   end
 
