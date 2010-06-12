@@ -21,20 +21,20 @@ describe WikipediaApi do
       @data['title'].should == 'Ceres, Fife'
     end
 
-    it "should return the artitle title" do
+    it "should return the date it was last updated" do
       @data['updated_at'].to_s.should == '2010-04-29T10:22:00+00:00'
       @data['updated_at'].class.should == DateTime
     end
 
-    it "should return the artitle title" do
+    it "should return the longitude" do
       @data['longitude'].should == -2.970134
     end
 
-    it "should return the artitle title" do
+    it "should return the latitude" do
       @data['latitude'].should == 56.293431
     end
 
-    it "should return the artitle title" do
+    it "should return the artitle abstract" do
       @data['abstract'].should =~ /Ceres is a village in Fife, Scotland/
     end
   end
