@@ -2,6 +2,7 @@ json
 nokogiri
 rdf
 rdf-json
+rdf-rdfxml
 rdiscount
 sinatra
 sinatra-content-for

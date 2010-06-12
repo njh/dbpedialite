@@ -11,6 +11,7 @@ require 'erb'
 
 # Serialisers
 require 'rdf/json'
+require 'rdf/rdfxml'
 require 'rdf/ntriples'
 
 
@@ -107,6 +108,9 @@ get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
     when 'json', 'application/json', 'text/json' then
       content_type 'application/json'
       @article.dump(:json)
+    when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
+      content_type 'application/rdf+xml'
+      @article.dump(:rdfxml)
     else
       error 400, "Unsupported format: #{format}\n"
   end
