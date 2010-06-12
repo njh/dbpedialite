@@ -3,7 +3,7 @@
 </div>
 
 <div id="content">
-  <%= textilize(@readme) %>
+  <%= @readme.to_html %>
 
   <h2>Search</h2>
   <form action="/search" method="get"><div>

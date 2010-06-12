@@ -2,7 +2,7 @@ json
 nokogiri
 rdf
 rdf-json
-RedCloth
+rdiscount
 sinatra
 sinatra-content-for
 spira

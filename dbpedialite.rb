@@ -6,7 +6,7 @@ require 'rubygems'
 require 'sinatra'
 require 'sinatra/content_for'
 require 'lib/wikipedia_article'
-require 'redcloth'
+require 'rdiscount'
 require 'erb'
 
 # Serialisers
@@ -47,7 +47,7 @@ end
 
 get '/' do
   headers 'Cache-Control' => 'public,max-age=3600'
-  @readme = File.read(File.join(File.dirname(__FILE__), 'README.textile'))
+  @readme = RDiscount.new(File.read(File.join(File.dirname(__FILE__), 'README.md')))
   erb :index
 end
 
