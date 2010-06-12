@@ -70,7 +70,7 @@ get '/search' do
 end
 
 get '/titles/:title' do |title|
-  @article = WikipediaArticle.find_title(title)
+  @article = WikipediaArticle.for_title(title)
   not_found("Title not found.") if @article.nil?
 
   headers 'Cache-Control' => 'public,max-age=600'

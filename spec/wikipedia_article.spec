@@ -3,10 +3,10 @@ require 'wikipedia_article'
 
 describe WikipediaArticle do
 
-  context "creating a new article from a page id" do
+  context "creating an article from a page id" do
     before :each do
       WikipediaApi.expects(:query).never
-      @article = WikipediaArticle.new(52780)
+      @article = WikipediaArticle.for(52780)
     end
 
     it "should return an object of type WikipediaArticle" do
@@ -22,10 +22,10 @@ describe WikipediaArticle do
     end
   end
 
-  context "creating a new article from a page title" do
+  context "creating an article from a page title" do
     before :each do
       WikipediaApi.expects(:query).once.returns({'pageid' => 52780})
-      @article = WikipediaArticle.find_title('U2')
+      @article = WikipediaArticle.for_title('U2')
     end
 
     it "should return an object of type WikipediaArticle" do
@@ -37,10 +37,10 @@ describe WikipediaArticle do
     end
   end
 
-  context "creating a new article from a non-existant page title" do
+  context "creating an article from a non-existant page title" do
     before :each do
       WikipediaApi.expects(:query).once.returns({"title"=>"zsefpfs", "ns"=>0, "missing"=>""})
-      @article = WikipediaArticle.find_title('zsefpfs')
+      @article = WikipediaArticle.for_title('zsefpfs')
     end
 
     it "should return an object of type WikipediaArticle" do
@@ -48,10 +48,10 @@ describe WikipediaArticle do
     end
   end
 
-  context "creating a new article with data provided" do
+  context "creating an article with data provided" do
     before :each do
       WikipediaApi.expects(:query).never
-      @article = WikipediaArticle.new(934787,
+      @article = WikipediaArticle.for(934787,
         :title => 'Ceres, Fife',
         :latitude => 56.293431,
         :longitude => -2.970134,
@@ -169,7 +169,7 @@ describe WikipediaArticle do
   context "serializing an article to N-Triples" do
     before :each do
       WikipediaApi.expects(:query).never
-      @article = WikipediaArticle.new(52780,
+      @article = WikipediaArticle.for(52780,
         :title => 'U2',
         :abstract => "U2 are an Irish rock band."
       )

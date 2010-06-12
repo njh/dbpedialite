@@ -32,25 +32,24 @@ class WikipediaArticle
   # Document properties
   #  lasttouched, lastrevid, ns, length, counter
 
-  def initialize(identifier, opts = {})
+  def self.id_for(identifier)
     unless identifier.is_a?(RDF::URI)
-      identifier = RDF::URI.parse("#{self.class.base_uri}/#{identifier}#thing")
+      identifier = RDF::URI.parse("#{base_uri}/#{identifier}#thing")
     end
-
-    super(identifier, opts)
+    super(identifier)
   end
   
-  def self.find_title(title)
+  def self.for_title(title)
     data = WikipediaApi.query(:titles => title)
     unless data['pageid'].nil?
-      self.new(data['pageid'])
+      self.for(data['pageid'])
     else
       nil
     end
   end
 
   def self.load(identifier, opts={})
-    @article = self.new(identifier, opts)
+    @article = self.for(identifier, opts)
     @article.load ? @article : nil
   end
 
