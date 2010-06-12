@@ -8,17 +8,17 @@ class WikipediaArticle
   include Spira::Resource
 
   base_uri "http://dbpedialite.org/things"
-  type RDF::OWL.Thing
+  type OWL.Thing
 
-  property :title, :predicate => RDF::RDFS.label, :type => String
-  property :abstract, :predicate => RDF::RDFS.comment, :type => String
-  property :page, :predicate => RDF::FOAF.page
-  property :latitude, :predicate => RDF::GEO.lat, :type => Float
-  property :longitude, :predicate => RDF::GEO.long, :type => Float
-  property :dbpedia, :predicate => RDF::OWL.sameAs
+  property :title, :predicate => RDFS.label, :type => String
+  property :abstract, :predicate => RDFS.comment, :type => String
+  property :page, :predicate => FOAF.page, :type => URI
+  property :latitude, :predicate => GEO.lat, :type => Float
+  property :longitude, :predicate => GEO.long, :type => Float
+  property :dbpedia, :predicate => OWL.sameAs, :type => URI
 
   # FIXME: this should apply to the document, not the thing
-  #property :updated_at, :predicate => RDF::DC.modified, :type => DateTime
+  #property :updated_at, :predicate => DC.modified, :type => DateTime
 
   # Additionally:
   #  foaf:depiction
