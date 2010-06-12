@@ -37,6 +37,10 @@ describe WikipediaApi do
     it "should return the artitle abstract" do
       @data['abstract'].should =~ /Ceres is a village in Fife, Scotland/
     end
+
+    it "should return an array of categories" do
+      @data['categories'].should == ['Villages_in_Fife', 'Churches_in_Fife']
+    end
   end
 
   context "parsing a non-existant HTML page" do

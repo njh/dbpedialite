@@ -96,6 +96,16 @@ module WikipediaApi
       data['longitude'] = coordinates[1].to_f
     end
 
+    # Extract the categories
+    data['categories'] = []
+    doc.search("#catlinks//a").each do |catlink|
+      if catlink.has_attribute?('href')
+        href = catlink.attribute('href').value
+        if href.is_a?(String) and href =~ %r[^/wiki/Category:(.+)$]
+          data['categories'] << $1
+        end
+      end
+    end
 
     data
   end
