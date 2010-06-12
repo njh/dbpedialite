@@ -5,6 +5,9 @@
 
 <% content_for :head do %>
   <link rel="foaf:primaryTopic" href="<%= @article.uri %>" />
+  <link rel="alternate" type="application/rdf+xml" href="<%= "/things/#{@article.pageid}.rdf" %>" title="RDF/XML" />
+  <link rel="alternate" type="text/plain" href="<%= "/things/#{@article.pageid}.nt" %>" title="N-Triples" />
+  <link rel="alternate" type="application/json" href="<%= "/things/#{@article.pageid}.json" %>" title="JSON" />
 <% end %>
 
 <div id="content">
