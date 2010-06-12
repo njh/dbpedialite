@@ -44,7 +44,11 @@ helpers do
   
 end
 
-
+## FIXME: this shouldn't be needed
+before do
+  Spira.add_repository! :default, RDF::Repository.new
+end
+  
 get '/' do
   headers 'Cache-Control' => 'public,max-age=3600'
   @readme = RDiscount.new(File.read(File.join(File.dirname(__FILE__), 'README.md')))
