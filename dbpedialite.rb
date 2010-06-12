@@ -30,19 +30,16 @@ helpers do
     paragraphs = text.to_s.split(/[\n\r]+/)
     paragraphs.map {|para| "<p>#{para}</p>"}.join
   end
-  
-  # FIXME: do this properly
+
   def shorten(uri)
-    str = uri.to_s.dup
-    str.gsub!('http://xmlns.com/foaf/0.1/','foaf:')
-    str.gsub!('http://purl.org/dc/terms/','dcterms:')
-    str.gsub!('http://www.w3.org/2003/01/geo/wgs84_pos#','geo:')
-    str.gsub!('http://www.w3.org/2000/01/rdf-schema#','rdfs:')
-    str.gsub!('http://www.w3.org/2002/07/owl#','owl:')
-    str.gsub!('http://www.w3.org/1999/02/22-rdf-syntax-ns#','rdf:')
-    escape_html(str)
+    qname = uri.qname
+    if qname.nil?
+      qname = uri.to_s
+    else
+      qname = qname.join(':')
+    end
+    escape_html(qname)
   end
-  
 end
 
 ## FIXME: this shouldn't be needed
