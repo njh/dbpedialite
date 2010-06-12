@@ -33,7 +33,7 @@ helpers do
   
   # FIXME: do this properly
   def shorten(uri)
-    str = uri.to_s
+    str = uri.to_s.dup
     str.gsub!('http://xmlns.com/foaf/0.1/','foaf:')
     str.gsub!('http://purl.org/dc/terms/','dcterms:')
     str.gsub!('http://www.w3.org/2003/01/geo/wgs84_pos#','geo:')
