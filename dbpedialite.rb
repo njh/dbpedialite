@@ -15,6 +15,22 @@ require 'rdf/rdfxml'
 require 'rdf/ntriples'
 
 
+def extract_vocabularies(graph)
+  vocabs = {}
+  graph.predicates.each do |predicate|
+    RDF::Vocabulary.each do |vocab|
+      if predicate.to_s.index(vocab.to_uri.to_s) == 0
+        vocab_name = vocab.__name__.split('::').last.downcase
+        unless vocab_name.empty?
+          vocabs[vocab_name.to_sym] = vocab
+          break
+        end
+      end
+    end
+  end
+  vocabs
+end
+
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
@@ -35,13 +51,23 @@ helpers do
     qname = uri.qname.join(':') rescue uri.to_s
     escape_html(qname)
   end
+
+  def format_xmlns(vocabularies)
+    if vocabularies
+      xmlns = ''
+      vocabularies.each_pair do |prefix,vocab|
+        xmlns += " xmlns:#{h prefix}=\"#{h vocab.to_uri}\""
+      end
+      xmlns
+    end
+  end
 end
 
 ## FIXME: this shouldn't be needed
 before do
   Spira.add_repository! :default, RDF::Repository.new
 end
-  
+
 get '/' do
   headers 'Cache-Control' => 'public,max-age=3600'
   @readme = RDiscount.new(File.read(File.join(File.dirname(__FILE__), 'README.md')))
@@ -78,20 +104,11 @@ get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
     format.sub!(/;.+$/,'')
   end
 
-  # FIXME: do this better
-  # @namespaces = [:dc, :foaf, :geo, :owl, :rdfs]
-  @namespaces =
-    ' xmlns:dcterms="http://purl.org/dc/terms/"'+
-    ' xmlns:foaf="http://xmlns.com/foaf/0.1/"'+
-    ' xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"'+
-    ' xmlns:owl="http://www.w3.org/2002/07/owl#"'+
-    ' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"'
-
-
   headers 'Vary' => 'Accept',
           'Cache-Control' => 'public,max-age=600'
   case format
     when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
+      @vocabularies = extract_vocabularies(@article)
       content_type 'text/html'
       erb :page
     when 'nt', 'ntriples', 'text/plain' then

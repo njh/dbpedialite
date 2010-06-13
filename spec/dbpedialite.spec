@@ -188,4 +188,34 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "extracting vocabularies" do
+    before :each do
+      @graph = RDF::Graph.new do |g|
+        g << [RDF::URI('http://a.com/'), RDF::DC.title, "A"]
+        g << [RDF::URI('http://b.com/'), RDF::FOAF.name, "B"]
+        g << [RDF::URI('http://c.com/'), RDF::FOAF.nick, "C"]
+      end
+      @vocabularies = extract_vocabularies(@graph)
+    end
+
+    it "should extract 2 vocabularies" do
+      @vocabularies.length.should == 2
+    end
+
+    it "should have a key for the FOAF vocabulary" do
+      @vocabularies.should have_key :foaf
+    end
+
+    it "should have a key for the FOAF vocabulary" do
+      @vocabularies.should have_key :foaf
+    end
+
+    it "should havw the right namespace the FOAF vocabulary" do
+      @vocabularies[:foaf].should == RDF::FOAF
+    end
+
+    it "should havw the right namespace the DC vocabulary" do
+      @vocabularies[:dc].should == RDF::DC
+    end
+  end
 end
