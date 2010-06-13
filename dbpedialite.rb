@@ -32,12 +32,7 @@ helpers do
   end
 
   def shorten(uri)
-    qname = uri.qname
-    if qname.nil?
-      qname = uri.to_s
-    else
-      qname = qname.join(':')
-    end
+    qname = uri.qname.join(':') rescue uri.to_s
     escape_html(qname)
   end
 end
