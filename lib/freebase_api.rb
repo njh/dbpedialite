@@ -31,7 +31,7 @@ module FreebaseApi
   end
 
   def self.lookup_wikipedia_pageid(pageid, language='en')
-    mqlread({
+    data = mqlread({
       'key' => {
         'namespace' => "/wikipedia/#{language}_id",
         'value' => pageid.to_s,
@@ -43,5 +43,10 @@ module FreebaseApi
        'guid' => nil,
        'limit' => 1
     })
+    
+    # Construct an rdf URI
+    data['rdf_uri'] =  "http://rdf.freebase.com/ns/"+data['mid'].sub('/m/','m.')
+    
+    data
   end  
 end

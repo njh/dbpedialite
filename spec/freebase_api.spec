@@ -33,7 +33,9 @@ describe FreebaseApi do
       @data['id'].should == '/en/ceres_united_kingdom'
     end
     
-    
+    it "should construct an RDF URI based on the Machine ID" do
+      @data['rdf_uri'].to_s.should == 'http://rdf.freebase.com/ns/m.03rf2x'
+    end
   end
 
 end
