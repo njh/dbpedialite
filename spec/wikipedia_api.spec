@@ -5,11 +5,7 @@ describe WikipediaApi do
 
   context "parsing an HTML page" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('ceres.html')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'ceres.html')
       @data = WikipediaApi.parse(934787)
     end
 
@@ -45,11 +41,7 @@ describe WikipediaApi do
 
   context "parsing a non-existant HTML page" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('notfound.html')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'notfound.html')
       @data = WikipediaApi.parse(504825766)
     end
 
@@ -60,11 +52,7 @@ describe WikipediaApi do
 
   context "querying by title" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('query-u2.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'query-u2.json')
       @data = WikipediaApi.query(:titles => 'U2').values.first
     end
 
@@ -87,11 +75,7 @@ describe WikipediaApi do
 
   context "searching for Rat" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('search-rat.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'search-rat.json')
       @data = WikipediaApi.search('Rat', :srlimit => 20)
     end
 
@@ -114,11 +98,7 @@ describe WikipediaApi do
 
   context "resolving a single title to a pageid" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('query-U2.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'query-u2.json')
       @data = WikipediaApi.title_to_pageid('U2')
     end
 
@@ -137,11 +117,7 @@ describe WikipediaApi do
 
   context "resolving multiple titles to pageids" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('query-villages-churches.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'query-villages-churches.json')
       @data = WikipediaApi.title_to_pageid(['Category:Villages in Fife','Category:Churches in Fife'])
     end
 

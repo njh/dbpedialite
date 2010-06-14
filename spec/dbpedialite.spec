@@ -38,11 +38,7 @@ describe 'dbpedia lite' do
 
   context "GETing a search page with a query string" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('search-rat.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'search-rat.json')
       get '/search?q=rat'
     end
 
@@ -79,11 +75,7 @@ describe 'dbpedia lite' do
 
   context "GETing a title URL" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('query-u2.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'query-u2.json')
       get '/titles/U2'
     end
 
@@ -102,11 +94,7 @@ describe 'dbpedia lite' do
 
   context "GETing an invalid title URL" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('query-zsefpfs.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'query-zsefpfs.json')
       get '/titles/zsefpfs'
     end
 
@@ -117,11 +105,7 @@ describe 'dbpedia lite' do
 
   context "GETing an HTML page for a geographic thing" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('ceres.html')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'ceres.html')
       header "Accept", "text/html"
       get '/things/934787'
     end
@@ -152,11 +136,7 @@ describe 'dbpedia lite' do
 
   context "GETing an HTML thing page for a thing that doesn't exist" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('notfound.html')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'notfound.html')
       get '/things/504825766'
     end
 
@@ -171,11 +151,7 @@ describe 'dbpedia lite' do
 
   context "GETing an unsupport format for a thing" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('ceres.html')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('en.wikipedia.org', 'ceres.html')
       get '/things/934787.ratrat'
     end
 

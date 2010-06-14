@@ -33,7 +33,7 @@ describe WikipediaThing do
     end
 
     it "should have the correct URI" do
-      @thing.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
+      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/52780#thing')
     end
   end
 
@@ -91,24 +91,25 @@ describe WikipediaThing do
     end
 
     it "should encode the Wikipedia page URL correctly" do
-      @thing.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
+      @thing.page.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres%2C_Fife')
     end
 
     it "should encode the dbpedia URI correctly" do
-      @thing.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
+      @thing.dbpedia.should == RDF::URI('http://dbpedia.org/resource/Ceres%2C_Fife')
     end
   end
 
   context "loading a page from wikipedia" do
     before :each do
-      data = {'title' => 'Ceres, Fife',
-              'longitude' => -2.970134,
-              'latitude' => 56.293431,
-              'valid' => true,
-              'abstract' => 'Ceres is a village in Fife, Scotland'
-             }
+      wikipedia_data = {
+        'title' => 'Ceres, Fife',
+        'longitude' => -2.970134,
+        'latitude' => 56.293431,
+        'valid' => true,
+        'abstract' => 'Ceres is a village in Fife, Scotland'
+      }
       WikipediaApi.expects(:query).never
-      WikipediaApi.expects(:parse).once.returns(data)
+      WikipediaApi.expects(:parse).once.returns(wikipedia_data)
       @thing = WikipediaThing.load(934787)
     end
 
@@ -141,11 +142,11 @@ describe WikipediaThing do
     end
 
     it "should encode the Wikipedia page URL correctly" do
-      @thing.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
+      @thing.page.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres%2C_Fife')
     end
 
     it "should encode the dbpedia URI correctly" do
-      @thing.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
+      @thing.dbpedia.should == RDF::URI('http://dbpedia.org/resource/Ceres%2C_Fife')
     end
 
     it "should extract the abstract correctly" do

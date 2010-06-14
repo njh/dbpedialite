@@ -5,11 +5,7 @@ describe FreebaseApi do
 
   context "looking up the Freebase MID for a Wikipedia Pageid" do
     before :each do
-      response = mock(
-        :value => nil,
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
-      Net::HTTP.expects(:start).once.returns(response)
+      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
       @data = FreebaseApi.lookup_wikipedia_pageid(934787)
     end
 
