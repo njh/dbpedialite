@@ -108,8 +108,16 @@ describe WikipediaThing do
         'valid' => true,
         'abstract' => 'Ceres is a village in Fife, Scotland'
       }
+      freebase_data = {
+        'guid' => '#9202a8c04000641f80000000003bb45c',
+        'id' => '/en/ceres_united_kingdom',
+        'mid' => '/m/03rf2x',
+        'name' => 'Ceres',
+        'rdf_uri' => 'http://rdf.freebase.com/ns/m.03rf2x',
+      }
       WikipediaApi.expects(:query).never
       WikipediaApi.expects(:parse).once.returns(wikipedia_data)
+      FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(freebase_data)
       @thing = WikipediaThing.load(934787)
     end
 
@@ -152,6 +160,10 @@ describe WikipediaThing do
     it "should extract the abstract correctly" do
       @thing.abstract.should =~ /^Ceres is a village in Fife, Scotland/
     end
+
+    it "should have a freebase URI" do
+      @thing.freebase.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
+    end
   end
 
   context "loading a non-existant page from wikipedia" do
@@ -159,6 +171,7 @@ describe WikipediaThing do
       data = {'valid' => false}
       WikipediaApi.expects(:query).never
       WikipediaApi.expects(:parse).once.returns(data)
+      FreebaseApi.expects(:lookup_wikipedia_pageid).never
       @thing = WikipediaThing.load(999999)
     end
 
@@ -167,9 +180,10 @@ describe WikipediaThing do
     end
   end
 
-  context "serializing an thing to N-Triples" do
+  context "serializing a thing to N-Triples" do
     before :each do
       WikipediaApi.expects(:query).never
+      FreebaseApi.expects(:lookup_wikipedia_pageid).never
       @thing = WikipediaThing.for(52780,
         :title => 'U2',
         :abstract => "U2 are an Irish rock band."

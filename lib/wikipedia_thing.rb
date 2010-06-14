@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'wikipedia_api'
+require 'freebase_api'
 require 'spira'
 require 'rdf/geo'
 
@@ -16,6 +17,7 @@ class WikipediaThing
   property :latitude, :predicate => GEO.lat, :type => Float
   property :longitude, :predicate => GEO.long, :type => Float
   property :dbpedia, :predicate => OWL.sameAs, :type => URI
+  property :freebase, :predicate => OWL.sameAs, :type => URI
 
   #has_many :categories, :predicate => SKOS.subject, :type => :Category
 
@@ -40,7 +42,7 @@ class WikipediaThing
     end
     super(identifier)
   end
-  
+
   def self.for_title(title)
     data = WikipediaApi.title_to_pageid(title)
     if data.size and data.values.first
@@ -64,6 +66,17 @@ class WikipediaThing
         self.send("#{name}=", data[name])
       end
     end
+
+    # Attempt to match to Freebase, but silently fail on error
+    begin
+      data = FreebaseApi.lookup_wikipedia_pageid(pageid)
+      self.freebase = RDF::URI.parse(data['rdf_uri'])
+    rescue Timeout::Error => e
+      $stderr.puts "Timed out while reading from Freebase: #{e.message}"
+    rescue => e
+      $stderr.puts "Error while reading from Freebase: #{e.message}"
+    end
+
     true
   end
 

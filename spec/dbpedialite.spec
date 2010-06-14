@@ -106,6 +106,7 @@ describe 'dbpedia lite' do
   context "GETing an HTML page for a geographic thing" do
     before :each do
       mock_http('en.wikipedia.org', 'ceres.html')
+      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
       header "Accept", "text/html"
       get '/things/934787'
     end
@@ -152,6 +153,7 @@ describe 'dbpedia lite' do
   context "GETing an unsupport format for a thing" do
     before :each do
       mock_http('en.wikipedia.org', 'ceres.html')
+      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
       get '/things/934787.ratrat'
     end
 

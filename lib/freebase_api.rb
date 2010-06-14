@@ -4,17 +4,18 @@ require 'json'
 require 'uri'
 require 'cgi'
 
-#http://rdf.freebase.com/rdf/m.03rf2x
-
 module FreebaseApi
   USER_AGENT = 'DbpediaLite/1'
   MQLREAD_URI = URI.parse('http://www.freebase.com/api/service/mqlread')
   RDF_BASE_URI = URI.parse('http://rdf.freebase.com/rdf/')
+  HTTP_TIMEOUT = 2
 
   def self.mqlread(query)
     uri = MQLREAD_URI.clone
     uri.query = 'query='+CGI::escape(JSON.dump({'query' => query}))
     res = Net::HTTP.start(uri.host, uri.port) do |http|
+      http.open_timeout = HTTP_TIMEOUT
+      http.read_timeout = HTTP_TIMEOUT
       http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
     end
 
