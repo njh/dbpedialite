@@ -10,6 +10,7 @@ module WikipediaApi
   USER_AGENT = 'DbpediaLite/1'
   API_URI = URI.parse('http://en.wikipedia.org/w/api.php')
   ABSTRACT_MAX_LENGTH = 500
+  HTTP_TIMEOUT = 5
 
   def self.query(args)
     data = self.get('query', {:redirects => 1, :prop => 'info'}.merge(args))
@@ -34,6 +35,8 @@ module WikipediaApi
     uri = API_URI.clone
     uri.query = items.join('&')
     res = Net::HTTP.start(uri.host, uri.port) do |http|
+      http.read_timeout = HTTP_TIMEOUT
+      http.open_timeout = HTTP_TIMEOUT
       http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
     end
 
