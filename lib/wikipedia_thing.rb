@@ -4,7 +4,7 @@ require 'spira'
 require 'rdf/geo'
 
 
-class WikipediaArticle
+class WikipediaThing
   include Spira::Resource
 
   base_uri "http://dbpedialite.org/things"
@@ -51,8 +51,8 @@ class WikipediaArticle
   end
 
   def self.load(identifier, opts={})
-    @article = self.for(identifier, opts)
-    @article.load ? @article : nil
+    @thing = self.for(identifier, opts)
+    @thing.load ? @thing : nil
   end
 
   def load

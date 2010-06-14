@@ -1,31 +1,31 @@
 <div id="header">
-  <h1 id="title">About: <%= link_to(@article.title, @article.uri) %></h1>
-  <h2><%= link_to(@article.uri) %></h2>
+  <h1 id="title">About: <%= link_to(@thing.title, @thing.uri) %></h1>
+  <h2><%= link_to(@thing.uri) %></h2>
 </div>
 
 <% content_for :head do %>
-  <link rel="foaf:primaryTopic" href="<%= @article.uri %>" />
-  <link rel="alternate" type="application/rdf+xml" href="<%= "/things/#{@article.pageid}.rdf" %>" title="RDF/XML" />
-  <link rel="alternate" type="text/plain" href="<%= "/things/#{@article.pageid}.nt" %>" title="N-Triples" />
-  <link rel="alternate" type="application/json" href="<%= "/things/#{@article.pageid}.json" %>" title="JSON" />
+  <link rel="foaf:primaryTopic" href="<%= @thing.uri %>" />
+  <link rel="alternate" type="application/rdf+xml" href="<%= "/things/#{@thing.pageid}.rdf" %>" title="RDF/XML" />
+  <link rel="alternate" type="text/plain" href="<%= "/things/#{@thing.pageid}.nt" %>" title="N-Triples" />
+  <link rel="alternate" type="application/json" href="<%= "/things/#{@thing.pageid}.json" %>" title="JSON" />
 <% end %>
 
 <div id="content">
-  <% if @article.has_coordinates? %>
+  <% if @thing.has_coordinates? %>
     <div id="map"></div>
     <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAArv9G1BkO0gxnWS5UwgAUcxTpFJMlrih0EInfmgkti7-ZKQDRBRTphKY0sV9v8PuRfqpo9onlsV4ZPw" type="text/javascript"></script>
     <script type="text/javascript">
     if (GBrowserIsCompatible()) {
       var map = new GMap2(document.getElementById("map"));
-      map.setCenter(new GLatLng(<%= @article.latitude %>,<%= @article.longitude %>), 13);
+      map.setCenter(new GLatLng(<%= @thing.latitude %>,<%= @thing.longitude %>), 13);
       map.addControl(new GSmallMapControl());
     }
     </script>
   <% end %>
 
-  <table id="description" about="<%= h @article.uri %>">
+  <table id="description" about="<%= h @thing.uri %>">
    <tr><th>Property</th><th>Value</th></tr>
-   <% @article.each_statement do |s| %>
+   <% @thing.each_statement do |s| %>
     <tr>
       <td><%= shorten(s.predicate) %></td>
       <% if s.object.uri? %>
@@ -43,7 +43,7 @@
 
 <div id="alternates">
   <h4>Alternative formats:</h4>
-  <%= link_to('RDF/XML', "/things/#{@article.pageid}.rdf") %> |
-  <%= link_to('N-Triples', "/things/#{@article.pageid}.nt") %> |
-  <%= link_to('JSON', "/things/#{@article.pageid}.json") %>
+  <%= link_to('RDF/XML', "/things/#{@thing.pageid}.rdf") %> |
+  <%= link_to('N-Triples', "/things/#{@thing.pageid}.nt") %> |
+  <%= link_to('JSON', "/things/#{@thing.pageid}.json") %>
 </div>

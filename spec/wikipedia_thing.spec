@@ -1,101 +1,101 @@
 require File.dirname(__FILE__) + "/spec_helper.rb"
-require 'wikipedia_article'
+require 'wikipedia_thing'
 
-describe WikipediaArticle do
+describe WikipediaThing do
 
   context "creating an article from a page id" do
     before :each do
       WikipediaApi.expects(:query).never
-      @article = WikipediaArticle.for(52780)
+      @thing = WikipediaThing.for(52780)
     end
 
-    it "should return an object of type WikipediaArticle" do
-      @article.class.should == WikipediaArticle
+    it "should return an object of type WikipediaThing" do
+      @thing.class.should == WikipediaThing
     end
 
     it "should have the correct URI" do
-      @article.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
+      @thing.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
     end
 
     it "should not have co-ordinates" do
-      @article.should_not have_coordinates
+      @thing.should_not have_coordinates
     end
   end
 
-  context "creating an article from a page title" do
+  context "creating an thing from a page title" do
     before :each do
       WikipediaApi.expects(:query).once.returns({'52780'=>{'pageid'=>52780}})
-      @article = WikipediaArticle.for_title('U2')
+      @thing = WikipediaThing.for_title('U2')
     end
 
-    it "should return an object of type WikipediaArticle" do
-      @article.class.should == WikipediaArticle
+    it "should return an object of type WikipediaThing" do
+      @thing.class.should == WikipediaThing
     end
 
     it "should have the correct URI" do
-      @article.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
+      @thing.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
     end
   end
 
-  context "creating an article from a non-existant page title" do
+  context "creating an thing from a non-existant page title" do
     before :each do
       WikipediaApi.expects(:query).once.returns({'zsefpfs'=>{"title"=>"zsefpfs", "ns"=>0, "missing"=>""}})
-      @article = WikipediaArticle.for_title('zsefpfs')
+      @thing = WikipediaThing.for_title('zsefpfs')
     end
 
-    it "should return an object of type WikipediaArticle" do
-      @article.should == nil
+    it "should return an object of type WikipediaThing" do
+      @thing.should == nil
     end
   end
 
-  context "creating an article with data provided" do
+  context "creating an thing with data provided" do
     before :each do
       WikipediaApi.expects(:query).never
-      @article = WikipediaArticle.for(934787,
+      @thing = WikipediaThing.for(934787,
         :title => 'Ceres, Fife',
         :latitude => 56.293431,
         :longitude => -2.970134,
         :updated_at => DateTime.parse('2010-05-08T17:20:04Z'),
         :abstract => "Ceres is a village in Fife, Scotland."
       )
-      # HACK
-      @article.title = 'Ceres, Fife'
+      # FIXME: This is a hack to make sure the setter method gets called
+      @thing.title = 'Ceres, Fife'
     end
 
-    it "should return an object of type WikipediaArticle" do
-      @article.class.should == WikipediaArticle
+    it "should return an object of type WikipediaThing" do
+      @thing.class.should == WikipediaThing
     end
 
     it "should have the correct URI" do
-      @article.uri.to_s.should == 'http://dbpedialite.org/things/934787#thing'
+      @thing.uri.to_s.should == 'http://dbpedialite.org/things/934787#thing'
     end
 
     it "should have the correct title" do
-      @article.title.should == 'Ceres, Fife'
+      @thing.title.should == 'Ceres, Fife'
     end
 
     it "should have the correct abstract" do
-      @article.abstract.should == 'Ceres is a village in Fife, Scotland.'
+      @thing.abstract.should == 'Ceres is a village in Fife, Scotland.'
     end
 
     it "should have a pageid method to get the page id from the uri" do
-      @article.pageid.should == 934787
+      @thing.pageid.should == 934787
     end
 
     it "should have the correct latitude" do
-      @article.latitude.should == 56.293431
+      @thing.latitude.should == 56.293431
     end
 
     it "should have the correct longitude" do
-      @article.longitude.should == -2.970134
+      @thing.longitude.should == -2.970134
     end
 
     it "should encode the Wikipedia page URL correctly" do
-      @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
+      @thing.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
     end
 
     it "should encode the dbpedia URI correctly" do
-      @article.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
+      @thing.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
     end
   end
 
@@ -109,47 +109,47 @@ describe WikipediaArticle do
              }
       WikipediaApi.expects(:query).never
       WikipediaApi.expects(:parse).once.returns(data)
-      @article = WikipediaArticle.load(934787)
+      @thing = WikipediaThing.load(934787)
     end
 
-    it "should return a WikipediaArticle" do
-      @article.class.should == WikipediaArticle
+    it "should return a WikipediaThing" do
+      @thing.class.should == WikipediaThing
     end
 
     it "should had the correct page id" do
-      @article.pageid.should == 934787
+      @thing.pageid.should == 934787
     end
 
     it "should had the correct title" do
-      @article.title.should == 'Ceres, Fife'
+      @thing.title.should == 'Ceres, Fife'
     end
 
     it "should have co-ordinates" do
-      @article.should have_coordinates
+      @thing.should have_coordinates
     end
 
     it "should have the correct latitude" do
-      @article.latitude.should == 56.293431
+      @thing.latitude.should == 56.293431
     end
 
     it "should have the correct longitude" do
-      @article.longitude.should == -2.970134
+      @thing.longitude.should == -2.970134
     end
 
     it "should escape titles correctly" do
-      @article.escaped_title.should == 'Ceres%2C_Fife'
+      @thing.escaped_title.should == 'Ceres%2C_Fife'
     end
 
     it "should encode the Wikipedia page URL correctly" do
-      @article.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
+      @thing.page.to_s.should == 'http://en.wikipedia.org/wiki/Ceres%2C_Fife'
     end
 
     it "should encode the dbpedia URI correctly" do
-      @article.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
+      @thing.dbpedia.to_s.should == 'http://dbpedia.org/resource/Ceres%2C_Fife'
     end
 
     it "should extract the abstract correctly" do
-      @article.abstract.should =~ /^Ceres is a village in Fife, Scotland/
+      @thing.abstract.should =~ /^Ceres is a village in Fife, Scotland/
     end
   end
 
@@ -158,22 +158,22 @@ describe WikipediaArticle do
       data = {'valid' => false}
       WikipediaApi.expects(:query).never
       WikipediaApi.expects(:parse).once.returns(data)
-      @article = WikipediaArticle.load(999999)
+      @thing = WikipediaThing.load(999999)
     end
 
     it "should return nil" do
-      @article.should == nil
+      @thing.should == nil
     end
   end
 
-  context "serializing an article to N-Triples" do
+  context "serializing an thing to N-Triples" do
     before :each do
       WikipediaApi.expects(:query).never
-      @article = WikipediaArticle.for(52780,
+      @thing = WikipediaThing.for(52780,
         :title => 'U2',
         :abstract => "U2 are an Irish rock band."
       )
-      @ntriples = @article.dump(:ntriples)
+      @ntriples = @thing.dump(:ntriples)
     end
 
     it "should serialise to a string" do

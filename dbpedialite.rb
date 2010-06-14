@@ -5,7 +5,7 @@ $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'lib')))
 require 'rubygems'
 require 'sinatra'
 require 'sinatra/content_for'
-require 'lib/wikipedia_article'
+require 'lib/wikipedia_thing'
 require 'rdiscount'
 require 'erb'
 
@@ -88,16 +88,16 @@ get '/search' do
 end
 
 get '/titles/:title' do |title|
-  @article = WikipediaArticle.for_title(title)
-  not_found("Title not found.") if @article.nil?
+  @thing = WikipediaThing.for_title(title)
+  not_found("Title not found.") if @thing.nil?
 
   headers 'Cache-Control' => 'public,max-age=600'
-  redirect "/things/#{@article.pageid}", 301
+  redirect "/things/#{@thing.pageid}", 301
 end
 
 get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
-  @article = WikipediaArticle.load(pageid)
-  not_found("Thing not found.") if @article.nil?
+  @thing = WikipediaThing.load(pageid)
+  not_found("Thing not found.") if @thing.nil?
 
   if format.empty?
     format = request.accept.first || ''
@@ -108,18 +108,18 @@ get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
           'Cache-Control' => 'public,max-age=600'
   case format
     when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
-      @vocabularies = extract_vocabularies(@article)
+      @vocabularies = extract_vocabularies(@thing)
       content_type 'text/html'
       erb :page
     when 'nt', 'ntriples', 'text/plain' then
       content_type 'text/plain'
-      @article.dump(:ntriples)
+      @thing.dump(:ntriples)
     when 'json', 'application/json', 'text/json' then
       content_type 'application/json'
-      @article.dump(:json)
+      @thing.dump(:json)
     when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
       content_type 'application/rdf+xml'
-      @article.dump(:rdfxml)
+      @thing.dump(:rdfxml)
     else
       error 400, "Unsupported format: #{format}\n"
   end
