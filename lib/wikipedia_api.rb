@@ -62,7 +62,7 @@ module WikipediaApi
 
     # Extract the abstract
     data['abstract'] = ''
-    doc.search("#content//p").each do |para|
+    doc.search("#bodyContent/p").each do |para|
       # FIXME: filter out non-abstract spans properly
       next if para.inner_text =~ /^Coordinates:/
       # FIXME: stop at the contents table
