@@ -31,7 +31,7 @@ describe WikipediaApi do
     end
 
     it "should return the artitle abstract" do
-      @data['abstract'].should =~ /Ceres is a village in Fife, Scotland/
+      @data['abstract'].should =~ /\ACeres is a village in Fife, Scotland/
     end
 
     it "should return an array of categories" do
@@ -45,6 +45,40 @@ describe WikipediaApi do
       @data['images'].should == [
         'http://upload.wikimedia.org/wikipedia/commons/d/d6/Scottish_infobox_template_map.png',
         'http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg'
+      ]
+    end
+  end
+
+  context "parsing an HTML page with <p> in the infobox" do
+    before :each do
+      mock_http('en.wikipedia.org', 'rat.html')
+      @data = WikipediaApi.parse(26471)
+    end
+
+    it "should return valid == true" do
+      @data['valid'].should be_true
+    end
+
+    it "should return the artitle title" do
+      @data['title'].should == 'Rat'
+    end
+
+    it "should have no latitude and longitude" do
+      @data['latitude'].should be_nil
+      @data['longitude'].should be_nil
+    end
+
+    it "should return the artitle abstract" do
+      @data['abstract'].should =~ /\ARats are various medium-sized, long-tailed rodents of the superfamily Muroidea/
+    end
+
+    it "should return an array of categories" do
+      @data['categories'].should == [
+        "Category:Old World rats and mice",
+        "Category:Urban animals",
+        "Category:Scavengers",
+        "Category:Wikipedia semi-protected pages",
+        "Category:Articles with 'species' microformats"
       ]
     end
   end
