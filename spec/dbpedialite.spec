@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + "/spec_helper.rb"
 require 'dbpedialite'
 require 'rack/test'
+require 'rdf/raptor'
 
 ## Note: these are integration tests. Mocking is done at the HTTP request level.
 
@@ -131,7 +132,37 @@ describe 'dbpedia lite' do
       last_response.body.should =~ %r[<div id="map"></div>]
     end
 
-    it "should have the title of the thing as RDFa"
+    it "should have the title of the thing as RDFa" do
+      rdfa_graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/934787#thing"),
+        RDF::RDFS.label,
+        RDF::Literal("Ceres, Fife")
+      ])
+    end
+
+    it "should have a link to the Wikipedia page in the RDFa" do
+      rdfa_graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/934787#thing"),
+        RDF::FOAF.page,
+        RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
+      ])
+    end
+
+    it "should have an RDFa triple linking the document to the thing" do
+      rdfa_graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/934787"),
+        RDF::FOAF.primaryTopic,
+        RDF::URI("http://dbpedialite.org/things/934787#thing"),
+      ])
+    end
+
+    it "should have an RDFa triple linking the altenate RDF/XML format" do
+      rdfa_graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/934787"),
+        RDF::URI("http://www.w3.org/1999/xhtml/vocab#alternate"),
+        RDF::URI("http://dbpedialite.org/things/934787.rdf"),
+      ])
+    end
 
   end
 
@@ -194,6 +225,17 @@ describe 'dbpedia lite' do
 
     it "should havw the right namespace the DC vocabulary" do
       @vocabularies[:dc].should == RDF::DC
+    end
+  end
+
+  def rdfa_graph
+    base_uri = "http://dbpedialite.org#{last_request.path}"
+    RDF::Graph.new(base_uri) do |graph|
+      RDF::Reader::for(:rdfa).new(last_response.body, :base_uri => base_uri) do |reader|
+        reader.each_statement do |statement|
+          graph << statement
+        end
+      end
     end
   end
 end
