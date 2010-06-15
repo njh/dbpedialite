@@ -19,7 +19,7 @@ class WikipediaThing
   property :dbpedia, :predicate => OWL.sameAs, :type => URI
   property :freebase, :predicate => OWL.sameAs, :type => URI
 
-  has_many :images, :predicate => FOAF.depiction, :type => URI
+  #has_many :images, :predicate => FOAF.depiction, :type => URI
   #has_many :categories, :predicate => SKOS.subject, :type => :Category
 
   # FIXME: this should apply to the document, not the thing
@@ -69,9 +69,9 @@ class WikipediaThing
     end
 
     # Add the images
-    if data.has_key?('images')
-      self.images = data['images'].map {|img| RDF::URI.parse(img)}
-    end
+    #if data.has_key?('images')
+    #  self.images = data['images'].map {|img| RDF::URI.parse(img)}
+    #end
 
     # Attempt to match to Freebase, but silently fail on error
     begin

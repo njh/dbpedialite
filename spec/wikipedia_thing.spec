@@ -166,9 +166,9 @@ describe WikipediaThing do
       @thing.freebase.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
     end
 
-    it "should have a single image of type RDF::URI" do
-      @thing.images.should == [RDF::URI('http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg')]
-    end
+    #it "should have a single image of type RDF::URI" do
+    #  @thing.images.should == [RDF::URI('http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg')]
+    #end
   end
 
   context "loading a non-existant page from wikipedia" do
