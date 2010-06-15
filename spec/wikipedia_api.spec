@@ -35,7 +35,17 @@ describe WikipediaApi do
     end
 
     it "should return an array of categories" do
-      @data['categories'].should == ['Category:Villages in Fife', 'Category:Churches in Fife']
+      @data['categories'].should == [
+        'Category:Villages in Fife',
+        'Category:Churches in Fife'
+      ]
+    end
+
+    it "should return an array of images" do
+      @data['images'].should == [
+        'http://upload.wikimedia.org/wikipedia/commons/d/d6/Scottish_infobox_template_map.png',
+        'http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg'
+      ]
     end
   end
 
@@ -142,4 +152,41 @@ describe WikipediaApi do
     end
   end
 
+  context "extracting the abstract from an article with paragraphs in the infobox" do
+    before :each do
+      mock_http('en.wikipedia.org', 'rat.html')
+      @data = WikipediaApi.parse(934787)
+    end
+
+    it "should return valid == true" do
+      @data['valid'].should be_true
+    end
+
+    it "should return the artitle title" do
+      @data['title'].should == 'Ceres, Fife'
+    end
+
+    it "should return the date it was last updated" do
+      @data['updated_at'].to_s.should == '2010-04-29T10:22:00+00:00'
+      @data['updated_at'].class.should == DateTime
+    end
+
+    it "should return the artitle abstract" do
+      @data['abstract'].should =~ /Ceres is a village in Fife, Scotland/
+    end
+
+    it "should return an array of categories" do
+      @data['categories'].should == [
+        'Category:Villages in Fife',
+        'Category:Churches in Fife'
+      ]
+    end
+
+    it "should return an array of images" do
+      @data['images'].should == [
+        'http://upload.wikimedia.org/wikipedia/commons/d/d6/Scottish_infobox_template_map.png',
+        'http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg'
+      ]
+    end
+  end
 end

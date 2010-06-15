@@ -99,6 +99,17 @@ module WikipediaApi
       data['longitude'] = coordinates[1].to_f
     end
 
+    # Extract images
+    data['images'] = []
+    doc.search(".image/img").each do |img|
+      next if img.attribute('width').value.to_i < 100
+      next if img.attribute('height').value.to_i < 100
+      image = img.attribute('src').value
+      image.sub!(%r[/thumb/],'/')
+      image.sub!(%r[/(\d+)px-(.+?)\.(\w+)$],'')
+      data['images'] << image
+    end
+
     # Extract the categories
     data['categories'] = []
     doc.search("#catlinks//a").each do |catlink|

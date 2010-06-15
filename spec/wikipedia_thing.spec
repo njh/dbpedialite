@@ -106,7 +106,8 @@ describe WikipediaThing do
         'longitude' => -2.970134,
         'latitude' => 56.293431,
         'valid' => true,
-        'abstract' => 'Ceres is a village in Fife, Scotland'
+        'abstract' => 'Ceres is a village in Fife, Scotland',
+        'images' => ['http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg']
       }
       freebase_data = {
         'guid' => '#9202a8c04000641f80000000003bb45c',
@@ -163,6 +164,10 @@ describe WikipediaThing do
 
     it "should have a freebase URI" do
       @thing.freebase.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
+    end
+
+    it "should have a single image of type RDF::URI" do
+      @thing.images.should == [RDF::URI('http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg')]
     end
   end
 
