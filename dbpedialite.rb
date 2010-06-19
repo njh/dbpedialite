@@ -14,6 +14,8 @@ require 'rdf/json'
 require 'rdf/rdfxml'
 require 'rdf/ntriples'
 
+DEFAULT_HOST = 'dbpedialite.org'
+
 
 def extract_vocabularies(graph)
   vocabs = {}
@@ -63,9 +65,13 @@ helpers do
   end
 end
 
-## FIXME: this shouldn't be needed
 before do
+  ## FIXME: this shouldn't be needed
   Spira.add_repository! :default, RDF::Repository.new
+
+  if production? and request.host != DEFAULT_HOST
+    redirect "http://" + DEFAULT_HOST + request.path
+  end
 end
 
 get '/' do
