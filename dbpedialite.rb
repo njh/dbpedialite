@@ -70,7 +70,7 @@ before do
   Spira.add_repository! :default, RDF::Repository.new
 
   if production? and request.host != DEFAULT_HOST
-    redirect "http://" + DEFAULT_HOST + request.path
+    redirect "http://" + DEFAULT_HOST + request.path, 301
   end
 end
 
