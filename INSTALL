@@ -18,3 +18,10 @@ Start the application
    ruby dbpedialite.rb
 
 Visit the application in your browser at http://localhost:4567
+
+To run the tests you'll also need the [Raptor
+RDF](http://librdf.org/raptor/rapper.html) parser. A simple way to
+install this on OSX is using
+[homebrew](http://github.com/mxcl/homebrew)
+
+   brew install raptor
