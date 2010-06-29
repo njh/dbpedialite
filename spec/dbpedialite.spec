@@ -60,6 +60,25 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing a search page with a query string (from jquery autocomplete)" do
+    before :each do
+      mock_http('en.wikipedia.org', 'search-rat.json')
+      get '/search?term=rat'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be text/json" do
+      last_response.content_type.should == 'text/json'
+    end
+
+    it "should contain the search term" do
+      last_response.body.should =~ %r[Rat]
+    end
+  end
+
   context "GETing the search page without a query string" do
     before :each do
       get '/search'

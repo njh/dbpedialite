@@ -9,6 +9,8 @@ require 'lib/wikipedia_thing'
 require 'rdiscount'
 require 'erb'
 
+require 'ruby-debug'
+
 # Serialisers
 require 'rdf/json'
 require 'rdf/rdfxml'
@@ -82,6 +84,7 @@ end
 
 get '/search' do
   headers 'Cache-Control' => 'public,max-age=600'
+  params[:q] = params[:term] if params[:term]
   redirect '/' if params[:q].nil? or params[:q].empty?
 
   @results = WikipediaApi.search(params[:q], :srlimit => 20)
@@ -89,8 +92,17 @@ get '/search' do
     escaped = CGI::escape(result['title'].gsub(' ','_'))
     result['url'] = "/titles/#{escaped}"
   end
-
-  erb :search
+    
+  if params[:term]
+    json = []
+    @results.each do |r|
+      json << {:label => r['title']}
+    end
+    content_type 'text/json'
+    json.to_json
+  else
+    erb :search
+  end
 end
 
 get '/titles/:title' do |title|
