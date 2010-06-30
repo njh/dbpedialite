@@ -9,8 +9,6 @@ require 'lib/wikipedia_thing'
 require 'rdiscount'
 require 'erb'
 
-require 'ruby-debug'
-
 # Serialisers
 require 'rdf/json'
 require 'rdf/rdfxml'
