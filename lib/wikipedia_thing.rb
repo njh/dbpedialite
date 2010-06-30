@@ -2,7 +2,6 @@ require 'rubygems'
 require 'wikipedia_api'
 require 'freebase_api'
 require 'spira'
-require 'rdf/geo'
 
 
 class WikipediaThing
