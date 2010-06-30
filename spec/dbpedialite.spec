@@ -40,7 +40,7 @@ describe 'dbpedia lite' do
   context "GETing a search page with a query string" do
     before :each do
       mock_http('en.wikipedia.org', 'search-rat.json')
-      get '/search?q=rat'
+      get '/search?term=rat'
     end
 
     it "should be successful" do
@@ -63,7 +63,7 @@ describe 'dbpedia lite' do
   context "GETing a search page with a query string (from jquery autocomplete)" do
     before :each do
       mock_http('en.wikipedia.org', 'search-rat.json')
-      get '/search?term=rat'
+      get '/search.json?term=rat'
     end
 
     it "should be successful" do
@@ -76,6 +76,21 @@ describe 'dbpedia lite' do
 
     it "should contain the search term" do
       last_response.body.should =~ %r[Rat]
+    end
+  end
+
+  context "GETing the search page for unsupport format" do
+    before :each do
+      mock_http('en.wikipedia.org', 'search-rat.json')
+      get '/search.ratrat?term=rat'
+    end
+
+    it "should return a 400 error" do
+      last_response.should be_client_error
+    end
+
+    it "should include the text 'Unsupported format' in the body" do
+      last_response.body.should =~ /Unsupported format/i
     end
   end
 

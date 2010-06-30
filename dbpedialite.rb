@@ -80,26 +80,28 @@ get '/' do
   erb :index
 end
 
-get '/search' do
+get %r{^/search\.?([a-z]*)$} do |format|
   headers 'Cache-Control' => 'public,max-age=600'
-  params[:q] = params[:term] if params[:term]
-  redirect '/' if params[:q].nil? or params[:q].empty?
+  redirect '/' if params[:term].nil? or params[:term].empty?
 
-  @results = WikipediaApi.search(params[:q], :srlimit => 20)
+  @results = WikipediaApi.search(params[:term], :srlimit => 20)
   @results.each do |result|
     escaped = CGI::escape(result['title'].gsub(' ','_'))
     result['url'] = "/titles/#{escaped}"
   end
     
-  if params[:term]
-    json = []
-    @results.each do |r|
-      json << {:label => r['title']}
-    end
-    content_type 'text/json'
-    json.to_json
-  else
-    erb :search
+  case format
+    when '', 'html' then
+      erb :search
+    when 'json' then
+      json = []
+      @results.each do |r|
+        json << {:label => r['title']}
+      end
+      content_type 'text/json'
+      json.to_json
+    else
+      error 400, "Unsupported format: #{format}\n"
   end
 end
 
@@ -111,7 +113,7 @@ get '/titles/:title' do |title|
   redirect "/things/#{@thing.pageid}", 301
 end
 
-get %r{^/things/(\d+)\.?(\w*)$} do |pageid,format|
+get %r{^/things/(\d+)\.?([a-z]*)$} do |pageid,format|
   @thing = WikipediaThing.load(pageid)
   not_found("Thing not found.") if @thing.nil?
 

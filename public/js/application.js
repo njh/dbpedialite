@@ -1,7 +1,5 @@
 $(function() {
     $("#search").autocomplete({
-        source: '/search'
+        source: '/search.json'
     });
 });
-
-
