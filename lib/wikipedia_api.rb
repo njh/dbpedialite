@@ -110,6 +110,18 @@ module WikipediaApi
       data['images'] << image
     end
 
+    # Extract external links
+    data['externallinks'] = []
+    doc.search("a.external").each do |link|
+      if link.has_attribute?('href')
+        href = link.attribute('href').value
+        next if href =~ %r[^http://rhaworth\.com/os/coor_g.php]
+        next if href =~ %r[^http://toolserver\.org/~geohack]
+        data['externallinks'] << href
+      end
+    end
+    data['externallinks'].uniq!
+
     # Extract the categories
     data['categories'] = []
     doc.search("#catlinks//a").each do |catlink|
