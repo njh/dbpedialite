@@ -112,11 +112,10 @@ module WikipediaApi
 
     # Extract external links
     data['externallinks'] = []
-    doc.search("a.external").each do |link|
+    doc.search("ul/li/a.external").each do |link|
       if link.has_attribute?('href')
         href = link.attribute('href').value
-        next if href =~ %r[^http://rhaworth\.com/os/coor_g.php]
-        next if href =~ %r[^http://toolserver\.org/~geohack]
+        next if href =~ %r[^http://(\w+)\.wikipedia\.org/]
         data['externallinks'] << href
       end
     end

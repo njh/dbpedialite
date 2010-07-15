@@ -50,10 +50,7 @@ describe WikipediaApi do
 
     it "should return an array of external links" do
       @data['externallinks'].should == [
-        'http://www.explore-st-andrews.com/images/towns/ceres/ceres_kirk.jpg',
-        'http://www.fife.50megs.com/ceres-history.htm',
-        'http://www.gro-scotland.gov.uk/statistics/publications-and-data',
-        'http://www.scrol.gov.uk/scrol/browser/profile.jsp?profile=Population&mainArea=ceres&mainLevel=Locality'
+        'http://www.fife.50megs.com/ceres-history.htm'
       ]
     end
   end

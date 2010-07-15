@@ -18,6 +18,7 @@ class WikipediaThing
   property :dbpedia, :predicate => OWL.sameAs, :type => URI
   property :freebase, :predicate => OWL.sameAs, :type => URI
 
+  has_many :externallinks, :predicate => RDFS.seeAlso, :type => URI
   #has_many :images, :predicate => FOAF.depiction, :type => URI
   #has_many :categories, :predicate => SKOS.subject, :type => :Category
 
