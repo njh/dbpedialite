@@ -12,13 +12,13 @@ class WikipediaThing
 
   property :title, :predicate => RDFS.label, :type => String
   property :abstract, :predicate => RDFS.comment, :type => String
-  property :page, :predicate => FOAF.page, :type => URI
+  property :wikipedia, :predicate => FOAF.isPrimaryTopicOf, :type => URI
   property :latitude, :predicate => GEO.lat, :type => Float
   property :longitude, :predicate => GEO.long, :type => Float
   property :dbpedia, :predicate => OWL.sameAs, :type => URI
   property :freebase, :predicate => OWL.sameAs, :type => URI
 
-  has_many :externallinks, :predicate => RDFS.seeAlso, :type => URI
+  has_many :externallinks, :predicate => FOAF.page, :type => URI
   #has_many :images, :predicate => FOAF.depiction, :type => URI
   #has_many :categories, :predicate => SKOS.subject, :type => :Category
 
@@ -28,7 +28,6 @@ class WikipediaThing
   # Additionally:
   #  foaf:depiction
   #  skos:subject
-  #  foaf:page
   #  dbpedia-owl:abstract
   #  dbpprop:reference (External Links)
   #  dbpprop:redirect
@@ -68,6 +67,11 @@ class WikipediaThing
       end
     end
 
+    # Add the external links
+    if data.has_key?('externallinks')
+      self.externallinks = data['externallinks'].map {|link| RDF::URI.parse(link)}
+    end
+
     # Add the images
     #if data.has_key?('images')
     #  self.images = data['images'].map {|img| RDF::URI.parse(img)}
@@ -91,7 +95,7 @@ class WikipediaThing
 
     # The FOAF::page is derived from the title
     unless title.nil?
-      self.page = RDF::URI.parse("http://en.wikipedia.org/wiki/#{escaped_title}")
+      self.wikipedia = RDF::URI.parse("http://en.wikipedia.org/wiki/#{escaped_title}")
       self.dbpedia = RDF::URI.parse("http://dbpedia.org/resource/#{escaped_title}")
     end
   end

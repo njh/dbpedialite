@@ -177,8 +177,16 @@ describe 'dbpedia lite' do
     it "should have a link to the Wikipedia page in the RDFa" do
       rdfa_graph.should have_triple([
         RDF::URI("http://dbpedialite.org/things/934787#thing"),
-        RDF::FOAF.page,
+        RDF::FOAF.isPrimaryTopicOf,
         RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
+      ])
+    end
+
+    it "should have a link to an external link in the RDFa" do
+      rdfa_graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/934787#thing"),
+        RDF::FOAF.page,
+        RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
       ])
     end
 
