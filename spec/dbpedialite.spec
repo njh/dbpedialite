@@ -239,6 +239,69 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing an N-Triples page for a geographic thing" do
+    before :each do
+      mock_http('en.wikipedia.org', 'ceres.html')
+      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      header "Accept", "text/plain"
+      get '/things/934787'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type text/plain" do
+      last_response.content_type.should == 'text/plain'
+    end    
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    end
+  end
+
+  context "GETing an JSON page for a geographic thing" do
+    before :each do
+      mock_http('en.wikipedia.org', 'ceres.html')
+      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      header "Accept", "application/json"
+      get '/things/934787'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type application/json" do
+      last_response.content_type.should == 'application/json'
+    end    
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    end
+  end
+
+  context "GETing an RDF/XML page for a geographic thing" do
+    before :each do
+      mock_http('en.wikipedia.org', 'ceres.html')
+      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      header "Accept", "application/rdf+xml"
+      get '/things/934787'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type application/rdf+xml" do
+      last_response.content_type.should == 'application/rdf+xml'
+    end    
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    end
+  end
+
   context "extracting vocabularies" do
     before :each do
       @graph = RDF::Graph.new do |g|
