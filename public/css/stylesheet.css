@@ -182,8 +182,5 @@ a img { border: none; padding: 0; margin: 0; }
 	background: #000;
 }
 
-.valid-badge
-{
-    float: right;
-}
-
+.badges { float: right; }
+.badges img { padding-left: 10px; }
