@@ -1,7 +1,7 @@
 source :gemcutter
 
 gem 'sinatra'
-gem 'rdf', '0.2.1'
+gem 'rdf'
 gem 'spira'
 gem 'sinatra-content-for'
 gem 'json_pure'
