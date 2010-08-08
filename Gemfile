@@ -8,7 +8,7 @@ gem 'json_pure'
 gem 'nokogiri'
 gem 'rdiscount'
 gem 'rdf-json'
-gem 'rdf-rdfxml'
+gem 'rdf-rdfxml', '0.2.2'
 
 group :test do
   gem 'rspec'
