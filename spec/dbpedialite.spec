@@ -281,6 +281,27 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing an N3 page for a geographic thing" do
+    before :each do
+      mock_http('en.wikipedia.org', 'ceres.html')
+      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      header "Accept", "text/n3"
+      get '/things/934787'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type text/n3" do
+      last_response.content_type.should == 'text/n3'
+    end    
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    end
+  end
+
   context "GETing an RDF/XML page for a geographic thing" do
     before :each do
       mock_http('en.wikipedia.org', 'ceres.html')

@@ -11,8 +11,9 @@ require 'erb'
 
 # Serialisers
 require 'rdf/json'
-require 'rdf/rdfxml'
+require 'rdf/n3'
 require 'rdf/ntriples'
+require 'rdf/rdfxml'
 
 DEFAULT_HOST = 'dbpedialite.org'
 
@@ -113,7 +114,7 @@ get '/titles/:title' do |title|
   redirect "/things/#{@thing.pageid}", 301
 end
 
-get %r{^/things/(\d+)\.?([a-z]*)$} do |pageid,format|
+get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
   @thing = WikipediaThing.load(pageid)
   not_found("Thing not found.") if @thing.nil?
 
@@ -129,12 +130,15 @@ get %r{^/things/(\d+)\.?([a-z]*)$} do |pageid,format|
       @vocabularies = extract_vocabularies(@thing)
       content_type 'text/html'
       erb :page
-    when 'nt', 'ntriples', 'text/plain' then
-      content_type 'text/plain'
-      @thing.dump(:ntriples)
     when 'json', 'application/json', 'text/json' then
       content_type 'application/json'
       @thing.dump(:json)
+    when 'n3', 'ttl', 'text/n3', 'text/turtle', 'application/turtle' then
+      content_type 'text/n3'
+      @thing.dump(:n3)
+    when 'nt', 'ntriples', 'text/plain' then
+      content_type 'text/plain'
+      @thing.dump(:ntriples)
     when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
       content_type 'application/rdf+xml'
       @thing.dump(:rdfxml)
