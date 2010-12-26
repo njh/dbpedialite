@@ -2,9 +2,10 @@ $:.unshift(File.join(File.dirname(__FILE__),'..','lib'))
 $:.unshift(File.join(File.dirname(__FILE__),'..'))
 
 require 'rubygems'
-require 'spira'
-require 'spec'
-require 'mocha'
+require 'bundler'
+
+Bundler.require(:default, :test)
+
 
 def fixture(filename)
   File.join(File.dirname(__FILE__),'fixtures',filename)

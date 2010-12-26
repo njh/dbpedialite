@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + "/spec_helper.rb"
 require 'dbpedialite'
-require 'rack/test'
-require 'rdf/raptor'
+
 
 ## Note: these are integration tests. Mocking is done at the HTTP request level.
 
@@ -12,7 +11,7 @@ describe 'dbpedia lite' do
   include Rack::Test::Methods
 
   def app
-    Sinatra::Application
+    DbpediaLite
   end
 
   context "GETing the homepage" do
@@ -25,7 +24,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be of type text/html" do
-      last_response.content_type.should == 'text/html'
+      last_response.content_type.should == 'text/html;charset=utf-8'
     end
 
     it "should be cachable" do
@@ -48,7 +47,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be text/html" do
-      last_response.content_type.should == 'text/html'
+      last_response.content_type.should == 'text/html;charset=utf-8'
     end
 
     it "should contain an escaped link to a title page" do
@@ -71,7 +70,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be text/json" do
-      last_response.content_type.should == 'text/json'
+      last_response.content_type.should == 'text/json;charset=utf-8'
     end
 
     it "should contain the search term" do
@@ -104,7 +103,7 @@ describe 'dbpedia lite' do
     end
 
     it "should set the location header to redirect to /" do
-      last_response.location.should == '/'
+      last_response.location.should == 'http://example.org/'
     end
   end
 
@@ -119,7 +118,7 @@ describe 'dbpedia lite' do
     end
 
     it "should set the location header to redirect to /" do
-      last_response.location.should == '/things/52780'
+      last_response.location.should == 'http://example.org/things/52780'
     end
 
     it "should be cachable" do
@@ -151,7 +150,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be of type text/html" do
-      last_response.content_type.should == 'text/html'
+      last_response.content_type.should == 'text/html;charset=utf-8'
     end
 
     it "should be cachable" do
@@ -252,7 +251,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be of type text/plain" do
-      last_response.content_type.should == 'text/plain'
+      last_response.content_type.should == 'text/plain;charset=utf-8'
     end    
 
     it "should be cachable" do
@@ -273,7 +272,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be of type application/json" do
-      last_response.content_type.should == 'application/json'
+      last_response.content_type.should == 'application/json;charset=utf-8'
     end    
 
     it "should be cachable" do
@@ -294,7 +293,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be of type text/n3" do
-      last_response.content_type.should == 'text/n3'
+      last_response.content_type.should == 'text/n3;charset=utf-8'
     end    
 
     it "should be cachable" do
@@ -315,7 +314,7 @@ describe 'dbpedia lite' do
     end
 
     it "should be of type application/rdf+xml" do
-      last_response.content_type.should == 'application/rdf+xml'
+      last_response.content_type.should == 'application/rdf+xml;charset=utf-8'
     end    
 
     it "should be cachable" do
@@ -330,7 +329,7 @@ describe 'dbpedia lite' do
         g << [RDF::URI('http://b.com/'), RDF::FOAF.name, "B"]
         g << [RDF::URI('http://c.com/'), RDF::FOAF.nick, "C"]
       end
-      @vocabularies = extract_vocabularies(@graph)
+      @vocabularies = app.extract_vocabularies(@graph)
     end
 
     it "should extract 2 vocabularies" do
