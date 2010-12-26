@@ -138,4 +138,9 @@ class DbpediaLite < Sinatra::Base
     end
   end
 
+  get '/gems' do
+    @specs = Gem::loaded_specs.values.sort {|a,b| a.name <=> b.name }
+    erb :gems
+  end
+
 end

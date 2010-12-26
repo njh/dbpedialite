@@ -1,0 +1,21 @@
+<div id="header">
+  <h1 id="title">Ruby Gems</h1>
+  <h2>dbpedialite.org is powered by the following ruby gems:</h2>
+</div>
+
+<div id="content">
+  <table>
+   <tr>
+    <th>Name</th>
+    <th>Version</th>
+    <th>Summary</th>
+  </tr>
+   <% @specs.each do |spec| %>
+    <tr>
+      <td><%= link_to(spec.name, spec.homepage) %></td>
+      <td><%= link_to(spec.version, "http://rubygems.org/gems/#{spec.name}/versions/#{spec.version}") %></td>
+      <td><%= spec.summary %></td>
+    </tr>
+   <% end %>
+  </table>
+</div>
