@@ -1,20 +1,23 @@
-source :gemcutter
+source "http://rubygems.org"
 
 gem 'sinatra'
-gem 'rdf'
-gem 'spira'
-gem 'sinatra-content-for'
-gem 'json_pure'
+gem 'sinatra-content-for', :require => 'sinatra/content_for'
+
+gem 'erubis'
+gem 'json_pure', :require => 'json'
 gem 'nokogiri'
 gem 'rdiscount'
-gem 'rdf-json'
-gem 'rdf-n3', '0.2.2'
-gem 'rdf-rdfxml', '0.2.2'
+
+gem 'rdf', '0.2.3'
+gem 'spira', '0.0.5'
+gem 'rdf-json', :require => 'rdf/json'
+gem 'rdf-n3', :require => 'rdf/n3'
+gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
 
 group :test do
-  gem 'rspec'
+  gem 'rspec', '1.3.1', :require => 'spec'
   gem 'mocha'
   gem 'rcov'
-  gem 'rack-test'
-  gem 'rdf-raptor'
+  gem 'rack-test', :require => 'rack/test'
+  gem 'rdf-raptor', :require => 'rdf/raptor'
 end
