@@ -2,10 +2,13 @@ require File.dirname(__FILE__) + "/spec_helper.rb"
 require 'wikipedia_api'
 
 describe WikipediaApi do
-
   context "parsing an HTML page" do
     before :each do
-      mock_http('en.wikipedia.org', 'ceres.html')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
       @data = WikipediaApi.parse(934787)
     end
 
@@ -57,7 +60,11 @@ describe WikipediaApi do
 
   context "parsing an HTML page with <p> in the infobox" do
     before :each do
-      mock_http('en.wikipedia.org', 'rat.html')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=26471',
+        :body => fixture_data('rat.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
       @data = WikipediaApi.parse(26471)
     end
 
@@ -91,7 +98,11 @@ describe WikipediaApi do
 
   context "parsing a non-existant HTML page" do
     before :each do
-      mock_http('en.wikipedia.org', 'notfound.html')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=504825766',
+        :body => fixture_data('notfound.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
       @data = WikipediaApi.parse(504825766)
     end
 
@@ -102,7 +113,11 @@ describe WikipediaApi do
 
   context "querying by title" do
     before :each do
-      mock_http('en.wikipedia.org', 'query-u2.json')
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('query-u2.json'),
+        :content_type => 'application/json'
+      )
       @data = WikipediaApi.query(:titles => 'U2').values.first
     end
 
@@ -125,7 +140,11 @@ describe WikipediaApi do
 
   context "searching for Rat" do
     before :each do
-      mock_http('en.wikipedia.org', 'search-rat.json')
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('search-rat.json'),
+        :content_type => 'application/json'
+      )
       @data = WikipediaApi.search('Rat', :srlimit => 20)
     end
 
@@ -148,7 +167,11 @@ describe WikipediaApi do
 
   context "resolving a single title to a pageid" do
     before :each do
-      mock_http('en.wikipedia.org', 'query-u2.json')
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('query-u2.json'),
+        :content_type => 'application/json'
+      )
       @data = WikipediaApi.title_to_pageid('U2')
     end
 
@@ -167,7 +190,11 @@ describe WikipediaApi do
 
   context "resolving multiple titles to pageids" do
     before :each do
-      mock_http('en.wikipedia.org', 'query-villages-churches.json')
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('query-villages-churches.json'),
+        :content_type => 'application/json'
+      )
       @data = WikipediaApi.title_to_pageid(['Category:Villages in Fife','Category:Churches in Fife'])
     end
 

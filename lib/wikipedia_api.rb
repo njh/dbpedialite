@@ -1,10 +1,5 @@
-require 'rubygems'
-require 'net/http'
-require 'json'
-require 'nokogiri'
 require 'uri'
 require 'cgi'
-
 
 module WikipediaApi
   USER_AGENT = 'DbpediaLite/1'

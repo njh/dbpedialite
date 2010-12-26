@@ -14,8 +14,10 @@ gem 'rdf-n3', :require => 'rdf/n3'
 gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
 
 group :test do
+  gem 'rake'
   gem 'rspec', '1.3.1', :require => 'spec'
   gem 'mocha'
+  gem 'fakeweb'
   gem 'rcov'
   gem 'rack-test', :require => 'rack/test'
   gem 'rdf-raptor', :require => 'rdf/raptor'

@@ -7,7 +7,6 @@ require 'dbpedialite'
 set :environment, :test
 
 describe 'dbpedia lite' do
-
   include Rack::Test::Methods
 
   def app
@@ -38,7 +37,7 @@ describe 'dbpedia lite' do
 
   context "GETing a search page with a query string" do
     before :each do
-      mock_http('en.wikipedia.org', 'search-rat.json')
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('search-rat.json'))
       get '/search?term=rat'
     end
 
@@ -61,7 +60,7 @@ describe 'dbpedia lite' do
 
   context "GETing a search page with a query string (from jquery autocomplete)" do
     before :each do
-      mock_http('en.wikipedia.org', 'search-rat.json')
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('search-rat.json'))
       get '/search.json?term=rat'
     end
 
@@ -80,7 +79,7 @@ describe 'dbpedia lite' do
 
   context "GETing the search page for unsupport format" do
     before :each do
-      mock_http('en.wikipedia.org', 'search-rat.json')
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('search-rat.json'))
       get '/search.ratrat?term=rat'
     end
 
@@ -109,7 +108,7 @@ describe 'dbpedia lite' do
 
   context "GETing a title URL" do
     before :each do
-      mock_http('en.wikipedia.org', 'query-u2.json')
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('query-u2.json'))
       get '/titles/U2'
     end
 
@@ -128,7 +127,7 @@ describe 'dbpedia lite' do
 
   context "GETing an invalid title URL" do
     before :each do
-      mock_http('en.wikipedia.org', 'query-zsefpfs.json')
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('query-zsefpfs.json'))
       get '/titles/zsefpfs'
     end
 
@@ -139,8 +138,15 @@ describe 'dbpedia lite' do
 
   context "GETing an HTML page for a geographic thing" do
     before :each do
-      mock_http('en.wikipedia.org', 'ceres.html')
-      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(:get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json')
+      )
       header "Accept", "text/html"
       get '/things/934787'
     end
@@ -164,11 +170,11 @@ describe 'dbpedia lite' do
     it "should have a Google Map on the page" do
       last_response.body.should =~ %r[<div id="map"></div>]
     end
-    
+
     it "should include the title of the thing in the page title" do
      last_response.body.should =~ %r[<title>dbpedia lite - Ceres, Fife</title>]
     end
-    
+
     it "should include a <meta> description tag with a truncated abstract" do
      last_response.body.should =~ %r[<meta name="description" content="Ceres is a village in Fife, Scotland]
     end
@@ -217,7 +223,7 @@ describe 'dbpedia lite' do
 
   context "GETing an HTML thing page for a thing that doesn't exist" do
     before :each do
-      mock_http('en.wikipedia.org', 'notfound.html')
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/wiki/index.php], :body => fixture_data('notfound.html'))
       get '/things/504825766'
     end
 
@@ -232,8 +238,15 @@ describe 'dbpedia lite' do
 
   context "GETing an unsupport format for a thing" do
     before :each do
-      mock_http('en.wikipedia.org', 'ceres.html')
-      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(:get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json')
+      )
       get '/things/934787.ratrat'
     end
 
@@ -248,9 +261,16 @@ describe 'dbpedia lite' do
 
   context "GETing an N-Triples page for a geographic thing" do
     before :each do
-      mock_http('en.wikipedia.org', 'ceres.html')
-      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
-      header "Accept", "text/plain"
+       FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(:get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json')
+      )
+     header "Accept", "text/plain"
       get '/things/934787'
     end
 
@@ -260,7 +280,7 @@ describe 'dbpedia lite' do
 
     it "should be of type text/plain" do
       last_response.content_type.should == 'text/plain;charset=utf-8'
-    end    
+    end
 
     it "should be cachable" do
       last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
@@ -269,8 +289,15 @@ describe 'dbpedia lite' do
 
   context "GETing an JSON page for a geographic thing" do
     before :each do
-      mock_http('en.wikipedia.org', 'ceres.html')
-      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(:get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json')
+      )
       header "Accept", "application/json"
       get '/things/934787'
     end
@@ -281,7 +308,7 @@ describe 'dbpedia lite' do
 
     it "should be of type application/json" do
       last_response.content_type.should == 'application/json'
-    end    
+    end
 
     it "should be cachable" do
       last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
@@ -290,8 +317,15 @@ describe 'dbpedia lite' do
 
   context "GETing an N3 page for a geographic thing" do
     before :each do
-      mock_http('en.wikipedia.org', 'ceres.html')
-      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(:get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json')
+      )
       header "Accept", "text/n3"
       get '/things/934787'
     end
@@ -302,7 +336,7 @@ describe 'dbpedia lite' do
 
     it "should be of type text/n3" do
       last_response.content_type.should == 'text/n3;charset=utf-8'
-    end    
+    end
 
     it "should be cachable" do
       last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
@@ -311,8 +345,15 @@ describe 'dbpedia lite' do
 
   context "GETing an RDF/XML page for a geographic thing" do
     before :each do
-      mock_http('en.wikipedia.org', 'ceres.html')
-      mock_http('www.freebase.com', 'freebase-mqlread-ceres.json')
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(:get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json')
+      )
       header "Accept", "application/rdf+xml"
       get '/things/934787'
     end
@@ -323,7 +364,7 @@ describe 'dbpedia lite' do
 
     it "should be of type application/rdf+xml" do
       last_response.content_type.should == 'application/rdf+xml'
-    end    
+    end
 
     it "should be cachable" do
       last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
