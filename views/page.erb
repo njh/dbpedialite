@@ -1,6 +1,8 @@
+<% @title = @thing.title %>
+
 <div id="header">
-  <h1 id="title">About: <%= link_to(@thing.title, @thing.uri) %></h1>
-  <h2><%= link_to(@thing.uri) %></h2>
+  <h1>About: <%= link_to(@thing.title, @thing.uri) %></h1>
+  <p><%= link_to(@thing.uri) %></p>
 </div>
 
 <% content_for :head do %>
@@ -9,6 +11,7 @@
   <link rel="alternate" type="text/n3" href="<%= "/things/#{@thing.pageid}.n3" %>" title="Notation 3" />
   <link rel="alternate" type="text/plain" href="<%= "/things/#{@thing.pageid}.nt" %>" title="N-Triples" />
   <link rel="alternate" type="application/rdf+xml" href="<%= "/things/#{@thing.pageid}.rdf" %>" title="RDF/XML" />
+  <meta name="description" content="<%= h(truncate(@thing.abstract, 140)) %>" />
 <% end %>
 
 <div id="content">

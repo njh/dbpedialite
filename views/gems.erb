@@ -1,6 +1,8 @@
+<% @title = 'Ruby Gems' %>
+
 <div id="header">
-  <h1 id="title">Ruby Gems</h1>
-  <h2>dbpedialite.org is powered by the following ruby gems:</h2>
+  <h1>Ruby Gems</h1>
+  <p>dbpedialite.org is powered by <a href="/things/19127434">Heroku</a> and the following ruby gems:</p>
 </div>
 
 <div id="content">
@@ -10,7 +12,7 @@
     <th>Version</th>
     <th>Summary</th>
   </tr>
-   <% @specs.each do |spec| %>
+  <% @specs.each do |spec| %>
     <tr>
       <td><%= link_to(spec.name, spec.homepage) %></td>
       <td><%= link_to(spec.version, "http://rubygems.org/gems/#{spec.name}/versions/#{spec.version}") %></td>

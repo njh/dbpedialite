@@ -157,12 +157,20 @@ describe 'dbpedia lite' do
       last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
     end
 
-    it "should be contain an abstract for the thing" do
-      last_response.body.should =~ /Ceres is a village in Fife, Scotland/
+    it "should contain an abstract for the thing" do
+      last_response.body.should =~ /<p>Ceres is a village in Fife, Scotland/
     end
 
     it "should have a Google Map on the page" do
       last_response.body.should =~ %r[<div id="map"></div>]
+    end
+    
+    it "should include the title of the thing in the page title" do
+     last_response.body.should =~ %r[<title>dbpedia lite - Ceres, Fife</title>]
+    end
+    
+    it "should include a <meta> description tag with a truncated abstract" do
+     last_response.body.should =~ %r[<meta name="description" content="Ceres is a village in Fife, Scotland]
     end
 
     it "should have the title of the thing as RDFa" do

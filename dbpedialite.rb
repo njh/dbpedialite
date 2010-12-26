@@ -55,6 +55,13 @@ class DbpediaLite < Sinatra::Base
         xmlns
       end
     end
+
+    def truncate(text, len=30, truncate_string='...')
+      return if text.nil?
+      l = len - truncate_string.chars.count
+      text.chars.count > len ? text[/\A.{#{l}}\w*\;?/m][/.*[\w\;]/m] + truncate_string : text
+    end
+
   end
 
   before do
