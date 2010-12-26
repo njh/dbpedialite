@@ -3,7 +3,5 @@
 set -e
 set -x
 
-BUNDLE="bundle --no-color"
-
-$BUNDLE install --deployment
-$BUNDLE exec rake spec
+bundle install --deployment
+bundle exec rake spec
