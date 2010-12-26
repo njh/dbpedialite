@@ -1,10 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    abstract (1.0.0)
     addressable (2.2.2)
-    erubis (2.6.6)
-      abstract (>= 1.0.0)
     json_pure (1.4.6)
     mocha (0.9.10)
       rake
@@ -50,7 +47,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  erubis
   json_pure
   mocha
   nokogiri

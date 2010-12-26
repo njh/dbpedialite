@@ -3,7 +3,6 @@ source "http://rubygems.org"
 gem 'sinatra'
 gem 'sinatra-content-for', :require => 'sinatra/content_for'
 
-gem 'erubis'
 gem 'json_pure', :require => 'json'
 gem 'nokogiri'
 gem 'rdiscount'
