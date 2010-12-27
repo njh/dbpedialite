@@ -159,16 +159,42 @@ describe WikipediaThing do
       @thing.abstract.should =~ /^Ceres is a village in Fife, Scotland/
     end
 
-    it "should have a freebase URI" do
-      freebase_data = {
-        'guid' => '#9202a8c04000641f80000000003bb45c',
-        'id' => '/en/ceres_united_kingdom',
-        'mid' => '/m/03rf2x',
-        'name' => 'Ceres',
-        'rdf_uri' => 'http://rdf.freebase.com/ns/m.03rf2x',
-      }
-      FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(freebase_data)
-      @thing.freebase_uri.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
+    context "when freebase responds with a parsable response" do
+      it "should have a freebase URI" do
+        freebase_data = {
+          'guid' => '#9202a8c04000641f80000000003bb45c',
+          'id' => '/en/ceres_united_kingdom',
+          'mid' => '/m/03rf2x',
+          'name' => 'Ceres',
+          'rdf_uri' => 'http://rdf.freebase.com/ns/m.03rf2x',
+        }
+        FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(freebase_data)
+        @thing.freebase_uri.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
+      end
+    end
+
+    context "when freebase times out" do
+      it "should send a message to stderr" do
+        FreebaseApi.expects(:lookup_wikipedia_pageid).raises(Timeout::Error)
+        previous_stderr, $stderr = $stderr, StringIO.new
+
+        @thing.freebase_uri
+        $stderr.string.should == "Timed out while reading from Freebase: Timeout::Error\n"
+
+        $stderr = previous_stderr
+      end
+    end
+
+    context "when FreebaseApi raises any error other than timeout" do
+      it "should send a message to stderr" do
+        FreebaseApi.expects(:lookup_wikipedia_pageid).raises()
+        previous_stderr, $stderr = $stderr, StringIO.new
+
+        @thing.freebase_uri
+        $stderr.string.should == "Error while reading from Freebase: RuntimeError\n"
+
+        $stderr = previous_stderr
+      end
     end
 
     it "should have a single external like of type RDF::URI" do
