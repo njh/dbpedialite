@@ -12,6 +12,7 @@ task 'spec' do
         '-x', '/System',
         '-x', '/usr',
         '-x', '/var',
+        '-x', '.bundle',
         '-x', 'spec'
     ]
     t.spec_opts = ["-c"]
@@ -28,6 +29,7 @@ task 'tracespec' do
         '-x', '/System',
         '-x', '/usr',
         '-x', '/var',
+        '-x', '.bundle',
         '-x', 'spec'
     ]
     t.spec_opts = ["-bcfn"]
