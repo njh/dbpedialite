@@ -22,9 +22,9 @@ module FreebaseApi
     # Throw and exception if the JSON response was unsuccessful
     data = JSON.parse(res.body)
     unless data['code'] == '/api/status/ok'
-      raise "Freebase query failed: #{data['messages'][0]['message']}" 
+      raise "Freebase query failed: #{data['messages'][0]['message']}"
     end
-    
+
     data['result']
   end
 
@@ -41,10 +41,14 @@ module FreebaseApi
        'guid' => nil,
        'limit' => 1
     })
-    
+
+    if data.nil? or data['mid'].nil?
+      raise "Failed to lookup wikipedia page id"
+    end
+
     # Construct an rdf URI
     data['rdf_uri'] =  "http://rdf.freebase.com/ns/"+data['mid'].sub('/m/','m.')
-    
+
     data
-  end  
+  end
 end
