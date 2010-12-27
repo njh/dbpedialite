@@ -8,6 +8,7 @@ task 'spec' do
     t.spec_files = FileList["spec/*.spec","spec/*.rb"]
     t.rcov = true
     t.rcov_opts = [
+        '-x', '~/.rvm',
         '-x', '/Library',
         '-x', '/System',
         '-x', '/usr',
