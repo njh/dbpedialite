@@ -371,6 +371,24 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing the gems information page" do
+    before :each do
+      get '/gems'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type text/html" do
+      last_response.content_type.should == 'text/html;charset=utf-8'
+    end
+
+    it "should include a summary for the Sinatra gem" do
+      last_response.body.should =~ /Classy web-development dressed in a DSL/
+    end
+  end
+
   context "extracting vocabularies" do
     before :each do
       @graph = RDF::Graph.new do |g|
@@ -393,11 +411,11 @@ describe 'dbpedia lite' do
       @vocabularies.should have_key :foaf
     end
 
-    it "should havw the right namespace the FOAF vocabulary" do
+    it "should have the right namespace the FOAF vocabulary" do
       @vocabularies[:foaf].should == RDF::FOAF
     end
 
-    it "should havw the right namespace the DC vocabulary" do
+    it "should have the right namespace the DC vocabulary" do
       @vocabularies[:dc].should == RDF::DC
     end
   end
