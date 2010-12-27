@@ -65,9 +65,6 @@ class DbpediaLite < Sinatra::Base
   end
 
   before do
-    ## FIXME: this shouldn't be needed
-    Spira.add_repository! :default, RDF::Repository.new
-
     if production? and request.host != DEFAULT_HOST
       redirect "http://" + DEFAULT_HOST + request.path, 301
     end
@@ -115,6 +112,7 @@ class DbpediaLite < Sinatra::Base
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     @thing = WikipediaThing.load(pageid)
     not_found("Thing not found.") if @thing.nil?
+    @graph = @thing.to_rdf
 
     if format.empty?
       format = request.accept.first || ''
@@ -125,21 +123,21 @@ class DbpediaLite < Sinatra::Base
             'Cache-Control' => 'public,max-age=600'
     case format
       when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
-        @vocabularies = DbpediaLite.extract_vocabularies(@thing)
+        @vocabularies = DbpediaLite.extract_vocabularies(@graph)
         content_type 'text/html'
         erb :page
       when 'json', 'application/json', 'text/json' then
         content_type 'application/json'
-        @thing.dump(:json)
+        @graph.dump(:json)
       when 'n3', 'ttl', 'text/n3', 'text/turtle', 'application/turtle' then
         content_type 'text/n3'
-        @thing.dump(:n3)
+        @graph.dump(:n3)
       when 'nt', 'ntriples', 'text/plain' then
         content_type 'text/plain'
-        @thing.dump(:ntriples)
+        @graph.dump(:ntriples)
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
-        @thing.dump(:rdfxml)
+        @graph.dump(:rdfxml)
       else
         error 400, "Unsupported format: #{format}\n"
     end

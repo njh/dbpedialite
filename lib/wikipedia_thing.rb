@@ -1,26 +1,15 @@
-require 'rubygems'
 require 'wikipedia_api'
 require 'freebase_api'
-require 'spira'
 
 
 class WikipediaThing
-  include Spira::Resource
+  BASE_URI = "http://dbpedialite.org/things"
 
-  base_uri "http://dbpedialite.org/things"
-  type OWL.Thing
-
-  property :title, :predicate => RDFS.label, :type => String
-  property :abstract, :predicate => RDFS.comment, :type => String
-  property :wikipedia, :predicate => FOAF.isPrimaryTopicOf, :type => URI
-  property :latitude, :predicate => GEO.lat, :type => Float
-  property :longitude, :predicate => GEO.long, :type => Float
-  property :dbpedia, :predicate => OWL.sameAs, :type => URI
-  property :freebase, :predicate => OWL.sameAs, :type => URI
-
-  has_many :externallinks, :predicate => FOAF.page, :type => URI
-  #has_many :images, :predicate => FOAF.depiction, :type => URI
-  #has_many :categories, :predicate => SKOS.subject, :type => :Category
+  attr_accessor :pageid
+  attr_accessor :title
+  attr_accessor :abstract
+  attr_accessor :longitude, :latitude
+  attr_accessor :externallinks
 
   # FIXME: this should apply to the document, not the thing
   #property :updated_at, :predicate => DC.modified, :type => DateTime
@@ -36,36 +25,45 @@ class WikipediaThing
   # Document properties
   #  lasttouched, lastrevid, ns, length, counter
 
-  def self.id_for(identifier)
-    unless identifier.is_a?(RDF::URI)
-      identifier = RDF::URI.parse("#{base_uri}/#{identifier}#thing")
-    end
-    super(identifier)
-  end
-
   def self.for_title(title)
     data = WikipediaApi.title_to_pageid(title)
     if data.size and data.values.first
-      self.for(data.values.first)
+      self.new(data.values.first)
     else
       nil
     end
   end
 
-  def self.load(identifier, opts={})
-    @thing = self.for(identifier, opts)
+  def self.load(pageid)
+    @thing = self.new(pageid)
     @thing.load ? @thing : nil
+  end
+
+  def initialize(pageid, args={})
+    @pageid = pageid
+    @externallinks = []
+    assign(args) unless args.empty?
+  end
+
+  # FIXME: is there a more generic way to do this?
+  def assign(args)
+    args.each_pair do |key,value|
+      key = key.to_sym
+      if self.respond_to?("#{key}=")
+        self.send("#{key}=", value)
+      end
+    end
+  end
+
+  def uri
+    @uri ||= RDF::URI.parse("#{BASE_URI}/#{pageid}#thing")
   end
 
   def load
     data = WikipediaApi.parse(pageid)
-    return false unless data['valid']
-    self.class.properties.each do |name,property|
-      name = name.to_s
-      if data.has_key?(name)
-        self.send("#{name}=", data[name])
-      end
-    end
+    return false if data.nil? or !data['valid']
+
+    assign(data)
 
     # Add the external links
     if data.has_key?('externallinks')
@@ -77,32 +75,27 @@ class WikipediaThing
     #  self.images = data['images'].map {|img| RDF::URI.parse(img)}
     #end
 
+    true
+  end
+
+  def wikipedia_uri
+    @wikipedia_uri ||= RDF::URI.parse("http://en.wikipedia.org/wiki/#{escaped_title}")
+  end
+
+  def dbpedia_uri
+    @dbpedia_uri ||= RDF::URI.parse("http://dbpedia.org/resource/#{escaped_title}")
+  end
+
+  def freebase_uri
     # Attempt to match to Freebase, but silently fail on error
-    begin
+    @freebase_uri ||= begin
       data = FreebaseApi.lookup_wikipedia_pageid(pageid)
-      self.freebase = RDF::URI.parse(data['rdf_uri'])
+      RDF::URI.parse(data['rdf_uri']) unless data.nil?
     rescue Timeout::Error => e
       $stderr.puts "Timed out while reading from Freebase: #{e.message}"
     rescue => e
       $stderr.puts "Error while reading from Freebase: #{e.message}"
     end
-
-    true
-  end
-
-  def title=(title)
-    attribute_set(:title, title)
-
-    # The FOAF::page is derived from the title
-    unless title.nil?
-      self.wikipedia = RDF::URI.parse("http://en.wikipedia.org/wiki/#{escaped_title}")
-      self.dbpedia = RDF::URI.parse("http://dbpedia.org/resource/#{escaped_title}")
-    end
-  end
-
-  def pageid
-    self.uri.path =~ /(\d+)$/
-    $1.to_i
   end
 
   def escaped_title
@@ -115,7 +108,19 @@ class WikipediaThing
     !(latitude.nil? || longitude.nil?)
   end
 
-  def dump(args)
-    RDF::Writer.for(*args).dump(self)
+  def to_rdf
+    RDF::Graph.new do |graph|
+      graph << [self.uri, RDF.type, RDF::OWL.Thing]
+      graph << [self.uri, RDF::RDFS.label, title]
+      graph << [self.uri, RDF::RDFS.comment, abstract]
+      graph << [self.uri, RDF::FOAF.isPrimaryTopicOf, wikipedia_uri]
+      graph << [self.uri, RDF::OWL.sameAs, dbpedia_uri]
+      graph << [self.uri, RDF::OWL.sameAs, freebase_uri] unless freebase_uri.nil?
+      graph << [self.uri, RDF::GEO.lat, latitude] unless latitude.nil?
+      graph << [self.uri, RDF::GEO.long, longitude] unless longitude.nil?
+      externallinks.each do |link|
+        graph << [self.uri, RDF::FOAF.page, link]
+      end
+    end
   end
 end

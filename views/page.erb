@@ -29,7 +29,7 @@
 
   <table id="description" about="<%= h @thing.uri %>">
    <tr><th>Property</th><th>Value</th></tr>
-   <% @thing.each_statement do |s| %>
+   <% @graph.each_statement do |s| %>
     <tr>
       <td><%= shorten(s.predicate) %></td>
       <% if s.object.uri? %>

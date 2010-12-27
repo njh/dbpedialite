@@ -8,7 +8,6 @@ gem 'nokogiri'
 gem 'rdiscount'
 
 gem 'rdf', '0.2.3'
-gem 'spira', '0.0.5'
 gem 'rdf-json', :require => 'rdf/json'
 gem 'rdf-n3', :require => 'rdf/n3'
 gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
