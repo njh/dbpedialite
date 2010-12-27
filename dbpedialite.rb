@@ -144,6 +144,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/gems' do
+    headers 'Cache-Control' => 'public,max-age=3600'
     @specs = Gem::loaded_specs.values.sort {|a,b| a.name <=> b.name }
     erb :gems
   end
