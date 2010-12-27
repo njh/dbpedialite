@@ -3,5 +3,5 @@
 set -e
 set -x
 
-bundle install --deployment
+bundle install --deployment --path=.bundle/gems
 bundle exec rake spec
