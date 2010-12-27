@@ -62,6 +62,10 @@ class DbpediaLite < Sinatra::Base
       text.chars.count > len ? text[/\A.{#{l}}\w*\;?/m][/.*[\w\;]/m] + truncate_string : text
     end
 
+    def format_iso8061(datetime)
+      datetime.strftime('%Y-%m-%dT%H:%M:%S%Z').sub(/\+00:00|UTC/, 'Z')
+    end
+
   end
 
   before do

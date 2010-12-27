@@ -7,6 +7,7 @@
 
 <% content_for :head do %>
   <link rel="foaf:primaryTopic" href="<%= @thing.uri %>" />
+  <link rel="rdf:type" href="[foaf:Document]" />
   <link rel="alternate" type="application/json" href="<%= "/things/#{@thing.pageid}.json" %>" title="JSON" />
   <link rel="alternate" type="text/n3" href="<%= "/things/#{@thing.pageid}.n3" %>" title="Notation 3" />
   <link rel="alternate" type="text/plain" href="<%= "/things/#{@thing.pageid}.nt" %>" title="N-Triples" />
@@ -29,7 +30,7 @@
 
   <table id="description" about="<%= h @thing.uri %>">
    <tr><th>Property</th><th>Value</th></tr>
-   <% @graph.each_statement do |s| %>
+   <% @graph.query([@thing.uri, nil, nil]) do |s| %>
     <tr>
       <td><%= shorten(s.predicate) %></td>
       <% if s.object.uri? %>
@@ -52,3 +53,8 @@
   <%= link_to('N-Triples', "/things/#{@thing.pageid}.nt") %> |
   <%= link_to('RDF/XML', "/things/#{@thing.pageid}.rdf") %>
 </div>
+
+<p id="lastmodified">
+  This data was last modified at
+  <span property="dc:modified"><%= format_iso8061(@thing.updated_at) %></span>.
+</p>

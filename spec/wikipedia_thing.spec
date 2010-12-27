@@ -201,7 +201,8 @@ describe WikipediaThing do
       FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(nil)
       @thing = WikipediaThing.new(52780,
         :title => 'U2',
-        :abstract => "U2 are an Irish rock band."
+        :abstract => "U2 are an Irish rock band.",
+        :updated_at => DateTime.parse('2010-05-08T17:20:04Z')
       )
       @graph = @thing.to_rdf
     end
@@ -210,10 +211,57 @@ describe WikipediaThing do
       @graph.class.should == RDF::Graph
     end
 
-    it "should convert to 5 triples" do
-      @graph.count.should == 5
+    it "should return a graph with 8 triples" do
+      @graph.count.should == 8
     end
 
-    ## FIXME: add further tests for the RDF
+    it "should include an rdf:type triple for the thing" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#thing"),
+        RDF.type,
+        RDF::URI("http://www.w3.org/2002/07/owl#Thing")
+      ])
+    end
+
+    it "should include a rdfs:label triple for the thing" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#thing"),
+        RDF::RDFS.label,
+        RDF::Literal("U2"),
+      ])
+    end
+
+    it "should include a rdfs:comment triple for the thing" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#thing"),
+        RDF::RDFS.comment,
+        RDF::Literal("U2 are an Irish rock band."),
+      ])
+    end
+
+    it "should include a rdf:type triple for the document" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF.type,
+        RDF::URI("http://xmlns.com/foaf/0.1/Document")
+      ])
+    end
+
+    it "should include a foaf:primaryTopic triple linking the document to the thing" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF::FOAF.primaryTopic,
+        RDF::URI("http://dbpedialite.org/things/52780#thing")
+      ])
+    end
+
+    it "should include a dc:modified triple for the document" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF::URI("http://purl.org/dc/terms/modified"),
+        RDF::Literal(DateTime.parse('2010-05-08T17:20:04Z'))
+      ])
+    end
+
   end
 end

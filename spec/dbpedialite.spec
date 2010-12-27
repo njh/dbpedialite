@@ -211,6 +211,14 @@ describe 'dbpedia lite' do
       ])
     end
 
+    it "should have an dc:modified RDFa triple for the document" do
+      rdfa_graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/934787"),
+        RDF::URI("http://purl.org/dc/terms/modified"),
+        RDF::Literal('2010-04-29T10:22:00Z')
+      ])
+    end
+
     it "should have an RDFa triple linking the altenate RDF/XML format" do
       rdfa_graph.should have_triple([
         RDF::URI("http://dbpedialite.org/things/934787"),

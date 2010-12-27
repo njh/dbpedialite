@@ -10,9 +10,7 @@ class WikipediaThing
   attr_accessor :abstract
   attr_accessor :longitude, :latitude
   attr_accessor :externallinks
-
-  # FIXME: this should apply to the document, not the thing
-  #property :updated_at, :predicate => DC.modified, :type => DateTime
+  attr_accessor :updated_at
 
   # Additionally:
   #  foaf:depiction
@@ -57,6 +55,10 @@ class WikipediaThing
 
   def uri
     @uri ||= RDF::URI.parse("#{BASE_URI}/#{pageid}#thing")
+  end
+
+  def doc_uri
+    @doc_uri ||= RDF::URI.parse("#{BASE_URI}/#{pageid}")
   end
 
   def load
@@ -110,6 +112,12 @@ class WikipediaThing
 
   def to_rdf
     RDF::Graph.new do |graph|
+      # Triples about the Document
+      graph << [doc_uri, RDF.type, RDF::FOAF.Document]
+      graph << [doc_uri, RDF::DC.modified, updated_at] unless updated_at.nil?
+      graph << [doc_uri, RDF::FOAF.primaryTopic, self.uri]
+
+      # Triples about the Thing
       graph << [self.uri, RDF.type, RDF::OWL.Thing]
       graph << [self.uri, RDF::RDFS.label, title]
       graph << [self.uri, RDF::RDFS.comment, abstract]
@@ -123,4 +131,5 @@ class WikipediaThing
       end
     end
   end
+
 end
