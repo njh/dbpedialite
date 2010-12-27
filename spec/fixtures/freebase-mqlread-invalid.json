@@ -1,0 +1,20 @@
+{
+  "code": "/api/status/error",
+  "messages": [
+    {
+      "code": "/api/status/error/mql/type",
+      "info": {
+        "expected_type": "/type/object",
+        "property": "foo"
+      },
+      "message": "Type /type/object does not have property foo",
+      "path": "",
+      "query": {
+        "error_inside": ".",
+        "foo": "bar"
+      }
+    }
+  ],
+  "status": "200 OK",
+  "transaction_id": "cache;cache02.p01.sjc1:8101;2010-12-27T12:27:56Z;0024"
+}
