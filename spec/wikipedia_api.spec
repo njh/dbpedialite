@@ -96,6 +96,21 @@ describe WikipediaApi do
     end
   end
 
+  context "parsing an HTML page with pronunciation details in the abstract" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=3354',
+        :body => fixture_data('berlin.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      @data = WikipediaApi.parse(3354)
+    end
+
+    it "should return the artitle abstract without pronunciation" do
+      @data['abstract'].should =~ /\ABerlin is the capital city of Germany/
+    end
+  end
+
   context "parsing a non-existant HTML page" do
     before :each do
       FakeWeb.register_uri(:get,

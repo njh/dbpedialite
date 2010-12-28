@@ -65,6 +65,7 @@ module WikipediaApi
       break if data['abstract'].size > ABSTRACT_MAX_LENGTH
     end
     data['abstract'].gsub!(/\[\d+\]/,'')
+    data['abstract'] = self.strip_pronunciation(data['abstract'])
 
     # Is this a Not Found page?
     if data['abstract'] =~ /^The requested page title is invalid/
@@ -141,4 +142,7 @@ module WikipediaApi
     data
   end
 
+  def self.strip_pronunciation(abstract_text)
+    abstract_text.gsub(/ \(.*pronunciation:.*\)/,'')
+  end
 end
