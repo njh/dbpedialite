@@ -7,7 +7,7 @@ gem 'json_pure', :require => 'json'
 gem 'nokogiri'
 gem 'rdiscount'
 
-gem 'rdf', '0.2.3'
+gem 'rdf'
 gem 'rdf-json', :require => 'rdf/json'
 gem 'rdf-n3', :require => 'rdf/n3'
 gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
@@ -19,5 +19,5 @@ group :test do
   gem 'fakeweb'
   gem 'rcov'
   gem 'rack-test', :require => 'rack/test'
-  gem 'rdf-raptor', :require => 'rdf/raptor'
+  gem 'rdf-rdfa', :require => 'rdf/rdfa'
 end

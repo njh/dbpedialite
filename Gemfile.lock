@@ -7,25 +7,24 @@ GEM
     mocha (0.9.10)
       rake
     nokogiri (1.4.4)
-    polyglot (0.3.1)
     rack (1.2.1)
     rack-test (0.5.6)
       rack (>= 1.0)
     rake (0.8.7)
     rcov (0.9.9)
-    rdf (0.2.3)
-      addressable (~> 2.2.0)
-    rdf-json (0.2.0)
-      json_pure (~> 1.4.3)
-      rdf (~> 0.2.0)
-    rdf-n3 (0.2.3.2)
-      rdf (>= 0.2.1)
-      treetop (>= 1.4.0)
-    rdf-raptor (0.4.0)
-      rdf (~> 0.2.0)
-    rdf-rdfxml (0.2.3)
+    rdf (0.3.0)
+      addressable (>= 2.2)
+    rdf-json (0.3.0)
+      json_pure (>= 1.4.2)
+      rdf (~> 0.3.0)
+    rdf-n3 (0.3.0)
+      rdf (>= 0.3.0)
+    rdf-rdfa (0.3.0)
       nokogiri (>= 1.3.3)
-      rdf (>= 0.2.2)
+      rdf (>= 0.3.0)
+    rdf-rdfxml (0.3.0)
+      nokogiri (>= 1.3.3)
+      rdf (>= 0.3.0)
     rdiscount (1.6.5)
     rspec (1.3.1)
     sinatra (1.1.2)
@@ -34,8 +33,6 @@ GEM
     sinatra-content-for (0.2)
       sinatra
     tilt (1.2.1)
-    treetop (1.4.9)
-      polyglot (>= 0.3.1)
 
 PLATFORMS
   ruby
@@ -48,10 +45,10 @@ DEPENDENCIES
   rack-test
   rake
   rcov
-  rdf (= 0.2.3)
+  rdf
   rdf-json
   rdf-n3
-  rdf-raptor
+  rdf-rdfa
   rdf-rdfxml
   rdiscount
   rspec (= 1.3.1)
