@@ -58,16 +58,18 @@ describe WikipediaThing do
         :updated_at => DateTime.parse('2010-05-08T17:20:04Z'),
         :abstract => "Ceres is a village in Fife, Scotland."
       )
-      # FIXME: This is a hack to make sure the setter method gets called
-      @thing.title = 'Ceres, Fife'
     end
 
     it "should return an object of type WikipediaThing" do
       @thing.class.should == WikipediaThing
     end
 
-    it "should have the correct URI" do
-      @thing.uri.to_s.should == 'http://dbpedialite.org/things/934787#thing'
+    it "should have the correct URI for the thing" do
+      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/934787#thing')
+    end
+
+    it "should have the correct URI for the document" do
+     @thing.doc_uri.should == RDF::URI('http://dbpedialite.org/things/934787')
     end
 
     it "should have the correct title" do
@@ -96,6 +98,22 @@ describe WikipediaThing do
 
     it "should encode the dbpedia URI correctly" do
       @thing.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres%2C_Fife')
+    end
+  end
+
+  context "changing the URI of the document" do
+    before :each do
+      WikipediaApi.expects(:query).never
+      @thing = WikipediaThing.new(1234)
+    end
+
+    it "should have the correct default URI for the document" do
+      @thing.doc_uri.should == RDF::URI('http://dbpedialite.org/things/1234')
+    end
+
+    it "should return the new document URI after changing it" do
+      @thing.doc_uri = 'http://127.0.0.1/foobar.rdf'
+      @thing.doc_uri.should == RDF::URI('http://127.0.0.1/foobar.rdf')
     end
   end
 

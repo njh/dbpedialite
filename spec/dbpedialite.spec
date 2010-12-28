@@ -351,7 +351,7 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing an RDF/XML page for a geographic thing" do
+  context "GETing an RDF/XML page for a geographic thing by content negotiation" do
     before :each do
       FakeWeb.register_uri(:get,
         'http://en.wikipedia.org/wiki/index.php?curid=934787',
@@ -376,6 +376,38 @@ describe 'dbpedia lite' do
 
     it "should be cachable" do
       last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    end
+
+    it "should contain the URI of the document we requested" do
+      last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787">]
+    end
+  end
+
+  context "GETing an RDF/XML page for a geographic thing by suffix" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(:get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json')
+      )
+      header "Accept", "text/plain"
+      get '/things/934787.rdf'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type application/rdf+xml" do
+      last_response.content_type.should == 'application/rdf+xml'
+    end
+
+    it "should contain the URI of the document we requested" do
+      last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787.rdf">]
     end
   end
 

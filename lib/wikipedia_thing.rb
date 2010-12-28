@@ -57,8 +57,12 @@ class WikipediaThing
     @uri ||= RDF::URI.parse("#{BASE_URI}/#{pageid}#thing")
   end
 
+  def doc_uri=(uri)
+    @doc_uri = RDF::URI.parse(uri.to_s)
+  end
+
   def doc_uri
-    @doc_uri ||= RDF::URI.parse("#{BASE_URI}/#{pageid}")
+    @doc_uri || RDF::URI.parse("#{BASE_URI}/#{pageid}")
   end
 
   def load

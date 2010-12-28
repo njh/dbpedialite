@@ -116,6 +116,8 @@ class DbpediaLite < Sinatra::Base
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     @thing = WikipediaThing.load(pageid)
     not_found("Thing not found.") if @thing.nil?
+
+    @thing.doc_uri = request.url
     @graph = @thing.to_rdf
 
     if format.empty?
