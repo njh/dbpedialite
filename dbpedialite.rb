@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'wikipedia_thing'
+require 'wikipedia_concept'
 
 
 class DbpediaLite < Sinatra::Base
@@ -22,6 +23,35 @@ class DbpediaLite < Sinatra::Base
       end
     end
     vocabs
+  end
+  
+  def negotiate_content(graph, format, html_view)
+    if format.empty?
+      format = request.accept.first || ''
+      format.sub!(/;.+$/,'')
+    end
+
+    headers 'Vary' => 'Accept',
+            'Cache-Control' => 'public,max-age=600'
+    case format
+      when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
+        content_type 'text/html'
+        erb html_view
+      when 'json', 'application/json', 'text/json' then
+        content_type 'application/json'
+        graph.dump(:json)
+      when 'n3', 'ttl', 'text/n3', 'text/turtle', 'application/turtle' then
+        content_type 'text/n3'
+        graph.dump(:n3)
+      when 'nt', 'ntriples', 'text/plain' then
+        content_type 'text/plain'
+        graph.dump(:ntriples)
+      when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
+        content_type 'application/rdf+xml'
+        graph.dump(:rdfxml)
+      else
+        error 400, "Unsupported format: #{format}\n"
+    end
   end
 
   helpers do
@@ -119,34 +149,9 @@ class DbpediaLite < Sinatra::Base
 
     @thing.doc_uri = request.url
     @graph = @thing.to_rdf
+    @vocabularies = DbpediaLite.extract_vocabularies(@graph)
 
-    if format.empty?
-      format = request.accept.first || ''
-      format.sub!(/;.+$/,'')
-    end
-
-    headers 'Vary' => 'Accept',
-            'Cache-Control' => 'public,max-age=600'
-    case format
-      when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
-        @vocabularies = DbpediaLite.extract_vocabularies(@graph)
-        content_type 'text/html'
-        erb :page
-      when 'json', 'application/json', 'text/json' then
-        content_type 'application/json'
-        @graph.dump(:json)
-      when 'n3', 'ttl', 'text/n3', 'text/turtle', 'application/turtle' then
-        content_type 'text/n3'
-        @graph.dump(:n3)
-      when 'nt', 'ntriples', 'text/plain' then
-        content_type 'text/plain'
-        @graph.dump(:ntriples)
-      when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
-        content_type 'application/rdf+xml'
-        @graph.dump(:rdfxml)
-      else
-        error 400, "Unsupported format: #{format}\n"
-    end
+    negotiate_content(@graph, format, :page)
   end
 
   get '/gems' do
