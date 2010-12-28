@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
 require 'wikipedia_thing'
-require 'wikipedia_concept'
 
 
 class DbpediaLite < Sinatra::Base
