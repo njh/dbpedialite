@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
 require 'wikipedia_thing'
-require 'wikipedia_concept'
 
 
 class DbpediaLite < Sinatra::Base
@@ -100,6 +99,7 @@ class DbpediaLite < Sinatra::Base
 
   before do
     if production? and request.host != DEFAULT_HOST
+      headers 'Cache-Control' => 'public,max-age=3600'
       redirect "http://" + DEFAULT_HOST + request.path, 301
     end
   end

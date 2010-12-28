@@ -50,6 +50,10 @@ describe 'dbpedia lite' do
         last_response.status.should == 301
         last_response.headers['Location'].should == 'http://dbpedialite.org/'
       end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
     end
   end
 
