@@ -12,8 +12,12 @@ gem 'rdf-json', :require => 'rdf/json'
 gem 'rdf-n3', :require => 'rdf/n3'
 gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
 
-group :test do
+group :development do
   gem 'rake'
+  gem 'shotgun'
+end
+
+group :test do
   gem 'rspec', '1.3.1', :require => 'spec'
   gem 'mocha'
   gem 'fakeweb'
