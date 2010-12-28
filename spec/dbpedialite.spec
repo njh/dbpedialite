@@ -14,24 +14,42 @@ describe 'dbpedia lite' do
   end
 
   context "GETing the homepage" do
-    before :each do
-      get '/'
+    context "in a non-production environment" do
+      before :each do
+        get '/'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type text/html" do
+        last_response.content_type.should == 'text/html;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should contain the readme text" do
+        last_response.body.should =~ /takes some of the structured data/
+      end
     end
 
-    it "should be successful" do
-      last_response.should be_ok
-    end
+    context "in a production environment" do
+      before :each do
+        set :environment, :production
+        get '/'
+      end
 
-    it "should be of type text/html" do
-      last_response.content_type.should == 'text/html;charset=utf-8'
-    end
+      after :each do
+        set :environment, :test
+      end
 
-    it "should be cachable" do
-      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-    end
-
-    it "should contain the readme text" do
-      last_response.body.should =~ /takes some of the structured data/
+      it "should redirect" do
+        last_response.status.should == 301
+        last_response.headers['Location'].should == 'http://dbpedialite.org/'
+      end
     end
   end
 
@@ -139,14 +157,14 @@ describe 'dbpedia lite' do
   context "GETing an HTML page for a geographic thing" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
+                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                           :body => fixture_data('ceres.html'),
+                           :content_type => 'text/html; charset=UTF-8'
+                           )
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
+                           %r[http://www.freebase.com/api/service/mqlread],
+                           :body => fixture_data('freebase-mqlread-ceres.json')
+                           )
       header "Accept", "text/html"
       get '/things/934787'
     end
@@ -172,59 +190,59 @@ describe 'dbpedia lite' do
     end
 
     it "should include the title of the thing in the page title" do
-     last_response.body.should =~ %r[<title>dbpedia lite - Ceres, Fife</title>]
+      last_response.body.should =~ %r[<title>dbpedia lite - Ceres, Fife</title>]
     end
 
     it "should include a <meta> description tag with a truncated abstract" do
-     last_response.body.should =~ %r[<meta name="description" content="Ceres is a village in Fife, Scotland]
+      last_response.body.should =~ %r[<meta name="description" content="Ceres is a village in Fife, Scotland]
     end
 
     it "should have the title of the thing as RDFa" do
       rdfa_graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/934787#thing"),
-        RDF::RDFS.label,
-        RDF::Literal("Ceres, Fife")
-      ])
+                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                     RDF::RDFS.label,
+                                     RDF::Literal("Ceres, Fife")
+                                    ])
     end
 
     it "should have a link to the Wikipedia page in the RDFa" do
       rdfa_graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/934787#thing"),
-        RDF::FOAF.isPrimaryTopicOf,
-        RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
-      ])
+                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                     RDF::FOAF.isPrimaryTopicOf,
+                                     RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
+                                    ])
     end
 
     it "should have a link to an external link in the RDFa" do
       rdfa_graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/934787#thing"),
-        RDF::FOAF.page,
-        RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
-      ])
+                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                     RDF::FOAF.page,
+                                     RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
+                                    ])
     end
 
     it "should have an RDFa triple linking the document to the thing" do
       rdfa_graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/934787"),
-        RDF::FOAF.primaryTopic,
-        RDF::URI("http://dbpedialite.org/things/934787#thing"),
-      ])
+                                     RDF::URI("http://dbpedialite.org/things/934787"),
+                                     RDF::FOAF.primaryTopic,
+                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                    ])
     end
 
     it "should have an dc:modified RDFa triple for the document" do
       rdfa_graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/934787"),
-        RDF::URI("http://purl.org/dc/terms/modified"),
-        RDF::Literal('2010-04-29T10:22:00Z')
-      ])
+                                     RDF::URI("http://dbpedialite.org/things/934787"),
+                                     RDF::URI("http://purl.org/dc/terms/modified"),
+                                     RDF::Literal('2010-04-29T10:22:00Z')
+                                    ])
     end
 
     it "should have an RDFa triple linking the altenate RDF/XML format" do
       rdfa_graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/934787"),
-        RDF::URI("http://www.w3.org/1999/xhtml/vocab#alternate"),
-        RDF::URI("http://dbpedialite.org/things/934787.rdf"),
-      ])
+                                     RDF::URI("http://dbpedialite.org/things/934787"),
+                                     RDF::URI("http://www.w3.org/1999/xhtml/vocab#alternate"),
+                                     RDF::URI("http://dbpedialite.org/things/934787.rdf"),
+                                    ])
     end
 
   end
@@ -247,14 +265,14 @@ describe 'dbpedia lite' do
   context "GETing an unsupport format for a thing" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
+                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                           :body => fixture_data('ceres.html'),
+                           :content_type => 'text/html; charset=UTF-8'
+                           )
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
+                           %r[http://www.freebase.com/api/service/mqlread],
+                           :body => fixture_data('freebase-mqlread-ceres.json')
+                           )
       get '/things/934787.ratrat'
     end
 
@@ -269,16 +287,16 @@ describe 'dbpedia lite' do
 
   context "GETing an N-Triples page for a geographic thing" do
     before :each do
-       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
-     header "Accept", "text/plain"
+                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                           :body => fixture_data('ceres.html'),
+                           :content_type => 'text/html; charset=UTF-8'
+                           )
+      FakeWeb.register_uri(:get,
+                           %r[http://www.freebase.com/api/service/mqlread],
+                           :body => fixture_data('freebase-mqlread-ceres.json')
+                           )
+      header "Accept", "text/plain"
       get '/things/934787'
     end
 
@@ -298,14 +316,14 @@ describe 'dbpedia lite' do
   context "GETing an JSON page for a geographic thing" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
+                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                           :body => fixture_data('ceres.html'),
+                           :content_type => 'text/html; charset=UTF-8'
+                           )
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
+                           %r[http://www.freebase.com/api/service/mqlread],
+                           :body => fixture_data('freebase-mqlread-ceres.json')
+                           )
       header "Accept", "application/json"
       get '/things/934787'
     end
@@ -326,14 +344,14 @@ describe 'dbpedia lite' do
   context "GETing an N3 page for a geographic thing" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
+                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                           :body => fixture_data('ceres.html'),
+                           :content_type => 'text/html; charset=UTF-8'
+                           )
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
+                           %r[http://www.freebase.com/api/service/mqlread],
+                           :body => fixture_data('freebase-mqlread-ceres.json')
+                           )
       header "Accept", "text/n3"
       get '/things/934787'
     end
@@ -354,14 +372,14 @@ describe 'dbpedia lite' do
   context "GETing an RDF/XML page for a geographic thing by content negotiation" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
+                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                           :body => fixture_data('ceres.html'),
+                           :content_type => 'text/html; charset=UTF-8'
+                           )
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
+                           %r[http://www.freebase.com/api/service/mqlread],
+                           :body => fixture_data('freebase-mqlread-ceres.json')
+                           )
       header "Accept", "application/rdf+xml"
       get '/things/934787'
     end
@@ -386,14 +404,14 @@ describe 'dbpedia lite' do
   context "GETing an RDF/XML page for a geographic thing by suffix" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
+                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                           :body => fixture_data('ceres.html'),
+                           :content_type => 'text/html; charset=UTF-8'
+                           )
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json')
-      )
+                           %r[http://www.freebase.com/api/service/mqlread],
+                           :body => fixture_data('freebase-mqlread-ceres.json')
+                           )
       header "Accept", "text/plain"
       get '/things/934787.rdf'
     end
