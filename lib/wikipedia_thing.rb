@@ -93,8 +93,12 @@ class WikipediaThing
   end
 
   def freebase_uri
+    @freebase_uri ||= fetch_freebase_uri
+  end
+
+  def fetch_freebase_uri
     # Attempt to match to Freebase, but silently fail on error
-    @freebase_uri ||= begin
+    begin
       data = FreebaseApi.lookup_wikipedia_pageid(pageid)
       RDF::URI.parse(data['rdf_uri']) unless data.nil?
     rescue Timeout::Error => e
