@@ -130,7 +130,7 @@ describe 'dbpedia lite' do
 
   context "GETing a title URL" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('query-u2.json'))
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('pageinfo-u2.json'))
       get '/titles/U2'
     end
 
@@ -149,7 +149,7 @@ describe 'dbpedia lite' do
 
   context "GETing an invalid title URL" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('query-zsefpfs.json'))
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('pageinfo-zsefpfs.json'))
       get '/titles/zsefpfs'
     end
 

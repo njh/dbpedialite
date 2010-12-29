@@ -37,13 +37,6 @@ describe WikipediaApi do
       @data['abstract'].should =~ /\ACeres is a village in Fife, Scotland/
     end
 
-    it "should return an array of categories" do
-      @data['categories'].should == [
-        'Category:Villages in Fife',
-        'Category:Churches in Fife'
-      ]
-    end
-
     it "should return an array of images" do
       @data['images'].should == [
         'http://upload.wikimedia.org/wikipedia/commons/d/d6/Scottish_infobox_template_map.png',
@@ -84,16 +77,6 @@ describe WikipediaApi do
     it "should return the artitle abstract" do
       @data['abstract'].should =~ /\ARats are various medium-sized, long-tailed rodents of the superfamily Muroidea/
     end
-
-    it "should return an array of categories" do
-      @data['categories'].should == [
-        "Category:Old World rats and mice",
-        "Category:Urban animals",
-        "Category:Scavengers",
-        "Category:Wikipedia semi-protected pages",
-        "Category:Articles with 'species' microformats"
-      ]
-    end
   end
 
   context "parsing a non-existant HTML page" do
@@ -111,14 +94,14 @@ describe WikipediaApi do
     end
   end
 
-  context "querying by title" do
+  context "getting information about a page by title" do
     before :each do
       FakeWeb.register_uri(:get,
         %r[http://en.wikipedia.org/w/api.php],
-        :body => fixture_data('query-u2.json'),
+        :body => fixture_data('pageinfo-u2.json'),
         :content_type => 'application/json'
       )
-      @data = WikipediaApi.query(:titles => 'U2').values.first
+      @data = WikipediaApi.page_info(:titles => 'U2').first
     end
 
     it "should return the title" do
@@ -135,6 +118,33 @@ describe WikipediaApi do
 
     it "should return the last modified date" do
       @data['touched'].should == "2010-05-12T22:44:49Z"
+    end
+  end
+
+  context "getting information about a page by pageid" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('pageinfo-4309010.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.page_info(:pageids => '4309010').first
+    end
+
+    it "should return the title" do
+      @data['title'].should == 'Category:Villages in Fife'
+    end
+
+    it "should return the pageid" do
+      @data['pageid'].should == 4309010
+    end
+
+    it "should return the namespace" do
+      @data['ns'].should == 14
+    end
+
+    it "should return the last modified date" do
+      @data['touched'].should == "2010-11-04T04:11:11Z"
     end
   end
 
@@ -169,7 +179,7 @@ describe WikipediaApi do
     before :each do
       FakeWeb.register_uri(:get,
         %r[http://en.wikipedia.org/w/api.php],
-        :body => fixture_data('query-u2.json'),
+        :body => fixture_data('pageinfo-u2.json'),
         :content_type => 'application/json'
       )
       @data = WikipediaApi.title_to_pageid('U2')
@@ -192,7 +202,7 @@ describe WikipediaApi do
     before :each do
       FakeWeb.register_uri(:get,
         %r[http://en.wikipedia.org/w/api.php],
-        :body => fixture_data('query-villages-churches.json'),
+        :body => fixture_data('pageinfo-villages-churches.json'),
         :content_type => 'application/json'
       )
       @data = WikipediaApi.title_to_pageid(['Category:Villages in Fife','Category:Churches in Fife'])
@@ -216,6 +226,77 @@ describe WikipediaApi do
 
     it "should return the right pageid for the second title" do
       @data['Category:Churches in Fife'].should == 8528555
+    end
+  end
+
+  context "resolving an invalid title to a pageid" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('pageinfo-zsefpfs.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.title_to_pageid('zsefpfs')
+    end
+
+    it "should return no results" do
+      @data.should be_empty
+    end
+  end
+
+  context "getting the members of a category" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('categorymembers-villages.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.category_members('Category:Villages in Fife')
+      @data.sort! {|a,b| a['pageid'] <=> b['pageid']}
+    end
+
+    it "should return eighty results" do
+      @data.size.should == 80
+    end
+
+    it "should return a title for the first result" do
+      @data.first['title'].should == 'Aberdour'
+    end
+
+    it "should return a pageid for the first result" do
+      @data.first['pageid'].should == 2712
+    end
+
+    it "should return a namespace for the first result" do
+      @data.first['ns'].should == 0
+    end
+  end
+
+  context "getting the categories that something is a member of" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('categories-934787.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.page_categories(934787)
+      @data.sort! {|a,b| a['pageid'] <=> b['pageid']}
+    end
+
+    it "should return 3 results" do
+      @data.size.should == 3
+    end
+
+    it "should return a title for the first result" do
+      @data.first['title'].should == 'Category:Villages in Fife'
+    end
+
+    it "should return a pageid for the first result" do
+      @data.first['pageid'].should == 4309010
+    end
+
+    it "should return a namespace for the first result" do
+      @data.first['ns'].should == 14
     end
   end
 end

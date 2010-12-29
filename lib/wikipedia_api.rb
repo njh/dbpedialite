@@ -7,11 +7,10 @@ module WikipediaApi
   ABSTRACT_MAX_LENGTH = 500
   HTTP_TIMEOUT = 5
 
-  def self.query(args)
+  def self.page_info(args)
     data = self.get('query', {:redirects => 1, :prop => 'info'}.merge(args))
 
-    # FIXME: check that a single page has been returned
-    data['query']['pages']
+    data['query']['pages'].values
   end
 
   def self.search(query, args={})
@@ -23,8 +22,10 @@ module WikipediaApi
   def self.get(action, args={})
     items = []
     args.merge!(:action => action, :format => 'json')
-    args.each_pair do |key,value|
-     items << CGI::escape(key.to_s)+'='+CGI::escape(value.to_s)
+
+    keys = args.keys.sort {|a,b| a.to_s <=> b.to_s}
+    keys.each do |key|
+     items << CGI::escape(key.to_s)+'='+CGI::escape(args[key].to_s)
     end
 
     uri = API_URI.clone
@@ -39,6 +40,29 @@ module WikipediaApi
     res.value
 
     JSON.parse(res.body)
+  end
+
+  def self.category_members(title, args={})
+    # FIXME: this should use pageid, when it is available in the MediaWiki API
+    data = self.get('query', {
+      :list => 'categorymembers',
+      :cmprop => 'ids|title',
+      :cmsort => 'sortkey',
+      :cmtitle => title,
+      :cmlimit => 500
+    }.merge(args))
+
+    data['query']['categorymembers']
+  end
+
+  def self.page_categories(pageid, args={})
+    data = self.get('query', {
+      :generator => 'categories',
+      :pageids => pageid,
+      :gcllimit => 500,
+    }.merge(args))
+
+    data['query']['pages'].values
   end
 
   def self.parse(pageid)
@@ -116,27 +140,16 @@ module WikipediaApi
     end
     data['externallinks'].uniq!
 
-    # Extract the categories
-    data['categories'] = []
-    doc.search("#catlinks//a").each do |catlink|
-      if catlink.has_attribute?('title')
-        title = catlink.attribute('title').value
-        if title.is_a?(String) and title =~ /^Category:/
-          data['categories'] << title
-        end
-      end
-    end
-
     data
   end
 
   def self.title_to_pageid(titles)
-    # FIXME: do caching
-    titles = titles.join('|') if titles.is_a?(Array)
-    response = query(:titles => titles)
+    # FIXME: do caching here?
+    titles = titles.uniq.join('|') if titles.is_a?(Array)
+    response = page_info(:titles => titles)
     data = {}
-    response.values.each do |r|
-      data[r['title']] = r['pageid']
+    response.each do |r|
+      data[r['title']] = r['pageid'] if r['pageid']
     end
     data
   end
