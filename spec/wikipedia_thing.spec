@@ -5,7 +5,7 @@ describe WikipediaThing do
 
   context "creating an article from a page id" do
     before :each do
-      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:title_to_pageid).never
       @thing = WikipediaThing.new(52780)
     end
 
@@ -24,7 +24,7 @@ describe WikipediaThing do
 
   context "creating an thing from a page title" do
     before :each do
-      WikipediaApi.expects(:query).once.returns({'52780'=>{'pageid'=>52780}})
+      WikipediaApi.expects(:title_to_pageid).once.returns({'U2'=>52780})
       @thing = WikipediaThing.for_title('U2')
     end
 
@@ -39,7 +39,7 @@ describe WikipediaThing do
 
   context "creating an thing from a non-existant page title" do
     before :each do
-      WikipediaApi.expects(:query).once.returns({'zsefpfs'=>{"title"=>"zsefpfs", "ns"=>0, "missing"=>""}})
+      WikipediaApi.expects(:title_to_pageid).once.returns({})
       @thing = WikipediaThing.for_title('zsefpfs')
     end
 
@@ -50,7 +50,7 @@ describe WikipediaThing do
 
   context "creating an thing with data provided" do
     before :each do
-      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:title_to_pageid).never
       @thing = WikipediaThing.new(934787,
         :title => 'Ceres, Fife',
         :latitude => 56.293431,
@@ -103,7 +103,7 @@ describe WikipediaThing do
 
   context "changing the URI of the document" do
     before :each do
-      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:title_to_pageid).never
       @thing = WikipediaThing.new(1234)
     end
 
@@ -128,7 +128,7 @@ describe WikipediaThing do
         'images' => ['http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg'],
         'externallinks' => ['http://www.fife.50megs.com/ceres-history.htm']
       }
-      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:title_to_pageid).never
       WikipediaApi.expects(:parse).once.returns(wikipedia_data)
       @thing = WikipediaThing.load(934787)
     end
@@ -227,7 +227,7 @@ describe WikipediaThing do
   context "loading a non-existant page from wikipedia" do
     before :each do
       data = {'valid' => false}
-      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:title_to_pageid).never
       WikipediaApi.expects(:parse).once.returns(data)
       FreebaseApi.expects(:lookup_wikipedia_pageid).never
       @thing = WikipediaThing.load(999999)
@@ -240,7 +240,7 @@ describe WikipediaThing do
 
   context "converting a thing to RDF" do
     before :each do
-      WikipediaApi.expects(:query).never
+      WikipediaApi.expects(:title_to_pageid).never
       WikipediaApi.expects(:parse).never
       FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(nil)
       @thing = WikipediaThing.new(52780,
