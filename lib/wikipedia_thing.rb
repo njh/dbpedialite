@@ -23,15 +23,6 @@ class WikipediaThing
   # Document properties
   #  lasttouched, lastrevid, ns, length, counter
 
-  def self.for_title(title)
-    data = WikipediaApi.title_to_pageid(title)
-    if data.size and data.values.first
-      self.new(data.values.first)
-    else
-      nil
-    end
-  end
-
   def self.load(pageid)
     @thing = self.new(pageid)
     @thing.load ? @thing : nil
