@@ -158,6 +158,21 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing a title that isn't a thing" do
+    before :each do
+      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('pageinfo-user.json'))
+      get '/titles/User:Nhumfrey'
+    end
+
+    it "should be an error" do
+      last_response.should be_server_error
+    end
+
+    it "should inform the user that the namespace isn't supported" do
+      last_response.body.should =~ /Unsupported Wikipedia namespace/
+    end
+  end
+
   context "GETing an HTML page for a geographic thing" do
     before :each do
       FakeWeb.register_uri(:get,

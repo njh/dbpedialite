@@ -136,11 +136,17 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/titles/:title' do |title|
-    @thing = WikipediaThing.for_title(title)
-    not_found("Title not found.") if @thing.nil?
-
-    headers 'Cache-Control' => 'public,max-age=600'
-    redirect "/things/#{@thing.pageid}", 301
+    data = WikipediaApi.page_info(:titles => title)
+    if data.nil?
+      not_found("Title not found.")
+    else
+      if data['ns'] == 0
+        headers 'Cache-Control' => 'public,max-age=600'
+        redirect "/things/#{data['pageid']}", 301
+      else
+        error 500, "Unsupported Wikipedia namespace: #{data['ns']}\n"
+      end
+    end
   end
 
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|

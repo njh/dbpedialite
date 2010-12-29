@@ -10,7 +10,10 @@ module WikipediaApi
   def self.page_info(args)
     data = self.get('query', {:redirects => 1, :prop => 'info'}.merge(args))
 
-    data['query']['pages'].values
+    unless data['query'].nil? or data['query']['pages'].empty?
+      info = data['query']['pages'].values.first
+      return info unless info.has_key?('missing')
+    end
   end
 
   def self.search(query, args={})
@@ -140,17 +143,6 @@ module WikipediaApi
     end
     data['externallinks'].uniq!
 
-    data
-  end
-
-  def self.title_to_pageid(titles)
-    # FIXME: do caching here?
-    titles = titles.uniq.join('|') if titles.is_a?(Array)
-    response = page_info(:titles => titles)
-    data = {}
-    response.each do |r|
-      data[r['title']] = r['pageid'] if r['pageid']
-    end
     data
   end
 

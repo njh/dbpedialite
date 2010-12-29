@@ -101,7 +101,7 @@ describe WikipediaApi do
         :body => fixture_data('pageinfo-u2.json'),
         :content_type => 'application/json'
       )
-      @data = WikipediaApi.page_info(:titles => 'U2').first
+      @data = WikipediaApi.page_info(:titles => 'U2')
     end
 
     it "should return the title" do
@@ -128,7 +128,7 @@ describe WikipediaApi do
         :body => fixture_data('pageinfo-4309010.json'),
         :content_type => 'application/json'
       )
-      @data = WikipediaApi.page_info(:pageids => '4309010').first
+      @data = WikipediaApi.page_info(:pageids => '4309010')
     end
 
     it "should return the title" do
@@ -145,6 +145,21 @@ describe WikipediaApi do
 
     it "should return the last modified date" do
       @data['touched'].should == "2010-11-04T04:11:11Z"
+    end
+  end
+
+  context "getting information about a page that doesn't exist" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('pageinfo-zsefpfs.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.page_info(:titles => 'zsefpfs')
+    end
+
+    it "should return nil" do
+      @data.should be_nil
     end
   end
 
@@ -172,75 +187,6 @@ describe WikipediaApi do
 
     it "the first result should have a snippet" do
       @data.first['snippet'].should =~ /^"True rats" are members of the genus Rattus/
-    end
-  end
-
-  context "resolving a single title to a pageid" do
-    before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
-        :body => fixture_data('pageinfo-u2.json'),
-        :content_type => 'application/json'
-      )
-      @data = WikipediaApi.title_to_pageid('U2')
-    end
-
-    it "should return a single result" do
-      @data.size.should == 1
-    end
-
-    it "should include the title as a key in the result" do
-      @data.keys.should include('U2')
-    end
-
-    it "should return the right pageid for the title key" do
-      @data['U2'].should == 52780
-    end
-  end
-
-  context "resolving multiple titles to pageids" do
-    before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
-        :body => fixture_data('pageinfo-villages-churches.json'),
-        :content_type => 'application/json'
-      )
-      @data = WikipediaApi.title_to_pageid(['Category:Villages in Fife','Category:Churches in Fife'])
-    end
-
-    it "should return two results" do
-      @data.size.should == 2
-    end
-
-    it "should include the first title as a key in the result" do
-      @data.keys.should include('Category:Villages in Fife')
-    end
-
-    it "should return the right pageid for the first title" do
-      @data['Category:Villages in Fife'].should == 4309010
-    end
-
-    it "should include the second title as a key in the result" do
-      @data.keys.should include('Category:Churches in Fife')
-    end
-
-    it "should return the right pageid for the second title" do
-      @data['Category:Churches in Fife'].should == 8528555
-    end
-  end
-
-  context "resolving an invalid title to a pageid" do
-    before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
-        :body => fixture_data('pageinfo-zsefpfs.json'),
-        :content_type => 'application/json'
-      )
-      @data = WikipediaApi.title_to_pageid('zsefpfs')
-    end
-
-    it "should return no results" do
-      @data.should be_empty
     end
   end
 
