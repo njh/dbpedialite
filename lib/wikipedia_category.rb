@@ -1,27 +1,27 @@
-require 'wikipedia_api'
 require 'base_model'
+require 'wikipedia_api'
+require 'wikipedia_thing'
 
 class WikipediaCategory < BaseModel
-  base_uri "http://dbpedialite.org/categories"
+  identifier_path "categories"
   identifier_type 'category'
 
-  attr_accessor :things
+  has :things, :kind => Array, :default => []
 
   def load
-    data = WikipediaApi.page_info(:pageids => identifier)
+    data = WikipediaApi.page_info(:pageids => pageid)
     # FIXME: check that it really is a category
 
     return false if data.nil? or data.empty?
-    assign(data)
+    update(data)
 
-    self.things = []
     data = WikipediaApi.category_members(title)
     data.each do |member|
       case member['ns']
         when 0
           self.things << WikipediaThing.new(member['pageid'], member)
         else
-          puts "Unknown type of member: #{member}"
+          $stderr.puts "Unknown type of member: #{member.inspect}"
       end
     end
 

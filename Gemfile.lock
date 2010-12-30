@@ -2,6 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.2.2)
+    doodle (0.2.3)
     fakeweb (1.3.0)
     json_pure (1.4.6)
     mocha (0.9.10)
@@ -40,6 +41,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  doodle
   fakeweb
   json_pure
   mocha

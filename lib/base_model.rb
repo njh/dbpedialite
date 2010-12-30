@@ -1,51 +1,53 @@
 require 'uri'
 
-class BaseModel
-  attr_accessor :identifier
-  attr_accessor :title
+class BaseModel < Doodle
+  has :pageid
+  has :title, :default => nil
 
-  def initialize(identifier, args={})
-    @identifier = identifier
-    assign(args) unless args.empty?
-  end
+  class << self
+    has :identifier_path, :default => 'base'
+    has :identifier_type, :default => 'id'
 
-  def self.load(identifier)
-    object = self.new(identifier)
-    object.load ? object : nil
-  end
-
-  def self.base_uri(uri)
-    @@base_uri = uri
-  end
-
-  def self.identifier_type(type)
-    @@identifier_type = type
-  end
-
-  # FIXME: is there a more generic way to do this?
-  def assign(args)
-    args.each_pair do |key,value|
-      key = key.to_sym
-      if self.respond_to?("#{key}=")
-        self.send("#{key}=", value)
-      end
+    def load(pageid)
+      object = self.new(pageid)
+      object.load ? object : nil
     end
   end
 
+  def initialize(pageid, args={})
+    if pageid.kind_of?(Hash)
+      args.merge!(pageid)
+    else
+      args.merge!(:pageid => pageid)
+    end
+    update(args)
+    super(args)
+  end
+
+  # FIXME: can doodle be told to ignore unknown attributes?
+  def update(args={})
+    args.each_pair do |key,value|
+      unless self.respond_to?(key)
+        args.delete(key)
+      end
+    end
+    doodle.update(args)
+  end
+
   def uri
-    @uri ||= RDF::URI.parse("#{@@base_uri}/#{identifier}##{@@identifier_type}")
+    @uri ||= RDF::URI.parse("http://dbpedialite.org/#{self.class.identifier_path}/#{pageid}##{self.class.identifier_type}")
   end
 
   def doc_uri=(uri)
     @doc_uri = RDF::URI.parse(uri.to_s)
   end
 
-  def doc_uri(format=nil)
-    if format
-      doc_uri + ".#{format}"
-    else
-      @doc_uri || RDF::URI.parse("#{@@base_uri}/#{identifier}")
-    end
+  def doc_uri
+    @doc_uri || RDF::URI.parse("http://dbpedialite.org/#{self.class.identifier_path}/#{pageid}")
+  end
+
+  def doc_path(format)
+    "/#{self.class.identifier_path}/#{pageid}.#{format}"
   end
 
   def escaped_title

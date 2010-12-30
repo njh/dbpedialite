@@ -6,6 +6,7 @@ gem 'sinatra-content-for', :require => 'sinatra/content_for'
 gem 'json_pure', :require => 'json'
 gem 'nokogiri'
 gem 'rdiscount'
+gem 'doodle'
 
 gem 'rdf'
 gem 'rdf-json', :require => 'rdf/json'

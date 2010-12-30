@@ -13,7 +13,7 @@ describe WikipediaThing do
     end
 
     it "should have the correct URI" do
-      @thing.uri.to_s.should == 'http://dbpedialite.org/things/52780#thing'
+      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/52780#thing')
     end
 
     it "should not have co-ordinates" do
@@ -23,7 +23,8 @@ describe WikipediaThing do
 
   context "creating an thing with data provided" do
     before :each do
-      @thing = WikipediaThing.new(934787,
+      @thing = WikipediaThing.new(
+        :pageid => '934787',
         :title => 'Ceres, Fife',
         :latitude => 56.293431,
         :longitude => -2.970134,
@@ -34,6 +35,10 @@ describe WikipediaThing do
 
     it "should return an object of type WikipediaThing" do
       @thing.class.should == WikipediaThing
+    end
+
+    it "should have a pageid method to get the page id from the uri" do
+      @thing.pageid.should == '934787'
     end
 
     it "should have the correct URI for the thing" do
@@ -50,10 +55,6 @@ describe WikipediaThing do
 
     it "should have the correct abstract" do
       @thing.abstract.should == 'Ceres is a village in Fife, Scotland.'
-    end
-
-    it "should have a pageid method to get the page id from the uri" do
-      @thing.pageid.should == 934787
     end
 
     it "should have the correct latitude" do
