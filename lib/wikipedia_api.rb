@@ -43,6 +43,8 @@ module WikipediaApi
     res.value
 
     JSON.parse(res.body)
+
+    # FIXME: throw an exception if Wikipedia reports a problem
   end
 
   def self.category_members(title, args={})
