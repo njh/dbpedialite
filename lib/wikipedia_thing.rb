@@ -52,8 +52,12 @@ class WikipediaThing
     @doc_uri = RDF::URI.parse(uri.to_s)
   end
 
-  def doc_uri
-    @doc_uri || RDF::URI.parse("#{BASE_URI}/#{pageid}")
+  def doc_uri(format=nil)
+    if format
+      "#{BASE_URI}/#{pageid}.#{format}"
+    else
+      @doc_uri || RDF::URI.parse("#{BASE_URI}/#{pageid}")
+    end
   end
 
   def load
@@ -109,6 +113,10 @@ class WikipediaThing
     !(latitude.nil? || longitude.nil?)
   end
 
+  def label
+    title
+  end
+
   def to_rdf
     RDF::Graph.new do |graph|
       # Triples about the Document
@@ -118,7 +126,7 @@ class WikipediaThing
 
       # Triples about the Thing
       graph << [self.uri, RDF.type, RDF::OWL.Thing]
-      graph << [self.uri, RDF::RDFS.label, title]
+      graph << [self.uri, RDF::RDFS.label, label]
       graph << [self.uri, RDF::RDFS.comment, abstract]
       graph << [self.uri, RDF::FOAF.isPrimaryTopicOf, wikipedia_uri]
       graph << [self.uri, RDF::OWL.sameAs, dbpedia_uri]

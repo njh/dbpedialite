@@ -1,0 +1,14 @@
+<% content_for :head do %>
+  <link rel="alternate" type="application/json" href="<%= object.doc_uri(:json) %>" title="JSON" />
+  <link rel="alternate" type="text/n3" href="<%= object.doc_uri(:n3) %>" title="Notation 3" />
+  <link rel="alternate" type="text/plain" href="<%= object.doc_uri(:nt) %>" title="N-Triples" />
+  <link rel="alternate" type="application/rdf+xml" href="<%= object.doc_uri(:rdf) %>" title="RDF/XML" />
+<% end %>
+
+<div id="alternates">
+  <h4>Alternative formats:</h4>
+  <%= link_to('JSON', object.doc_uri(:json)) %> |
+  <%= link_to('N3', object.doc_uri(:n3)) %> |
+  <%= link_to('N-Triples', object.doc_uri(:nt)) %> |
+  <%= link_to('RDF/XML', object.doc_uri(:rdf)) %>
+</div>

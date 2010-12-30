@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'wikipedia_thing'
+require 'wikipedia_category'
 
 
 class DbpediaLite < Sinatra::Base
@@ -140,11 +141,15 @@ class DbpediaLite < Sinatra::Base
     if data.nil?
       not_found("Title not found.")
     else
-      if data['ns'] == 0
-        headers 'Cache-Control' => 'public,max-age=600'
-        redirect "/things/#{data['pageid']}", 301
-      else
-        error 500, "Unsupported Wikipedia namespace: #{data['ns']}\n"
+      case data['ns']
+        when 0 then
+          headers 'Cache-Control' => 'public,max-age=600'
+          redirect "/things/#{data['pageid']}", 301
+        when 14 then
+          headers 'Cache-Control' => 'public,max-age=600'
+          redirect "/categories/#{data['pageid']}", 301
+        else
+          error 500, "Unsupported Wikipedia namespace: #{data['ns']}\n"
       end
     end
   end
@@ -157,7 +162,18 @@ class DbpediaLite < Sinatra::Base
     @graph = @thing.to_rdf
     @vocabularies = DbpediaLite.extract_vocabularies(@graph)
 
-    negotiate_content(@graph, format, :page)
+    negotiate_content(@graph, format, :thing)
+  end
+
+  get %r{^/categories/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
+    @category = WikipediaCategory.load(pageid)
+    not_found("Category not found.") if @category.nil?
+
+    @category.doc_uri = request.url
+    @graph = @category.to_rdf
+    @vocabularies = DbpediaLite.extract_vocabularies(@graph)
+
+    negotiate_content(@graph, format, :category)
   end
 
   get '/gems' do
