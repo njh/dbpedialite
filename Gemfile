@@ -12,6 +12,7 @@ gem 'rdf'
 gem 'rdf-json', :require => 'rdf/json'
 gem 'rdf-n3', :require => 'rdf/n3'
 gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
+gem 'rdf-trix', :require => 'rdf/trix'
 
 group :development do
   gem 'rake'

@@ -49,6 +49,9 @@ class DbpediaLite < Sinatra::Base
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
         graph.dump(:rdfxml)
+      when 'trix', 'application/trix' then
+        content_type 'application/trix'
+        graph.dump(:trix)
       else
         error 400, "Unsupported format: #{format}\n"
     end

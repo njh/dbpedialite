@@ -3,6 +3,7 @@
   <link rel="alternate" type="text/n3" href="<%= object.doc_path(:n3) %>" title="Notation 3" />
   <link rel="alternate" type="text/plain" href="<%= object.doc_path(:nt) %>" title="N-Triples" />
   <link rel="alternate" type="application/rdf+xml" href="<%= object.doc_path(:rdf) %>" title="RDF/XML" />
+  <link rel="alternate" type="application/trix" href="<%= object.doc_path(:trix) %>" title="TriX" />
 <% end %>
 
 <div id="alternates">
@@ -10,5 +11,6 @@
   <%= link_to('JSON', object.doc_path(:json)) %> |
   <%= link_to('N3', object.doc_path(:n3)) %> |
   <%= link_to('N-Triples', object.doc_path(:nt)) %> |
-  <%= link_to('RDF/XML', object.doc_path(:rdf)) %>
+  <%= link_to('RDF/XML', object.doc_path(:rdf)) %> |
+  <%= link_to('TriX', object.doc_path(:trix)) %>
 </div>
