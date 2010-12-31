@@ -128,7 +128,7 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing a title URL" do
+  context "GETing a title URL for a thing" do
     before :each do
       FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('pageinfo-u2.json'))
       get '/titles/U2'
@@ -140,6 +140,30 @@ describe 'dbpedia lite' do
 
     it "should set the location header to redirect to /" do
       last_response.location.should == 'http://example.org/things/52780'
+    end
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    end
+  end
+
+  context "GETing a title URL for a category" do
+    before :each do
+      FakeWeb.register_uri(
+        :get,
+        'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Category%3AVillages_in_Fife',
+        :body => fixture_data('pageinfo-villagesinfife.json'),
+        :content_type => 'application/json'
+      )
+      get '/titles/Category:Villages_in_Fife'
+    end
+
+    it "should be a redirect" do
+      last_response.should be_redirect
+    end
+
+    it "should set the location header to redirect to the category page" do
+      last_response.location.should == 'http://example.org/categories/4309010'
     end
 
     it "should be cachable" do
@@ -173,97 +197,246 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing an HTML page for a geographic thing" do
+  context "GETing a geographic thing" do
     before :each do
-      FakeWeb.register_uri(:get,
-                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                           :body => fixture_data('ceres.html'),
-                           :content_type => 'text/html; charset=UTF-8'
-                           )
-      FakeWeb.register_uri(:get,
-                           %r[http://www.freebase.com/api/service/mqlread],
-                           :body => fixture_data('freebase-mqlread-ceres.json')
-                           )
-      header "Accept", "text/html"
-      get '/things/934787'
+      FakeWeb.register_uri(
+        :get,
+        'http://en.wikipedia.org/wiki/index.php?curid=934787',
+        :body => fixture_data('ceres.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(
+        :get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-ceres.json'),
+        :content_type => 'application/json'
+      )
     end
 
-    it "should be successful" do
-      last_response.should be_ok
+    context "as an HTML document" do
+      before :each do
+        header "Accept", "text/html"
+        get '/things/934787'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type text/html" do
+        last_response.content_type.should == 'text/html;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should contain an abstract for the thing" do
+        last_response.body.should =~ /<p>Ceres is a village in Fife, Scotland/
+      end
+
+      it "should have a Google Map on the page" do
+        last_response.body.should =~ %r[<div id="map"></div>]
+      end
+
+      it "should include the title of the thing in the page title" do
+        last_response.body.should =~ %r[<title>dbpedia lite - Ceres, Fife</title>]
+      end
+
+      it "should include a <meta> description tag with a truncated abstract" do
+        last_response.body.should =~ %r[<meta name="description" content="Ceres is a village in Fife, Scotland]
+      end
+
+      it "should have the title of the thing as RDFa" do
+        rdfa_graph.should have_triple([
+                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                       RDF::RDFS.label,
+                                       RDF::Literal("Ceres, Fife")
+                                      ])
+      end
+
+      it "should have a link to the Wikipedia page in the RDFa" do
+        rdfa_graph.should have_triple([
+                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                       RDF::FOAF.isPrimaryTopicOf,
+                                       RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
+                                      ])
+      end
+
+      it "should have a link to an external link in the RDFa" do
+        rdfa_graph.should have_triple([
+                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                       RDF::FOAF.page,
+                                       RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
+                                      ])
+      end
+
+      it "should have an RDFa triple linking the document to the thing" do
+        rdfa_graph.should have_triple([
+                                       RDF::URI("http://dbpedialite.org/things/934787"),
+                                       RDF::FOAF.primaryTopic,
+                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                      ])
+      end
+
+      it "should have an dc:modified RDFa triple for the document" do
+        rdfa_graph.should have_triple([
+                                       RDF::URI("http://dbpedialite.org/things/934787"),
+                                       RDF::URI("http://purl.org/dc/terms/modified"),
+                                       RDF::Literal('2010-04-29T10:22:00Z')
+                                      ])
+      end
+
+      it "should have an RDFa triple linking the altenate RDF/XML format" do
+        rdfa_graph.should have_triple([
+                                       RDF::URI("http://dbpedialite.org/things/934787"),
+                                       RDF::URI("http://www.w3.org/1999/xhtml/vocab#alternate"),
+                                       RDF::URI("http://dbpedialite.org/things/934787.rdf"),
+                                      ])
+      end
+
     end
 
-    it "should be of type text/html" do
-      last_response.content_type.should == 'text/html;charset=utf-8'
+
+    context "as an N-Triples document" do
+      before :each do
+        FakeWeb.register_uri(:get,
+                             'http://en.wikipedia.org/wiki/index.php?curid=934787',
+                             :body => fixture_data('ceres.html'),
+                             :content_type => 'text/html; charset=UTF-8'
+                             )
+        FakeWeb.register_uri(:get,
+                             %r[http://www.freebase.com/api/service/mqlread],
+                             :body => fixture_data('freebase-mqlread-ceres.json')
+                             )
+        header "Accept", "text/plain"
+        get '/things/934787'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type text/plain" do
+        last_response.content_type.should == 'text/plain;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
     end
 
-    it "should be cachable" do
-      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    context "as a JSON document" do
+      before :each do
+        header "Accept", "application/json"
+        get '/things/934787'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type application/json" do
+        last_response.content_type.should == 'application/json'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
     end
 
-    it "should contain an abstract for the thing" do
-      last_response.body.should =~ /<p>Ceres is a village in Fife, Scotland/
+    context "as an N3 document" do
+      before :each do
+        header "Accept", "text/n3"
+        get '/things/934787'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type text/n3" do
+        last_response.content_type.should == 'text/n3;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
     end
 
-    it "should have a Google Map on the page" do
-      last_response.body.should =~ %r[<div id="map"></div>]
+    context "as an RDF/XML document by content negotiation" do
+      before :each do
+        header "Accept", "application/rdf+xml"
+        get '/things/934787'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type application/rdf+xml" do
+        last_response.content_type.should == 'application/rdf+xml'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should contain the URI of the document we requested" do
+        last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787">]
+      end
     end
 
-    it "should include the title of the thing in the page title" do
-      last_response.body.should =~ %r[<title>dbpedia lite - Ceres, Fife</title>]
+    context "as an RDF/XML document by suffix" do
+      before :each do
+        header "Accept", "text/plain"
+        get '/things/934787.rdf'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type application/rdf+xml" do
+        last_response.content_type.should == 'application/rdf+xml'
+      end
+
+      it "should contain the URI of the document we requested" do
+        last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787.rdf">]
+      end
     end
 
-    it "should include a <meta> description tag with a truncated abstract" do
-      last_response.body.should =~ %r[<meta name="description" content="Ceres is a village in Fife, Scotland]
+    context "as a TriX document" do
+      before :each do
+        get '/things/934787.trix'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type application/trix" do
+        last_response.content_type.should == 'application/trix'
+      end
+
+      it "should contain the URI of the document we requested" do
+        last_response.body.should =~ %r[<uri>http://example.org/things/934787.trix</uri>]
+      end
     end
 
-    it "should have the title of the thing as RDFa" do
-      rdfa_graph.should have_triple([
-                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
-                                     RDF::RDFS.label,
-                                     RDF::Literal("Ceres, Fife")
-                                    ])
-    end
+    context "as an unsupport format" do
+      before :each do
+        get '/things/934787.ratrat'
+      end
 
-    it "should have a link to the Wikipedia page in the RDFa" do
-      rdfa_graph.should have_triple([
-                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
-                                     RDF::FOAF.isPrimaryTopicOf,
-                                     RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
-                                    ])
-    end
+      it "should return a 400 error" do
+        last_response.should be_client_error
+      end
 
-    it "should have a link to an external link in the RDFa" do
-      rdfa_graph.should have_triple([
-                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
-                                     RDF::FOAF.page,
-                                     RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
-                                    ])
+      it "should include the text 'Unsupported format' in the body" do
+        last_response.body.should =~ /Unsupported format/i
+      end
     end
-
-    it "should have an RDFa triple linking the document to the thing" do
-      rdfa_graph.should have_triple([
-                                     RDF::URI("http://dbpedialite.org/things/934787"),
-                                     RDF::FOAF.primaryTopic,
-                                     RDF::URI("http://dbpedialite.org/things/934787#thing"),
-                                    ])
-    end
-
-    it "should have an dc:modified RDFa triple for the document" do
-      rdfa_graph.should have_triple([
-                                     RDF::URI("http://dbpedialite.org/things/934787"),
-                                     RDF::URI("http://purl.org/dc/terms/modified"),
-                                     RDF::Literal('2010-04-29T10:22:00Z')
-                                    ])
-    end
-
-    it "should have an RDFa triple linking the altenate RDF/XML format" do
-      rdfa_graph.should have_triple([
-                                     RDF::URI("http://dbpedialite.org/things/934787"),
-                                     RDF::URI("http://www.w3.org/1999/xhtml/vocab#alternate"),
-                                     RDF::URI("http://dbpedialite.org/things/934787.rdf"),
-                                    ])
-    end
-
   end
 
   context "GETing an HTML thing page for a thing that doesn't exist" do
@@ -278,173 +451,6 @@ describe 'dbpedia lite' do
 
     it "should include the text 'Thing Not Found' in the body" do
       last_response.body.should =~ /Thing Not Found/i
-    end
-  end
-
-  context "GETing an unsupport format for a thing" do
-    before :each do
-      FakeWeb.register_uri(:get,
-                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                           :body => fixture_data('ceres.html'),
-                           :content_type => 'text/html; charset=UTF-8'
-                           )
-      FakeWeb.register_uri(:get,
-                           %r[http://www.freebase.com/api/service/mqlread],
-                           :body => fixture_data('freebase-mqlread-ceres.json')
-                           )
-      get '/things/934787.ratrat'
-    end
-
-    it "should return a 400 error" do
-      last_response.should be_client_error
-    end
-
-    it "should include the text 'Unsupported format' in the body" do
-      last_response.body.should =~ /Unsupported format/i
-    end
-  end
-
-  context "GETing an N-Triples page for a geographic thing" do
-    before :each do
-      FakeWeb.register_uri(:get,
-                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                           :body => fixture_data('ceres.html'),
-                           :content_type => 'text/html; charset=UTF-8'
-                           )
-      FakeWeb.register_uri(:get,
-                           %r[http://www.freebase.com/api/service/mqlread],
-                           :body => fixture_data('freebase-mqlread-ceres.json')
-                           )
-      header "Accept", "text/plain"
-      get '/things/934787'
-    end
-
-    it "should be successful" do
-      last_response.should be_ok
-    end
-
-    it "should be of type text/plain" do
-      last_response.content_type.should == 'text/plain;charset=utf-8'
-    end
-
-    it "should be cachable" do
-      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-    end
-  end
-
-  context "GETing an JSON page for a geographic thing" do
-    before :each do
-      FakeWeb.register_uri(:get,
-                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                           :body => fixture_data('ceres.html'),
-                           :content_type => 'text/html; charset=UTF-8'
-                           )
-      FakeWeb.register_uri(:get,
-                           %r[http://www.freebase.com/api/service/mqlread],
-                           :body => fixture_data('freebase-mqlread-ceres.json')
-                           )
-      header "Accept", "application/json"
-      get '/things/934787'
-    end
-
-    it "should be successful" do
-      last_response.should be_ok
-    end
-
-    it "should be of type application/json" do
-      last_response.content_type.should == 'application/json'
-    end
-
-    it "should be cachable" do
-      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-    end
-  end
-
-  context "GETing an N3 page for a geographic thing" do
-    before :each do
-      FakeWeb.register_uri(:get,
-                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                           :body => fixture_data('ceres.html'),
-                           :content_type => 'text/html; charset=UTF-8'
-                           )
-      FakeWeb.register_uri(:get,
-                           %r[http://www.freebase.com/api/service/mqlread],
-                           :body => fixture_data('freebase-mqlread-ceres.json')
-                           )
-      header "Accept", "text/n3"
-      get '/things/934787'
-    end
-
-    it "should be successful" do
-      last_response.should be_ok
-    end
-
-    it "should be of type text/n3" do
-      last_response.content_type.should == 'text/n3;charset=utf-8'
-    end
-
-    it "should be cachable" do
-      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-    end
-  end
-
-  context "GETing an RDF/XML page for a geographic thing by content negotiation" do
-    before :each do
-      FakeWeb.register_uri(:get,
-                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                           :body => fixture_data('ceres.html'),
-                           :content_type => 'text/html; charset=UTF-8'
-                           )
-      FakeWeb.register_uri(:get,
-                           %r[http://www.freebase.com/api/service/mqlread],
-                           :body => fixture_data('freebase-mqlread-ceres.json')
-                           )
-      header "Accept", "application/rdf+xml"
-      get '/things/934787'
-    end
-
-    it "should be successful" do
-      last_response.should be_ok
-    end
-
-    it "should be of type application/rdf+xml" do
-      last_response.content_type.should == 'application/rdf+xml'
-    end
-
-    it "should be cachable" do
-      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-    end
-
-    it "should contain the URI of the document we requested" do
-      last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787">]
-    end
-  end
-
-  context "GETing an RDF/XML page for a geographic thing by suffix" do
-    before :each do
-      FakeWeb.register_uri(:get,
-                           'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                           :body => fixture_data('ceres.html'),
-                           :content_type => 'text/html; charset=UTF-8'
-                           )
-      FakeWeb.register_uri(:get,
-                           %r[http://www.freebase.com/api/service/mqlread],
-                           :body => fixture_data('freebase-mqlread-ceres.json')
-                           )
-      header "Accept", "text/plain"
-      get '/things/934787.rdf'
-    end
-
-    it "should be successful" do
-      last_response.should be_ok
-    end
-
-    it "should be of type application/rdf+xml" do
-      last_response.content_type.should == 'application/rdf+xml'
-    end
-
-    it "should contain the URI of the document we requested" do
-      last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787.rdf">]
     end
   end
 
@@ -463,6 +469,42 @@ describe 'dbpedia lite' do
 
     it "should include a summary for the Sinatra gem" do
       last_response.body.should =~ /Classy web-development dressed in a DSL/
+    end
+  end
+
+  context "GETing a category" do
+    before :each do
+      FakeWeb.register_uri(
+        :get,
+        'http://en.wikipedia.org/w/api.php?action=query&format=json&pageids=4309010&prop=info&redirects=1',
+        :body => fixture_data('pageinfo-4309010.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get,
+        'http://en.wikipedia.org/w/api.php?action=query&cmlimit=500&cmprop=ids%7Ctitle&cmsort=sortkey&cmtitle=Category%3AVillages+in+Fife&format=json&list=categorymembers',
+        :body => fixture_data('categorymembers-villages.json'),
+        :content_type => 'application/json'
+      )
+    end
+
+    context "as an HTML document" do
+      before :each do
+        get '/categories/4309010'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type text/html" do
+        last_response.content_type.should == 'text/html;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
     end
   end
 
