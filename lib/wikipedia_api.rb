@@ -149,7 +149,21 @@ module WikipediaApi
     data
   end
 
-  def self.strip_pronunciation(abstract_text)
-    abstract_text.gsub(/ \(.*pronunciation:.*\)/,'')
+  def self.strip_pronunciation(string)
+    result = string.dup
+    regexes = [
+      %r/\(.*?pronunciation:.*?\) /,
+      %r[\(IPA: ["\[/].*?["\]/]\) ],
+      %r[\(pronounced ["\[/].*?["\]/]\) ],
+      # for when pronounciation is mixed in with birthdate, e.g. (pronounced /bəˈɹɛlɪs/; born December 7, 1979)
+      %r[pronounced ["\[/].*?["\]/]\; ],
+    ]
+    regexes.each do |regex|
+      if result =~ regex
+        result.sub!(regex, '')
+        break
+      end
+    end
+    return result
   end
 end

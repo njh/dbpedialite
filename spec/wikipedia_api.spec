@@ -94,6 +94,48 @@ describe WikipediaApi do
     end
   end
 
+  context "removing pronunciation from abstracts" do
+    it "should remove the pronunciation from the U2 article" do
+      WikipediaApi.strip_pronunciation(
+        'U2 (IPA: /ˌjuːˈtuː/) are a rock band from Dublin,'
+      ).should be_eql(
+        'U2 are a rock band from Dublin,'
+      )
+    end
+
+    it "should remove the pronunciation from the Albert Camus article" do
+      WikipediaApi.strip_pronunciation(
+        'Albert Camus (IPA: [albɛʁ kamy]) is '
+      ).should be_eql(
+        'Albert Camus is '
+      )
+    end
+
+    it "should remove the pronunciation from the Anton Corbijn article" do
+      WikipediaApi.strip_pronunciation(
+        'Anton Corbijn (pronounced [kɔrˈbɛin]) (born May 20, 1955) '
+      ).should be_eql(
+        'Anton Corbijn (born May 20, 1955) '
+      )
+    end
+
+    it "should remove the pronunciation from the Breed 77 article" do
+      WikipediaApi.strip_pronunciation(
+        'Breed 77 (pronounced "Breed Seven-Seven") is a band whose'
+      ).should be_eql(
+        'Breed 77 is a band whose'
+      )
+    end
+
+    it "should remove the pronunciation from the Sara Beth Bareilles article" do
+      WikipediaApi.strip_pronunciation(
+        'Sara Beth Bareilles (pronounced /bəˈɹɛlɪs/; born December 7, 1979) is an American'
+      ).should be_eql(
+        'Sara Beth Bareilles (born December 7, 1979) is an American'
+      )
+    end
+  end
+
   context "parsing a non-existant HTML page" do
     before :each do
       FakeWeb.register_uri(:get,
