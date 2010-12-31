@@ -6,7 +6,7 @@ class WikipediaCategory < BaseModel
   identifier_path "categories"
   identifier_type 'category'
 
-  has :things, :kind => Array, :default => []
+  has :things, :collect => WikipediaThing
 
   def load
     data = WikipediaApi.page_info(:pageids => pageid)
@@ -19,7 +19,7 @@ class WikipediaCategory < BaseModel
     data.each do |member|
       case member['ns']
         when 0
-          self.things << WikipediaThing.new(member['pageid'], member)
+          self.things << WikipediaThing.new(member)
         else
           $stderr.puts "Unknown type of member: #{member.inspect}"
       end

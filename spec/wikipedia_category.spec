@@ -15,6 +15,10 @@ describe WikipediaCategory do
     it "should have the correct URI" do
       @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#category')
     end
+    
+    it "should not have any things yet" do
+      @category.things.count.should == 0
+    end
   end
 
   context "create a category from a hash" do
@@ -41,7 +45,56 @@ describe WikipediaCategory do
     it "should have the correct label" do
       @category.label.should == 'Villages in Fife'
     end
+  end
 
+  context "loading a category from the Wikipedia API" do
+    before :each do
+      page_info = {
+        'pageid' => 4309010,
+        'ns' => 14,
+        'title' => 'Category:Villages in Fife',
+        'touched' => '2010-11-04T04:11:11Z',
+        'lastrevid' => 325602311,
+        'counter' => 0,
+        'length' => 259
+      }
+      category_members = [
+        {'pageid' => 2712,'ns' => 0, 'title' => 'Aberdour'},
+        {'pageid' => 934787, 'ns' => 0, 'title' => 'Ceres, Fife'},
+        {'pageid' => 986129, 'ns' => 10, 'title' => 'Template:Village pump pages'}
+      ]
+      WikipediaApi.expects(:page_info).with(:pageids => 4309010).once.returns(page_info)
+      WikipediaApi.expects(:category_members).with('Category:Villages in Fife').once.returns(category_members)
+      @category = WikipediaCategory.load(4309010)
+    end
+
+    it "should have the correct page id" do
+      @category.pageid.should == 4309010
+    end
+
+    it "should have the correct uri" do
+      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#category')
+    end
+
+    it "should have the correct title" do
+      @category.title.should == 'Category:Villages in Fife'
+    end
+
+    it "should have a label without the 'Category' prefix in it" do
+      @category.label.should == 'Villages in Fife'
+    end
+
+    it "should have 2 things associated with the category" do
+      @category.things.count.should == 2
+    end
+
+    it "should have a first thing of class WikipediaThing" do
+      @category.things.first.class.should == WikipediaThing
+    end
+
+    it "should have a first thing with title Aberdour" do
+      @category.things.first.title.should == 'Aberdour'
+    end
   end
 
   context "converting a category to RDF" do
