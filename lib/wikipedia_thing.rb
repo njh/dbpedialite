@@ -5,7 +5,6 @@ require 'base_model'
 
 class WikipediaThing < BaseModel
   identifier_path "things"
-  identifier_type 'thing'
 
   has :abstract, :kind => String, :default => nil
   has :longitude, :kind => Float, :default => nil

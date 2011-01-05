@@ -6,7 +6,6 @@ class BaseModel < Doodle
 
   class << self
     has :identifier_path, :default => 'base'
-    has :identifier_type, :default => 'id'
 
     def load(pageid)
       object = self.new(pageid)
@@ -35,7 +34,7 @@ class BaseModel < Doodle
   end
 
   def uri
-    @uri ||= RDF::URI.parse("http://dbpedialite.org/#{self.class.identifier_path}/#{pageid}##{self.class.identifier_type}")
+    @uri ||= RDF::URI.parse("http://dbpedialite.org/#{self.class.identifier_path}/#{pageid}#id")
   end
 
   def doc_uri=(uri)

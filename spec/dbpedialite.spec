@@ -249,7 +249,7 @@ describe 'dbpedia lite' do
 
       it "should have the title of the thing as RDFa" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
                                        RDF::RDFS.label,
                                        RDF::Literal("Ceres, Fife")
                                       ])
@@ -257,7 +257,7 @@ describe 'dbpedia lite' do
 
       it "should have a link to the Wikipedia page in the RDFa" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
                                        RDF::FOAF.isPrimaryTopicOf,
                                        RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
                                       ])
@@ -265,7 +265,7 @@ describe 'dbpedia lite' do
 
       it "should have a link to an external link in the RDFa" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
                                        RDF::FOAF.page,
                                        RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
                                       ])
@@ -275,7 +275,7 @@ describe 'dbpedia lite' do
         rdfa_graph.should have_triple([
                                        RDF::URI("http://dbpedialite.org/things/934787"),
                                        RDF::FOAF.primaryTopic,
-                                       RDF::URI("http://dbpedialite.org/things/934787#thing"),
+                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
                                       ])
       end
 

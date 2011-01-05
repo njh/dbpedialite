@@ -13,9 +13,9 @@ describe WikipediaCategory do
     end
 
     it "should have the correct URI" do
-      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#category')
+      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#id')
     end
-    
+
     it "should not have any things yet" do
       @category.things.count.should == 0
     end
@@ -35,7 +35,7 @@ describe WikipediaCategory do
     end
 
     it "should have the correct URI" do
-      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#category')
+      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#id')
     end
 
     it "should have the correct title" do
@@ -73,7 +73,7 @@ describe WikipediaCategory do
     end
 
     it "should have the correct uri" do
-      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#category')
+      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#id')
     end
 
     it "should have the correct title" do
@@ -120,7 +120,7 @@ describe WikipediaCategory do
 
     it "should include an rdf:type triple for the category" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/4309010#category"),
+        RDF::URI("http://dbpedialite.org/categories/4309010#id"),
         RDF.type,
         RDF::SKOS.Concept
       ])
@@ -128,7 +128,7 @@ describe WikipediaCategory do
 
     it "should include a rdfs:label triple for the category" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/4309010#category"),
+        RDF::URI("http://dbpedialite.org/categories/4309010#id"),
         RDF::RDFS.label,
         RDF::Literal("Villages in Fife"),
       ])
@@ -146,15 +146,15 @@ describe WikipediaCategory do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/categories/4309010"),
         RDF::FOAF.primaryTopic,
-        RDF::URI("http://dbpedialite.org/categories/4309010#category")
+        RDF::URI("http://dbpedialite.org/categories/4309010#id")
       ])
     end
 
     it "should have a SKOS:subject triple relating Ceres to Villages in Fife" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#thing"),
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
         RDF::SKOS.subject,
-        RDF::URI("http://dbpedialite.org/categories/4309010#category")
+        RDF::URI("http://dbpedialite.org/categories/4309010#id")
       ])
     end
   end

@@ -13,7 +13,7 @@ describe WikipediaThing do
     end
 
     it "should have the correct URI" do
-      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/52780#thing')
+      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/52780#id')
     end
 
     it "should not have co-ordinates" do
@@ -42,7 +42,7 @@ describe WikipediaThing do
     end
 
     it "should have the correct URI for the thing" do
-      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/934787#thing')
+      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/934787#id')
     end
 
     it "should have the correct URI for the document" do
@@ -113,7 +113,7 @@ describe WikipediaThing do
     end
 
     it "should have the correct uri" do
-      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/934787#thing')
+      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/934787#id')
     end
 
     it "should have the correct title" do
@@ -230,7 +230,7 @@ describe WikipediaThing do
 
     it "should include an rdf:type triple for the thing" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#thing"),
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
         RDF.type,
         RDF::URI("http://www.w3.org/2002/07/owl#Thing")
       ])
@@ -238,7 +238,7 @@ describe WikipediaThing do
 
     it "should include a rdfs:label triple for the thing" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#thing"),
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
         RDF::RDFS.label,
         RDF::Literal("U2"),
       ])
@@ -246,7 +246,7 @@ describe WikipediaThing do
 
     it "should include a rdfs:comment triple for the thing" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#thing"),
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
         RDF::RDFS.comment,
         RDF::Literal("U2 are an Irish rock band."),
       ])
@@ -264,7 +264,7 @@ describe WikipediaThing do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/things/52780"),
         RDF::FOAF.primaryTopic,
-        RDF::URI("http://dbpedialite.org/things/52780#thing")
+        RDF::URI("http://dbpedialite.org/things/52780#id")
       ])
     end
 

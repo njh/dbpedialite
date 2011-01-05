@@ -4,7 +4,6 @@ require 'wikipedia_thing'
 
 class WikipediaCategory < BaseModel
   identifier_path "categories"
-  identifier_type 'category'
 
   has :things, :collect => WikipediaThing
 

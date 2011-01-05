@@ -61,7 +61,7 @@ class WikipediaStubsCallbacks < XML::SAX::Document
   end
   
   def dbpedialite_uri(id)
-    RDF::URI("http://dbpedialite.org/things/#{id}#thing")
+    RDF::URI("http://dbpedialite.org/things/#{id}#id")
   end
 end
 
