@@ -383,7 +383,7 @@ describe 'dbpedia lite' do
       end
 
       it "should contain the URI of the document we requested" do
-        last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787">]
+        last_response.body.should =~ %r[<foaf:Document rdf:about="http://example.org/things/934787">]
       end
     end
 
@@ -402,7 +402,7 @@ describe 'dbpedia lite' do
       end
 
       it "should contain the URI of the document we requested" do
-        last_response.body.should =~ %r[<ns0:Document rdf:about="http://example.org/things/934787.rdf">]
+        last_response.body.should =~ %r[<foaf:Document rdf:about="http://example.org/things/934787.rdf">]
       end
     end
 
