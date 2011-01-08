@@ -61,7 +61,8 @@ describe WikipediaCategory do
       category_members = [
         {'pageid' => 2712,'ns' => 0, 'title' => 'Aberdour'},
         {'pageid' => 934787, 'ns' => 0, 'title' => 'Ceres, Fife'},
-        {'pageid' => 986129, 'ns' => 10, 'title' => 'Template:Village pump pages'}
+        {'pageid' => 986129, 'ns' => 10, 'title' => 'Template:Village pump pages'},
+        {'pageid' => 986129, 'ns' => 14, 'title' => 'Category:Villages with greens'}
       ]
       WikipediaApi.expects(:page_info).with(:pageids => 4309010).once.returns(page_info)
       WikipediaApi.expects(:category_members).with('Category:Villages in Fife').once.returns(category_members)
@@ -94,6 +95,18 @@ describe WikipediaCategory do
 
     it "should have a first thing with title Aberdour" do
       @category.things.first.title.should == 'Aberdour'
+    end
+
+    it "should have one sub-category" do
+      @category.subcategories.count.should == 1
+    end
+
+    it "should have a first subcategory of class WikipediaCategory" do
+      @category.subcategories.first.class.should == WikipediaCategory
+    end
+
+    it "should have a first subcategory with label Villages with greens" do
+      @category.subcategories.first.label.should == 'Villages with greens'
     end
   end
 

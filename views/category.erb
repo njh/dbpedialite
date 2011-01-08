@@ -11,11 +11,19 @@
 <% end %>
 
 <div id="content">
+<% unless @category.subcategories.empty? %>
+<h2>Subcategories</h2>
+<ul>
+<% @category.subcategories.each do |subcategory| %>
+  <li><%= link_to(subcategory.label, subcategory.doc_path) %></li>
+<% end %>
+</ul>
+<% end %>
 <% unless @category.things.empty? %>
 <h2>Members</h2>
 <ul>
 <% @category.things.each do |thing| %>
-  <li><%= link_to(thing.label, thing.uri) %></li>
+  <li><%= link_to(thing.label, thing.doc_path) %></li>
 <% end %>
 </ul>
 <% end %>

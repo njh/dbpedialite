@@ -6,6 +6,7 @@ class WikipediaCategory < BaseModel
   identifier_path "categories"
 
   has :things, :collect => WikipediaThing
+  has :subcategories, :collect => WikipediaCategory
 
   def load
     data = WikipediaApi.page_info(:pageids => pageid)
@@ -19,8 +20,8 @@ class WikipediaCategory < BaseModel
       case member['ns']
         when 0
           self.things << WikipediaThing.new(member)
-        else
-          $stderr.puts "Unknown type of member: #{member.inspect}"
+        when 14
+          self.subcategories << WikipediaCategory.new(member)
       end
     end
 
