@@ -48,7 +48,7 @@ class DbpediaLite < Sinatra::Base
         graph.dump(:ntriples)
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
-        graph.dump(:rdfxml)
+        graph.dump(:rdfxml, :standard_prefixes => true)
       when 'trix', 'application/trix' then
         content_type 'application/trix'
         graph.dump(:trix)
