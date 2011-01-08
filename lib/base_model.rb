@@ -45,8 +45,8 @@ class BaseModel < Doodle
     @doc_uri || RDF::URI.parse("http://dbpedialite.org/#{self.class.identifier_path}/#{pageid}")
   end
 
-  def doc_path(format)
-    "/#{self.class.identifier_path}/#{pageid}.#{format}"
+  def doc_path(format=nil)
+    "/#{self.class.identifier_path}/#{pageid}#{format ? '.' + format.to_s : ''}" 
   end
 
   def escaped_title

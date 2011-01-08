@@ -20,6 +20,10 @@ describe BaseModel do
       @obj.doc_uri.should == RDF::URI('http://dbpedialite.org/base/52780')
     end
 
+    it "should respond to 'doc_path' with a path for the default format" do
+      @obj.doc_path.should == RDF::URI('/base/52780')
+    end
+
     it "should respond to 'doc_path(:json)' with a path for the JSON format" do
       @obj.doc_path(:json).should == RDF::URI('/base/52780.json')
     end
