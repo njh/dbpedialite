@@ -8,7 +8,7 @@ gem 'nokogiri'
 gem 'rdiscount'
 gem 'doodle'
 
-gem 'rdf', ">=0.3.0", :git => "git://github.com/bendiken/rdf.git"
+gem 'rdf', ">=0.3.1"
 gem 'rdf-json', :require => 'rdf/json'
 gem 'rdf-n3', :require => 'rdf/n3'
 gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
