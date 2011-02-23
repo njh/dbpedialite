@@ -30,10 +30,6 @@ describe FreebaseApi do
     it "should return the Freebase ID for the topic" do
       @data['id'].should == '/en/ceres_united_kingdom'
     end
-
-    it "should construct an RDF URI based on the Machine ID" do
-      @data['rdf_uri'].to_s.should == 'http://rdf.freebase.com/ns/m.03rf2x'
-    end
   end
 
   context "lookup up a Wikipedia pageid that doesn't exist in Freebase" do

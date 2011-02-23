@@ -42,19 +42,32 @@ class WikipediaThing < BaseModel
     true
   end
 
-  def freebase_uri
-    @freebase_uri ||= fetch_freebase_uri
+  def freebase_guid_uri
+    fetch_freebase_uris
+    @freebase_guid_uri
   end
 
-  def fetch_freebase_uri
-    # Attempt to match to Freebase, but silently fail on error
-    begin
-      data = FreebaseApi.lookup_wikipedia_pageid(pageid)
-      RDF::URI.parse(data['rdf_uri']) unless data.nil?
-    rescue Timeout::Error => e
-      $stderr.puts "Timed out while reading from Freebase: #{e.message}"
-    rescue => e
-      $stderr.puts "Error while reading from Freebase: #{e.message}"
+  def freebase_mid_uri
+    fetch_freebase_uris
+    @freebase_mid_uri
+  end
+
+  def fetch_freebase_uris
+    # Only make call to freebase once
+    unless @called_freebase
+      @called_freebase = true
+      # Attempt to match to Freebase, but silently fail on error
+      begin
+        data = FreebaseApi.lookup_wikipedia_pageid(pageid)
+        unless data.nil?
+          @freebase_mid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['mid'].sub('/m/','m.'))
+          @freebase_guid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['guid'].sub('#','guid.'))
+        end
+      rescue Timeout::Error => e
+        $stderr.puts "Timed out while reading from Freebase: #{e.message}"
+      rescue => e
+        $stderr.puts "Error while reading from Freebase: #{e.message}"
+      end
     end
   end
 
@@ -79,7 +92,8 @@ class WikipediaThing < BaseModel
       graph << [self.uri, RDF::RDFS.comment, abstract]
       graph << [self.uri, RDF::FOAF.isPrimaryTopicOf, wikipedia_uri]
       graph << [self.uri, RDF::OWL.sameAs, dbpedia_uri]
-      graph << [self.uri, RDF::OWL.sameAs, freebase_uri] unless freebase_uri.nil?
+      graph << [self.uri, RDF::OWL.sameAs, freebase_guid_uri] unless freebase_guid_uri.nil?
+      graph << [self.uri, RDF::OWL.sameAs, freebase_mid_uri] unless freebase_mid_uri.nil?
       graph << [self.uri, RDF::GEO.lat, latitude] unless latitude.nil?
       graph << [self.uri, RDF::GEO.long, longitude] unless longitude.nil?
       externallinks.each do |link|

@@ -46,9 +46,6 @@ module FreebaseApi
       raise "Failed to lookup wikipedia page id"
     end
 
-    # Construct an rdf URI
-    data['rdf_uri'] =  "http://rdf.freebase.com/ns/"+data['mid'].sub('/m/','m.')
-
     data
   end
 end

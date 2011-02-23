@@ -149,16 +149,22 @@ describe WikipediaThing do
     end
 
     context "when freebase responds with a parsable response" do
-      it "should have a freebase URI" do
+      before :each do
         freebase_data = {
           'guid' => '#9202a8c04000641f80000000003bb45c',
           'id' => '/en/ceres_united_kingdom',
           'mid' => '/m/03rf2x',
           'name' => 'Ceres',
-          'rdf_uri' => 'http://rdf.freebase.com/ns/m.03rf2x',
         }
         FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(freebase_data)
-        @thing.freebase_uri.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
+      end
+
+      it "should have a freebase URI based on the machine id" do
+        @thing.freebase_mid_uri.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
+      end
+
+      it "should have a freebase URI based on the guid" do
+        @thing.freebase_guid_uri.should == RDF::URI('http://rdf.freebase.com/ns/guid.9202a8c04000641f80000000003bb45c')
       end
     end
 
@@ -167,7 +173,7 @@ describe WikipediaThing do
         FreebaseApi.expects(:lookup_wikipedia_pageid).raises(Timeout::Error)
         previous_stderr, $stderr = $stderr, StringIO.new
 
-        @thing.freebase_uri
+        @thing.freebase_mid_uri
         $stderr.string.should == "Timed out while reading from Freebase: Timeout::Error\n"
 
         $stderr = previous_stderr
@@ -179,7 +185,7 @@ describe WikipediaThing do
         FreebaseApi.expects(:lookup_wikipedia_pageid).raises()
         previous_stderr, $stderr = $stderr, StringIO.new
 
-        @thing.freebase_uri
+        @thing.freebase_mid_uri
         $stderr.string.should == "Error while reading from Freebase: RuntimeError\n"
 
         $stderr = previous_stderr
