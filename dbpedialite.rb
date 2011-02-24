@@ -96,7 +96,7 @@ class DbpediaLite < Sinatra::Base
     end
 
     def format_iso8061(datetime)
-      datetime.strftime('%Y-%m-%dT%H:%M:%S%Z').sub(/\+00:00|UTC/, 'Z')
+      datetime.strftime('%Y-%m-%dT%H:%M:%S%Z').sub(/\+00:00|UTC/, 'Z') unless datetime.nil?
     end
 
   end
