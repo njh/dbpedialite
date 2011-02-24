@@ -24,7 +24,7 @@ class DbpediaLite < Sinatra::Base
     end
     vocabs
   end
-  
+
   def negotiate_content(graph, format, html_view)
     if format.empty?
       format = request.accept.first || ''
