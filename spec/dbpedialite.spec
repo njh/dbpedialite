@@ -231,8 +231,12 @@ describe 'dbpedia lite' do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
 
-      it "should contain an abstract for the thing" do
-        last_response.body.should =~ /<p>Ceres is a village in Fife, Scotland/
+      it "should contain the first paragraph of the abstract for the thing" do
+        last_response.body.should =~ /Ceres is a village in Fife, Scotland/
+      end
+
+      it "should contain not contain the paragraph after the table of contents" do
+        last_response.body.should_not =~ /It is one of the most historic and picturesque villages in Scotland/
       end
 
       it "should have a Google Map on the page" do
@@ -435,6 +439,46 @@ describe 'dbpedia lite' do
 
       it "should include the text 'Unsupported format' in the body" do
         last_response.body.should =~ /Unsupported format/i
+      end
+    end
+  end
+
+  context "GETing a thing with multiple paragraphs" do
+    before :each do
+      FakeWeb.register_uri(
+        :get,
+        'http://en.wikipedia.org/wiki/index.php?curid=18624945',
+        :body => fixture_data('true_blood.html'),
+        :content_type => 'text/html; charset=UTF-8'
+      )
+      FakeWeb.register_uri(
+        :get,
+        %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-true_blood.json'),
+        :content_type => 'application/json'
+      )
+    end
+
+    context "as an HTML document" do
+      before :each do
+        header "Accept", "text/html"
+        get '/things/18624945'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should contain an the first paragraph of the abastract for the thing" do
+        last_response.body.should =~ %r[<p>True Blood is an American television drama series created and produced by Alan Ball]
+      end
+
+      it "should contain the end of the second paragraph of the abastract for the thing" do
+        last_response.body.should =~ %r[It premiered on September 7, 2008.</p>]
+      end
+
+      it "should have no Map on the page" do
+        last_response.body.should_not =~ %r[<div id="map"></div>]
       end
     end
   end
