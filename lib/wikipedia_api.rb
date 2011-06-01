@@ -6,6 +6,7 @@ module WikipediaApi
   USER_AGENT = 'DbpediaLite/1'
   API_URI = URI.parse('http://en.wikipedia.org/w/api.php')
   ABSTRACT_MAX_LENGTH = 500
+  ABSTRACT_TRUNCATE_LENGTH = 800
   HTTP_TIMEOUT = 5
 
   def self.page_info(args)
@@ -85,26 +86,6 @@ module WikipediaApi
     data = {}
     doc = Nokogiri::HTML(res.body)
 
-    # Extract the abstract
-    data['abstract'] = ''
-    doc.search("#bodyContent/p").each do |para|
-      # FIXME: filter out non-abstract spans properly
-      next if para.inner_text =~ /^Coordinates:/
-      # FIXME: stop at the contents table
-      data['abstract'] += para.inner_text + "\n";
-      break if data['abstract'].size > ABSTRACT_MAX_LENGTH
-    end
-    data['abstract'].gsub!(/\[\d+\]/,'')
-    data['abstract'] = self.strip_pronunciation(data['abstract'])
-
-    # Is this a Not Found page?
-    if data['abstract'] =~ /^The requested page title is invalid/
-      data['valid'] = false
-      return data
-    else
-      data['valid'] = true
-    end
-
     # Extract the title of the page
     title = doc.at('#firstHeading')
     data['title'] = title.inner_text unless title.nil?
@@ -146,6 +127,51 @@ module WikipediaApi
       end
     end
     data['externallinks'].uniq!
+
+    # Extract the abstract
+    data['abstract'] = ''
+    doc.at('#bodyContent').children.each do |node|
+
+      # Look for paragraphs
+      if node.name == 'p'
+        # Remove references and other super-scripts
+        node.css('sup').each { |sup| sup.remove }
+
+        # Remove co-ordinates
+        node.css('#coordinates').each { |coor| coor.remove }
+
+        # Remove pronunciation and append the paragraph
+        data['abstract'] += node.inner_text + "\n"
+      end
+
+      # Stop when we see the table of contents
+      break if node.attribute('id') and node.attribute('id').value == 'toc'
+
+      # Or we have enough text
+      break if data['abstract'].size > ABSTRACT_MAX_LENGTH
+    end
+
+    # Remove pronunciation and append the paragraph
+    data['abstract'] = self.strip_pronunciation(data['abstract'])
+
+    # Remove trailing whitespace
+    data['abstract'].strip!
+
+    # Truncate if the abstract is too long
+    if (data['abstract'].length > ABSTRACT_TRUNCATE_LENGTH)
+      data['abstract'].slice!(ABSTRACT_TRUNCATE_LENGTH-3)
+
+      # Remove trailing partial word and replace with an ellipsis
+      data['abstract'].sub!(/[^\w\s]?\s*\w*$/, '...')
+    end
+
+    # Is this a Not Found page?
+    if data['abstract'] =~ /^The requested page title is invalid/
+      data['valid'] = false
+      return data
+    else
+      data['valid'] = true
+    end
 
     data
   end
