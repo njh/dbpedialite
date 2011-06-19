@@ -24,27 +24,15 @@ class WikipediaUpdater
     @logger = Logger.new(STDOUT)
   end
   
-  def pingthesemanticweb(url)
-    uri = URI.parse("http://pingthesemanticweb.com/rest/?url="+URI::escape(url))
-    begin
-      res = Net::HTTP.start(uri.host, uri.port) do |http|
-        http.read_timeout = HTTP_TIMEOUT
-        http.open_timeout = HTTP_TIMEOUT
-        http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
-      end
-      raise res.to_s unless res.code == '200'
-    rescue Exception => e
-      puts "Failed to ping the semantic web: #{e}"
-    end
-  end
-  
-  def ping_sindice(url)
+  def ping_sindice(data)
     uri = URI.parse("http://api.sindice.com/v2/ping")
     begin
       req = Net::HTTP::Post.new(uri.request_uri)
       req['User-Agent'] = USER_AGENT
+      req['Content-Type'] = 'text/plain'
+      req['Content-Length'] = data.length
       req['Accept'] = 'text/plain'
-      req.body = url
+      req.body = data
       
       res = Net::HTTP.start(uri.host, uri.port) do |http|
         http.read_timeout = HTTP_TIMEOUT
@@ -52,22 +40,20 @@ class WikipediaUpdater
         http.request(req)
       end
       raise res.body unless res.code == '200'
+      puts "Sindice Response: #{res.body}"
     rescue Exception => e
       puts "Failed to ping sindice: #{e}"
     end
   end
-  
-  def send_pings(url)
-    p url
-    pingthesemanticweb(url+'.rdf')
-    ping_sindice(url+'.rdf')
-  end
+
   
   def run
     mutex = Mutex.new      
     last_message_time = Time.now
 
     @irc_queue = Queue.new
+    @uri_queue = Queue.new
+    
     @irc_thread = Thread.new(@irc_queue) do |iq|
       bot = IRC.new('dbpedialite', "irc.wikimedia.org", 6667, "dbpedia lite")
       IRCEvent.add_callback('endofmotd') { |event| bot.add_channel('#en.wikipedia') }
@@ -92,7 +78,7 @@ class WikipediaUpdater
       exit(1)
     end    
 
-    @process_thread = Thread.new(@irc_queue) do |iq|
+    @resolver_thread = Thread.new(@irc_queue, @uri_queue) do |iq, uq|
       loop do 
         # retrive a message from the irc queue
         message = iq.deq
@@ -107,24 +93,41 @@ class WikipediaUpdater
         # Ignore special and talk pages
         next if title =~ /^(\w+|\w+ talk):/
 
-        # Display the number of items on the queue left to process
-        print "[#{iq.length}] "
-
         # Lookup the page id
         data = WikipediaApi.page_info(:titles => title)
         next if data.nil?
+        
+        # Display status
+        printf("[%s] %2d %9d: %s\n", iq.length, data['ns'], data['pageid'], data['title'])
 
-        # Send pings for the updated article
+        # Enqueue the URI for submission
         if data['ns'] == 0
-          send_pings("http://dbpedialite.org/things/#{data['pageid']}")
+          uq.enq "http://dbpedialite.org/things/#{data['pageid']}.rdf"
         else
           puts "Unknown namespace for #{title}"
-          p data
         end
       end
     end
 
-    [@irc_thread, @monitor_thread, @process_thread].each { |t| t.join }
+    @submission_thread = Thread.new(@uri_queue) do |uq|
+      loop do
+        sleep 60
+      
+        # De-queue all the URIs
+        uris = []
+        while uq.length > 0
+          uris << uq.pop
+        end
+        uris.uniq!
+  
+        unless uris.empty?
+          ping_sindice uris.join("\n")
+        end
+      end
+    end
+
+
+    [@irc_thread, @monitor_thread, @resolver_thread, @submission_thread].each { |t| t.join }
   end
 end
 
