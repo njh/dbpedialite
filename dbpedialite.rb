@@ -60,6 +60,7 @@ class DbpediaLite < Sinatra::Base
   helpers do
     include Rack::Utils
     include Sinatra::ContentFor
+    include Sinatra::UrlForHelper
     alias_method :h, :escape_html
 
     def link_to(title, url=nil, attr={})
@@ -183,6 +184,24 @@ class DbpediaLite < Sinatra::Base
     headers 'Cache-Control' => 'public,max-age=3600'
     @specs = Gem::loaded_specs.values.sort {|a,b| a.name <=> b.name }
     erb :gems
+  end
+
+  get '/flipr' do
+    headers 'Cache-Control' => 'public,max-age=3600'
+    redirect "/", 301 if params[:url].nil? or params[:url].empty?
+
+    if params[:url] =~ %r{^http://(\w+)\.wikipedia.org/wiki/(.+)$}
+      data = WikipediaApi.page_info(:titles => $2)
+      redirect "/things/#{data['pageid']}", 301
+    elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
+      data = WikipediaApi.page_info(:titles => $2)
+      redirect "/things/#{data['pageid']}", 301
+    elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/things/(\d+)$}
+      data = WikipediaApi.page_info(:pageids => $2)
+      redirect "http://en.wikipedia.org/wiki/#{data['title']}", 301
+    else
+      erb :flipfail
+    end
   end
 
 end

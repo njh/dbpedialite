@@ -34,6 +34,9 @@ describe 'dbpedia lite' do
       it "should contain the readme text" do
         last_response.body.should =~ /takes some of the structured data/
       end
+      it "should contain the bookmarklet" do
+        last_response.body.should =~ %r|javascript:location.href='http://example.org/flipr\?url=|
+      end
     end
 
     context "in a production environment" do
@@ -48,7 +51,7 @@ describe 'dbpedia lite' do
 
       it "should redirect" do
         last_response.status.should == 301
-        last_response.headers['Location'].should == 'http://dbpedialite.org/'
+        last_response.location.should == 'http://dbpedialite.org/'
       end
 
       it "should be cachable" do
@@ -580,6 +583,75 @@ describe 'dbpedia lite' do
 
     it "should have the right namespace the DC vocabulary" do
       @vocabularies[:dc].should == RDF::DC
+    end
+  end
+
+  context "flipping between pages" do
+    context "flipping from a wikipedia page" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://en.wikipedia.org/w/api.php],
+          :body => fixture_data('pageinfo-rat.json')
+        )
+        get '/flipr?url=http%3A%2F%2Fen.wikipedia.org%2Fwiki%2FRat'
+      end
+
+      it "should redirect to the coresponding dbpedia lite page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://example.org/things/26471'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
+    context "flipping from a dbpedia lite page" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://en.wikipedia.org/w/api.php],
+          :body => fixture_data('pageinfo-rat.json')
+        )
+        get '/flipr?url=http%3A%2F%2Fdbpedialite.org%3A9393%2Fthings%2F52780'
+      end
+
+      it "should redirect to the coresponding wikipedia page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://en.wikipedia.org/wiki/Rat'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
+    context "flipping from a dbpedia page" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://en.wikipedia.org/w/api.php],
+          :body => fixture_data('pageinfo-rat.json')
+        )
+        get '/flipr?url=http%3A%2F%2Fdbpedia.org%2Fpage%2FRat'
+      end
+
+      it "should redirect to the coresponding wikipedia page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://example.org/things/26471'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
+    context "flipping from an unknown page" do
+      before :each do
+        get '/flipr?url=http%3A%2F%2Fwww.bbc.co.uk%2F'
+      end
+
+      it "should display an error message" do
+        last_response.body.should =~ %r{Sorry but I don't know how to flip from: http://www.bbc.co.uk/}
+      end
     end
   end
 

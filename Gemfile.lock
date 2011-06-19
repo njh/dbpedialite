@@ -3,6 +3,8 @@ GEM
   specs:
     addressable (2.2.4)
     doodle (0.2.3)
+    emk-sinatra-url-for (0.2.1)
+      sinatra (>= 0.9.1.1)
     fakeweb (1.3.0)
     haml (3.1.1)
     json_pure (1.5.1)
@@ -46,6 +48,7 @@ PLATFORMS
 
 DEPENDENCIES
   doodle
+  emk-sinatra-url-for
   fakeweb
   json_pure
   mocha
