@@ -230,8 +230,8 @@ describe WikipediaThing do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 8 triples" do
-      @graph.count.should == 8
+    it "should return a graph with 9 triples" do
+      @graph.count.should == 9
     end
 
     it "should include an rdf:type triple for the thing" do
@@ -271,6 +271,14 @@ describe WikipediaThing do
         RDF::URI("http://dbpedialite.org/things/52780"),
         RDF::FOAF.primaryTopic,
         RDF::URI("http://dbpedialite.org/things/52780#id")
+      ])
+    end
+
+    it "should include a dc:title triple for the document" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF::URI("http://purl.org/dc/terms/title"),
+        RDF::Literal('dbpedia lite thing - U2')
       ])
     end
 

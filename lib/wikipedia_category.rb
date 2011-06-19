@@ -36,6 +36,7 @@ class WikipediaCategory < BaseModel
     RDF::Graph.new(doc_uri) do |graph|
       # Triples about the Document
       graph << [doc_uri, RDF.type, RDF::FOAF.Document]
+      graph << [doc_uri, RDF::DC.title, "dbpedia lite category - #{label}"]
       graph << [doc_uri, RDF::FOAF.primaryTopic, self.uri]
 
       # Triples about the Concept

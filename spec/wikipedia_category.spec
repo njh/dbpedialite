@@ -127,8 +127,8 @@ describe WikipediaCategory do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 8 triples" do
-      @graph.count.should == 11
+    it "should return a graph with 12 triples" do
+      @graph.count.should == 12
     end
 
     it "should include an rdf:type triple for the category" do
@@ -152,6 +152,14 @@ describe WikipediaCategory do
         RDF::URI("http://dbpedialite.org/categories/4309010"),
         RDF.type,
         RDF::URI("http://xmlns.com/foaf/0.1/Document")
+      ])
+    end
+
+    it "should include a dc:title triple for the document" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/categories/4309010"),
+        RDF::URI("http://purl.org/dc/terms/title"),
+        RDF::Literal('dbpedia lite category - Villages in Fife')
       ])
     end
 

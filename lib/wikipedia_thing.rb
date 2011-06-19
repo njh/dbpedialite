@@ -83,6 +83,7 @@ class WikipediaThing < BaseModel
     RDF::Graph.new do |graph|
       # Triples about the Document
       graph << [doc_uri, RDF.type, RDF::FOAF.Document]
+      graph << [doc_uri, RDF::DC.title, "dbpedia lite thing - #{label}"]
       graph << [doc_uri, RDF::DC.modified, updated_at] unless updated_at.nil?
       graph << [doc_uri, RDF::FOAF.primaryTopic, self.uri]
 
