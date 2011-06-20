@@ -66,11 +66,11 @@ describe WikipediaThing do
     end
 
     it "should encode the Wikipedia page URL correctly" do
-      @thing.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres%2C_Fife')
+      @thing.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres,_Fife')
     end
 
     it "should encode the dbpedia URI correctly" do
-      @thing.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres%2C_Fife')
+      @thing.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres,_Fife')
     end
   end
 
@@ -133,15 +133,15 @@ describe WikipediaThing do
     end
 
     it "should escape titles correctly" do
-      @thing.escaped_title.should == 'Ceres%2C_Fife'
+      @thing.escaped_title.should == 'Ceres,_Fife'
     end
 
     it "should encode the Wikipedia page URL correctly" do
-      @thing.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres%2C_Fife')
+      @thing.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres,_Fife')
     end
 
     it "should encode the dbpedia URI correctly" do
-      @thing.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres%2C_Fife')
+      @thing.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres,_Fife')
     end
 
     it "should extract the abstract correctly" do

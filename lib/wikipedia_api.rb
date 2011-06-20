@@ -9,6 +9,10 @@ module WikipediaApi
   ABSTRACT_TRUNCATE_LENGTH = 800
   HTTP_TIMEOUT = 5
 
+  def self.escape_title(title)
+    URI::escape(title.gsub(' ','_'), ' ?#%"+=')
+  end
+
   def self.page_info(args)
     data = self.get('query', {:redirects => 1, :prop => 'info'}.merge(args))
 

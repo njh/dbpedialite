@@ -8,10 +8,13 @@
 # Tested using enwiki-20100130-stub-articles.xml
 #
 
+$:.unshift File.join(File.dirname(__FILE__), 'lib')
+
 require 'rubygems'
 require 'nokogiri'
 require 'rdf'
 require 'uri'
+require 'wikipedia_api'
 include Nokogiri
 
 class WikipediaStubsCallbacks < XML::SAX::Document
@@ -55,8 +58,7 @@ class WikipediaStubsCallbacks < XML::SAX::Document
   end
   
   def dbpedia_uri(title)
-    # FIXME: which characters does dbpedia.org escape?
-    escaped = URI.escape(title.gsub(' ','_'), '/;=?,+')
+    escaped = WikipediaApi.escape_title(title)
     RDF::URI("http://dbpedia.org/resource/#{escaped}")
   end
   
