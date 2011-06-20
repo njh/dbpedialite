@@ -57,6 +57,24 @@ class DbpediaLite < Sinatra::Base
     end
   end
 
+  def redirect_from_title(title)
+    data = WikipediaApi.page_info(:titles => title)
+    if data.nil?
+      not_found("Wikipedia page title not found.")
+    else
+      case data['ns']
+        when 0 then
+          headers 'Cache-Control' => 'public,max-age=600'
+          redirect "/things/#{data['pageid']}", 301
+        when 14 then
+          headers 'Cache-Control' => 'public,max-age=600'
+          redirect "/categories/#{data['pageid']}", 301
+        else
+          error 500, "Unsupported Wikipedia namespace: #{data['ns']}\n"
+      end
+    end
+  end
+
   helpers do
     include Rack::Utils
     include Sinatra::ContentFor
@@ -121,8 +139,7 @@ class DbpediaLite < Sinatra::Base
 
     @results = WikipediaApi.search(params[:term], :srlimit => 20)
     @results.each do |result|
-      escaped = CGI::escape(result['title'].gsub(' ','_'))
-      result['url'] = "/titles/#{escaped}"
+      result['url'] = "/titles/" + WikipediaApi.escape_title(result['title'])
     end
 
     case format
@@ -141,21 +158,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/titles/:title' do |title|
-    data = WikipediaApi.page_info(:titles => title)
-    if data.nil?
-      not_found("Title not found.")
-    else
-      case data['ns']
-        when 0 then
-          headers 'Cache-Control' => 'public,max-age=600'
-          redirect "/things/#{data['pageid']}", 301
-        when 14 then
-          headers 'Cache-Control' => 'public,max-age=600'
-          redirect "/categories/#{data['pageid']}", 301
-        else
-          error 500, "Unsupported Wikipedia namespace: #{data['ns']}\n"
-      end
-    end
+    redirect_from_title(title)
   end
 
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
@@ -191,14 +194,13 @@ class DbpediaLite < Sinatra::Base
     redirect "/", 301 if params[:url].nil? or params[:url].empty?
 
     if params[:url] =~ %r{^http://(\w+)\.wikipedia.org/wiki/(.+)$}
-      data = WikipediaApi.page_info(:titles => $2)
-      redirect "/things/#{data['pageid']}", 301
+      redirect_from_title($2)
     elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
-      data = WikipediaApi.page_info(:titles => $2)
-      redirect "/things/#{data['pageid']}", 301
-    elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/things/(\d+)$}
-      data = WikipediaApi.page_info(:pageids => $2)
-      redirect "http://en.wikipedia.org/wiki/#{data['title']}", 301
+      redirect_from_title($2)
+    elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)$}
+      data = WikipediaApi.page_info(:pageids => $3)
+      escaped = WikipediaApi.escape_title(data['title'])
+      redirect "http://en.wikipedia.org/wiki/#{escaped}", 301
     else
       erb :flipfail
     end
