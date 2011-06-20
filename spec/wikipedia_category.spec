@@ -110,6 +110,26 @@ describe WikipediaCategory do
     end
   end
 
+  context "loading a page from wikipedia" do
+    before :each do
+      page_info = {
+        'pageid' => 52780,
+        'ns' => 0,
+        'title' => 'U2',
+        'touched' => '2010-05-12T22:44:49Z',
+        'lastrevid' => 361771300,
+        'counter' => 787,
+        'length' => 78367
+      }
+      WikipediaApi.expects(:page_info).with(:pageids => 52780).once.returns(page_info)
+      @category = WikipediaCategory.load(52780)
+    end
+
+    it "should return nil" do
+      @category.should be_nil
+    end
+  end
+
   context "converting a category to RDF" do
     before :each do
       @category = WikipediaCategory.new(4309010,
