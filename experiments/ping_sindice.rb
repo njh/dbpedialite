@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# Experimental script to ping various sites when
+# Experimental script to ping sindice when
 # a wikipedia article changes.
 #
 #
