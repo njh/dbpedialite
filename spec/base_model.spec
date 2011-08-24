@@ -48,15 +48,15 @@ describe BaseModel do
     end
 
     it "should escape characters in the title" do
-      @obj.escaped_title.should == 'Ceres%2C_Fife'
+      @obj.escaped_title.should == 'Ceres,_Fife'
     end
 
     it "should respond to 'wikipedia_uri' with the Wikipedia URI" do
-      @obj.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres%2C_Fife')
+      @obj.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres,_Fife')
     end
 
     it "should respond to 'dbpedia_uri' with the dbpedia URI" do
-      @obj.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres%2C_Fife')
+      @obj.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres,_Fife')
     end
   end
 

@@ -51,7 +51,7 @@ class BaseModel < Doodle
 
   def escaped_title
     unless title.nil?
-      URI::escape(title.gsub(' ','_'), ',')
+      WikipediaApi.escape_title(title)
     end
   end
 

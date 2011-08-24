@@ -10,9 +10,12 @@ class WikipediaCategory < BaseModel
 
   def load
     data = WikipediaApi.page_info(:pageids => pageid)
-    # FIXME: check that it really is a category
-
     return false if data.nil? or data.empty?
+
+    # Is it actually a category?
+    return false unless data['ns'] == 14
+
+    # Update object properties with the data that was loaded
     update(data)
 
     data = WikipediaApi.category_members(title)

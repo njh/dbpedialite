@@ -266,7 +266,7 @@ describe 'dbpedia lite' do
         rdfa_graph.should have_triple([
                                        RDF::URI("http://dbpedialite.org/things/934787#id"),
                                        RDF::FOAF.isPrimaryTopicOf,
-                                       RDF::URI("http://en.wikipedia.org/wiki/Ceres%2C_Fife"),
+                                       RDF::URI("http://en.wikipedia.org/wiki/Ceres,_Fife"),
                                       ])
       end
 
@@ -606,7 +606,7 @@ describe 'dbpedia lite' do
       end
     end
 
-    context "flipping from a dbpedia lite page" do
+    context "flipping from a dbpedia lite thing page" do
       before :each do
         FakeWeb.register_uri(
           :get, %r[http://en.wikipedia.org/w/api.php],
@@ -618,6 +618,25 @@ describe 'dbpedia lite' do
       it "should redirect to the coresponding wikipedia page" do
         last_response.status.should == 301
         last_response.location.should == 'http://en.wikipedia.org/wiki/Rat'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
+    context "flipping from a dbpedia lite category page" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://en.wikipedia.org/w/api.php],
+          :body => fixture_data('pageinfo-villagesinfife.json')
+        )
+        get '/flipr?url=http%3A%2F%2Fdbpedialite.org%3A9393%2Fthings%2F4309010'
+      end
+
+      it "should redirect to the coresponding wikipedia page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://en.wikipedia.org/wiki/Category:Villages_in_Fife'
       end
 
       it "should be cachable" do
