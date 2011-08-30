@@ -11,7 +11,7 @@ gem 'doodle'
 
 gem 'rdf', ">=0.3.1"
 gem 'rdf-json', :require => 'rdf/json'
-gem 'rdf-n3', :require => 'rdf/n3'
+gem 'rdf-turtle', :require => 'rdf/turtle'
 gem 'rdf-rdfxml', :require => 'rdf/rdfxml'
 gem 'rdf-trix', :require => 'rdf/trix'
 

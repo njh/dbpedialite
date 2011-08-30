@@ -352,9 +352,9 @@ describe 'dbpedia lite' do
       end
     end
 
-    context "as an N3 document" do
+    context "as an Turtle document" do
       before :each do
-        header "Accept", "text/n3"
+        header "Accept", "text/turtle"
         get '/things/934787'
       end
 
@@ -362,8 +362,8 @@ describe 'dbpedia lite' do
         last_response.should be_ok
       end
 
-      it "should be of type text/n3" do
-        last_response.content_type.should == 'text/n3;charset=utf-8'
+      it "should be of type text/turtle" do
+        last_response.content_type.should == 'text/turtle;charset=utf-8'
       end
 
       it "should be cachable" do

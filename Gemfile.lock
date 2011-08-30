@@ -20,7 +20,7 @@ GEM
     rdf-json (0.3.0)
       json_pure (>= 1.4.2)
       rdf (~> 0.3.0)
-    rdf-n3 (0.3.3.1)
+    rdf-turtle (0.0.4)
       rdf (>= 0.3.3)
     rdf-rdfa (0.3.3.2)
       addressable (= 2.2.4)
@@ -58,7 +58,7 @@ DEPENDENCIES
   rcov
   rdf (>= 0.3.1)
   rdf-json
-  rdf-n3
+  rdf-turtle
   rdf-rdfa
   rdf-rdfxml
   rdf-trix

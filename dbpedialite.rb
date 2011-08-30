@@ -40,9 +40,9 @@ class DbpediaLite < Sinatra::Base
       when 'json', 'application/json', 'text/json' then
         content_type 'application/json'
         graph.dump(:json)
-      when 'n3', 'ttl', 'text/n3', 'text/turtle', 'application/turtle' then
-        content_type 'text/n3'
-        graph.dump(:n3)
+      when 'turtle', 'ttl', 'text/turtle', 'application/turtle' then
+        content_type 'text/turtle'
+        graph.dump(:turtle)
       when 'nt', 'ntriples', 'text/plain' then
         content_type 'text/plain'
         graph.dump(:ntriples)
