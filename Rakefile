@@ -1,39 +1,24 @@
 require 'rubygems'
-require 'spec'
-require 'spec/rake/spectask'
+require 'rspec/core/rake_task'
 
-desc 'Run specs'
-task 'spec' do
-  Spec::Rake::SpecTask.new("spec") do |t|
-    t.spec_files = FileList["spec/*.spec","spec/*.rb"]
-    t.rcov = true
-    t.rcov_opts = [
-        '-x', '~/.rvm',
-        '-x', '/Library',
-        '-x', '/System',
-        '-x', '/usr',
-        '-x', '/var',
-        '-x', '.bundle',
-        '-x', 'spec'
-    ]
-    t.spec_opts = ["-c"]
-  end
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern = "spec/*.spec"
 end
 
-desc 'Run specs with backtrace'
-task 'tracespec' do
-  Spec::Rake::SpecTask.new("tracespec") do |t|
-    t.spec_files = FileList["spec/*.spec"]
+namespace :spec do
+  desc 'Run RSpec code examples in specdoc mode'
+  RSpec::Core::RakeTask.new(:doc) do |t|
+    t.pattern = "spec/*.spec"
     t.rcov = false
-    t.rcov_opts = [
-        '-x', '/Library',
-        '-x', '/System',
-        '-x', '/usr',
-        '-x', '/var',
-        '-x', '.bundle',
-        '-x', 'spec'
-    ]
-    t.spec_opts = ["-bcfn"]
+    t.rspec_opts = %w(--backtrace --colour --format doc)
+  end
+  
+  desc 'Run RSpec code examples with rcov'
+  RSpec::Core::RakeTask.new(:rcov) do |t|
+    t.pattern = "spec/*.spec"
+    t.rcov = true
+    t.rcov_opts = '--text-report --exclude /gems/,/Library/,/usr/,lib/tasks,.bundle,config,spec'
+    t.rspec_opts = %w(--no-colour --format progress)
   end
 end
 

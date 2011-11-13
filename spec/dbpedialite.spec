@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/spec_helper.rb"
+require 'spec_helper'
 require 'dbpedialite'
 
 
@@ -344,7 +344,7 @@ describe 'dbpedia lite' do
       end
 
       it "should be of type application/json" do
-        last_response.content_type.should == 'application/json'
+        last_response.content_type.should == 'application/json;charset=utf-8'
       end
 
       it "should be cachable" do

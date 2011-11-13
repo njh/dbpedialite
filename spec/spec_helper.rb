@@ -6,8 +6,8 @@ require 'bundler'
 
 Bundler.require(:default, :test)
 
-Spec::Runner.configure do |config|
-  config.mock_with :mocha
+RSpec.configure do |config|
+  config.mock_framework = :mocha
   config.before(:each) do
     FakeWeb.clean_registry
   end
