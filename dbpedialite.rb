@@ -5,7 +5,7 @@ require 'wikipedia_category'
 
 
 class DbpediaLite < Sinatra::Base
-  set :public, File.dirname(__FILE__) + '/public'
+  set :public_folder, File.join(File.dirname(__FILE__), 'public')
 
   DEFAULT_HOST = 'dbpedialite.org'
 
@@ -76,10 +76,8 @@ class DbpediaLite < Sinatra::Base
   end
 
   helpers do
-    include Rack::Utils
     include Sinatra::ContentFor
     include Sinatra::UrlForHelper
-    alias_method :h, :escape_html
 
     def link_to(title, url=nil, attr={})
       url = title if url.nil?
@@ -96,6 +94,19 @@ class DbpediaLite < Sinatra::Base
     def shorten(uri)
       qname = uri.qname.join(':') rescue uri.to_s
       escape_html(qname)
+    end
+
+    # Escape ampersands, brackets and quotes to their HTML/XML entities.
+    def h(string)
+      mapping = {
+        "&" => "&amp;",
+        "<" => "&lt;",
+        ">" => "&gt;",
+        "'" => "&#x27;",
+        '"' => "&quot;"
+      }
+      pattern = /#{Regexp.union(*mapping.keys)}/n
+      string.to_s.gsub(pattern){|c| mapping[c] }
     end
 
     def format_xmlns(vocabularies)
