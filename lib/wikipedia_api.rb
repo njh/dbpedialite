@@ -134,7 +134,12 @@ module WikipediaApi
 
     # Extract the abstract
     data['abstract'] = ''
-    doc.at('#bodyContent').children.each do |node|
+    
+    # FIXME: improve finding the body content
+    parent_div = doc.at('#bodyContent/.mw-content-ltr')
+    parent_div = doc.at('#bodyContent') if parent_div.nil?
+    
+    parent_div.children.each do |node|
 
       # Look for paragraphs
       if node.name == 'p'
