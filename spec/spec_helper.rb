@@ -6,6 +6,9 @@ require 'bundler'
 
 Bundler.require(:default, :test)
 
+# This is needed by rcov
+require 'rspec/autorun'
+
 RSpec.configure do |config|
   config.mock_framework = :mocha
   config.before(:each) do
@@ -22,4 +25,3 @@ end
 def fixture_data(filename)
   File.read(fixture(filename))
 end
-
