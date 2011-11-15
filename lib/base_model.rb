@@ -1,3 +1,4 @@
+require 'wikipedia_api'
 require 'uri'
 
 class BaseModel < Doodle
