@@ -35,15 +35,15 @@ describe WikipediaApi do
   context "parsing an HTML page" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
+        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-934787.json'),
+        :content_type => 'application/json'
       )
       @data = WikipediaApi.parse(934787)
     end
 
-    it "should return valid == true" do
-      @data['valid'].should be_true
+    it "should return a non-nil value" do
+      @data.should_not be_nil
     end
 
     it "should return the artitle title" do
@@ -51,16 +51,16 @@ describe WikipediaApi do
     end
 
     it "should return the date it was last updated" do
-      @data['updated_at'].to_s.should == '2010-04-29T10:22:00+00:00'
+      @data['updated_at'].to_s.should == '2011-11-04T06:26:16+00:00'
       @data['updated_at'].class.should == DateTime
     end
 
     it "should return the longitude" do
-      @data['longitude'].should == -2.970134
+      @data['longitude'].should == -2.971445
     end
 
     it "should return the latitude" do
-      @data['latitude'].should == 56.293431
+      @data['latitude'].should == 56.29205
     end
 
     it "should return the artitle abstract" do
@@ -69,8 +69,11 @@ describe WikipediaApi do
 
     it "should return an array of images" do
       @data['images'].should == [
-        'http://upload.wikimedia.org/wikipedia/commons/d/d6/Scottish_infobox_template_map.png',
-        'http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg'
+        'http://upload.wikimedia.org/wikipedia/commons/c/cd/Fife_UK_location_map.svg',
+        'http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg',
+        'http://upload.wikimedia.org/wikipedia/commons/5/5e/The_Green_at_Ceres%2C_Fife.jpg',
+        'http://upload.wikimedia.org/wikipedia/commons/1/19/Ceres_Church%2C_Fife_Scotland.jpg',
+        'http://upload.wikimedia.org/wikipedia/commons/3/36/The_Provost%2C_Ceres_Fife.jpg',
       ]
     end
 
@@ -84,15 +87,15 @@ describe WikipediaApi do
   context "parsing an HTML page with <p> in the infobox" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=26471',
-        :body => fixture_data('rat.html'),
-        :content_type => 'text/html; charset=UTF-8'
+        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=26471&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-26471.json'),
+        :content_type => 'application/json'
       )
       @data = WikipediaApi.parse(26471)
     end
 
-    it "should return valid == true" do
-      @data['valid'].should be_true
+    it "should return a non-nil value" do
+      @data.should_not be_nil
     end
 
     it "should return the artitle title" do
@@ -112,9 +115,9 @@ describe WikipediaApi do
   context "parsing an HTML page with pronunciation details in the abstract" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=3354',
-        :body => fixture_data('berlin.html'),
-        :content_type => 'text/html; charset=UTF-8'
+        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-3354.json'),
+        :content_type => 'application/json'
       )
       @data = WikipediaApi.parse(3354)
     end
@@ -169,15 +172,17 @@ describe WikipediaApi do
   context "parsing a non-existant HTML page" do
     before :each do
       FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/wiki/index.php?curid=504825766',
-        :body => fixture_data('notfound.html'),
-        :content_type => 'text/html; charset=UTF-8'
+        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-504825766.json'),
+        :content_type => 'application/json'
       )
-      @data = WikipediaApi.parse(504825766)
     end
 
-    it "should return valid == false" do
-      @data['valid'].should be_false
+    it "should raise an exception" do
+      lambda {WikipediaApi.parse(504825766)}.should raise_error(
+        WikipediaApi::PageNotFound,
+        'There is no page with ID 504825766'
+      )
     end
   end
 
@@ -247,6 +252,23 @@ describe WikipediaApi do
 
     it "should return nil" do
       @data.should be_nil
+    end
+  end
+
+  context "a call to Wikipedia API returns something that isn't JSON" do
+    before :each do
+      FakeWeb.register_uri(:get,
+        %r[http://en.wikipedia.org/w/api.php],
+        :body => "<h1>There was an error</h1>",
+        :content_type => 'text/html'
+      )
+    end
+
+    it "should raise an exception" do
+      expect { WikipediaApi.get('query') }.should raise_error(
+        WikipediaApi::Exception,
+        'Response from Wikipedia API was not of type application/json.'
+      )
     end
   end
 

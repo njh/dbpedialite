@@ -1,8 +1,14 @@
 require 'net/http'
 require 'uri'
-require 'cgi'
 
 module WikipediaApi
+
+  class Exception < Exception
+  end
+
+  class PageNotFound < WikipediaApi::Exception
+  end
+
   USER_AGENT = 'DbpediaLite/1'
   API_URI = URI.parse('http://en.wikipedia.org/w/api.php')
   ABSTRACT_MAX_LENGTH = 500
@@ -34,7 +40,7 @@ module WikipediaApi
 
     keys = args.keys.sort {|a,b| a.to_s <=> b.to_s}
     keys.each do |key|
-     items << CGI::escape(key.to_s)+'='+CGI::escape(args[key].to_s)
+     items << URI::escape(key.to_s)+'='+URI::escape(args[key].to_s)
     end
 
     uri = API_URI.clone
@@ -48,9 +54,31 @@ module WikipediaApi
     # Throw exception if unsuccessful
     res.value
 
-    JSON.parse(res.body)
+    # Parse the response if it is JSON
+    if res.content_type == 'application/json'
+      data = JSON.parse(res.body)
+    else
+      raise WikipediaApi::Exception.new(
+        "Response from Wikipedia API was not of type application/json."
+      )
+    end
 
-    # FIXME: throw an exception if Wikipedia reports a problem
+    # Check for errors in the response
+    if data.nil?
+      raise WikipediaApi::Exception.new('Empty response')
+    elsif data.has_key?('error')
+      if data['error']['code'] == 'nosuchpageid'
+        raise WikipediaApi::PageNotFound.new(
+          data['error']['info']
+        )
+      else
+        raise WikipediaApi::Exception.new(
+          data['error']['info']
+        )
+      end
+    end
+    
+    return data
   end
 
   def self.category_members(title, args={})
@@ -76,34 +104,30 @@ module WikipediaApi
     data['query']['pages'].values
   end
 
-  def self.parse(pageid)
-    # FIXME: this should use the API instead of screen scaping
-    uri = URI.parse("http://en.wikipedia.org/wiki/index.php?curid=#{pageid}")
-    res = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
-    end
 
-    # Throw exception if unsuccessful
-    res.value
+  def self.parse(pageid, args={})
+    data = self.get('parse', {
+      :prop => 'text|displaytitle',
+      :pageid => pageid
+    }.merge(args))
+
+    data = data['parse']
+
+    # Add a 'title' field to be consistent with other API results
+    return nil if data['displaytitle'].nil?
+    data['title'] = data['displaytitle']
 
     # Perform the screen-scraping
-    data = {}
-    doc = Nokogiri::HTML(res.body)
+    text = Nokogiri::HTML(data['text']['*'])
 
-    # Extract the title of the page
-    title = doc.at('#firstHeading')
-    data['title'] = title.inner_text unless title.nil?
-
-    # Extract the last modified date
-    lastmod = doc.at('#footer-info-lastmod')
-    unless lastmod.nil?
-      data['updated_at'] = DateTime.parse(
-        lastmod.inner_text.sub('This page was last modified on ','')
-      )
+    # Get the last modified time for the comment at the end of the page    
+    comment = text.at('body').children.last
+    if comment.inner_text.match(/Saved in parser cache with key (.+) and timestamp (\d+)/)
+      data['updated_at'] = DateTime.strptime($2, "%Y%m%d%H%M%S")
     end
 
     # Extract the coordinates
-    coordinates = doc.at('#coordinates//span.geo')
+    coordinates = text.at('#coordinates//span.geo')
     unless coordinates.nil?
       coordinates = coordinates.inner_text.split(/[^\d\-\.]+/)
       data['latitude'] = coordinates[0].to_f
@@ -112,18 +136,24 @@ module WikipediaApi
 
     # Extract images
     data['images'] = []
-    doc.search(".image/img").each do |img|
+    text.search(".image/img").each do |img|
       next if img.attribute('width').value.to_i < 100
       next if img.attribute('height').value.to_i < 100
       image = img.attribute('src').value
       image.sub!(%r[/thumb/],'/')
       image.sub!(%r[/(\d+)px-(.+?)\.(\w+)$],'')
+      
+      # Fix for protocol-relative URLs 
+      # http://lists.wikimedia.org/pipermail/mediawiki-api-announce/2011-July/000023.html
+      image = "http:#{image}" if image[0..1] == '//'
+      
       data['images'] << image
     end
+    data['images'].uniq!
 
     # Extract external links
     data['externallinks'] = []
-    doc.search("ul/li/a.external").each do |link|
+    text.search("ul/li/a.external").each do |link|
       if link.has_attribute?('href')
         href = link.attribute('href').value
         next if href =~ %r[^http://(\w+)\.wikipedia\.org/]
@@ -132,14 +162,17 @@ module WikipediaApi
     end
     data['externallinks'].uniq!
 
+    # Extract the abstract from the body of the page
+    data['abstract'] = extract_abstract(text)
+
+    data
+  end
+  
+  def self.extract_abstract(text)
     # Extract the abstract
-    data['abstract'] = ''
+    abstract = ''
     
-    # FIXME: improve finding the body content
-    parent_div = doc.at('#bodyContent/.mw-content-ltr')
-    parent_div = doc.at('#bodyContent') if parent_div.nil?
-    
-    parent_div.children.each do |node|
+    text.at('body').children.each do |node|
 
       # Look for paragraphs
       if node.name == 'p'
@@ -150,40 +183,33 @@ module WikipediaApi
         node.css('#coordinates').each { |coor| coor.remove }
 
         # Remove pronunciation and append the paragraph
-        data['abstract'] += node.inner_text + "\n"
+        abstract += node.inner_text + "\n"
       end
 
       # Stop when we see the table of contents
       break if node.attribute('id') and node.attribute('id').value == 'toc'
 
       # Or we have enough text
-      break if data['abstract'].size > ABSTRACT_MAX_LENGTH
+      break if abstract.size > ABSTRACT_MAX_LENGTH
     end
 
     # Remove pronunciation and append the paragraph
-    data['abstract'] = self.strip_pronunciation(data['abstract'])
+    abstract = self.strip_pronunciation(abstract)
 
     # Remove trailing whitespace
-    data['abstract'].strip!
+    abstract.strip!
 
     # Truncate if the abstract is too long
-    if (data['abstract'].length > ABSTRACT_TRUNCATE_LENGTH)
-      data['abstract'].slice!(ABSTRACT_TRUNCATE_LENGTH-3)
+    if (abstract.length > ABSTRACT_TRUNCATE_LENGTH)
+      abstract.slice!(ABSTRACT_TRUNCATE_LENGTH-3)
 
       # Remove trailing partial word and replace with an ellipsis
-      data['abstract'].sub!(/[^\w\s]?\s*\w*$/, '...')
+      abstract.sub!(/[^\w\s]?\s*\w*$/, '...')
     end
 
-    # Is this a Not Found page?
-    if data['abstract'] =~ /^The requested page title is invalid/
-      data['valid'] = false
-      return data
-    else
-      data['valid'] = true
-    end
-
-    data
+    return abstract
   end
+
 
   def self.strip_pronunciation(string)
     result = string.dup
