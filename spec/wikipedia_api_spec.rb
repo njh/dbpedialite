@@ -42,8 +42,8 @@ describe WikipediaApi do
       @data = WikipediaApi.parse(934787)
     end
 
-    it "should return a non-nil value" do
-      @data.should_not be_nil
+    it "should return a Hash" do
+      @data.should be_a(Hash)
     end
 
     it "should return the artitle title" do
@@ -94,8 +94,8 @@ describe WikipediaApi do
       @data = WikipediaApi.parse(26471)
     end
 
-    it "should return a non-nil value" do
-      @data.should_not be_nil
+    it "should return a hash" do
+      @data.should be_a(Hash)
     end
 
     it "should return the artitle title" do
@@ -240,18 +240,19 @@ describe WikipediaApi do
     end
   end
 
-  context "getting information about a page that doesn't exist" do
+  context "getting information about a page title that doesn't exist" do
     before :each do
       FakeWeb.register_uri(:get,
         %r[http://en.wikipedia.org/w/api.php],
         :body => fixture_data('pageinfo-zsefpfs.json'),
         :content_type => 'application/json'
       )
-      @data = WikipediaApi.page_info(:titles => 'zsefpfs')
     end
 
-    it "should return nil" do
-      @data.should be_nil
+    it "should trow a PageNotFound exception" do
+      lambda { WikipediaApi.page_info(:titles => 'zsefpfs') }.should raise_error(
+        WikipediaApi::PageNotFound
+      )
     end
   end
 
