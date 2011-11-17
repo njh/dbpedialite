@@ -11,8 +11,8 @@ describe FreebaseApi do
       @data = FreebaseApi.lookup_wikipedia_pageid(934787)
     end
 
-    it "should not return nil" do
-      @data.should_not be_nil
+    it "should not return a Hash" do
+      @data.should be_a(Hash)
     end
 
     it "should return the name of the topic" do
