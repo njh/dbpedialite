@@ -110,7 +110,7 @@ describe WikipediaCategory do
     end
   end
 
-  context "loading a page from wikipedia" do
+  context "loading a non-category page from wikipedia" do
     before :each do
       page_info = {
         'pageid' => 52780,
@@ -122,11 +122,13 @@ describe WikipediaCategory do
         'length' => 78367
       }
       WikipediaApi.expects(:page_info).with(:pageids => 52780).once.returns(page_info)
-      @category = WikipediaCategory.load(52780)
     end
 
-    it "should return nil" do
-      @category.should be_nil
+    it "should return raise a PageNotFound exception" do
+      lambda {WikipediaCategory.load(52780)}.should raise_error(
+        WikipediaApi::PageNotFound,
+        'Page 52780 is not a category'
+      )
     end
   end
 
