@@ -95,7 +95,6 @@ describe WikipediaThing do
         'title' => 'Ceres, Fife',
         'longitude' => -2.970134,
         'latitude' => 56.293431,
-        'valid' => true,
         'abstract' => 'Ceres is a village in Fife, Scotland',
         'images' => ['http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg'],
         'externallinks' => ['http://www.fife.50megs.com/ceres-history.htm']
@@ -203,21 +202,30 @@ describe WikipediaThing do
 
   context "loading a non-existant page from wikipedia" do
     before :each do
-      data = {'valid' => false}
-      WikipediaApi.expects(:parse).once.returns(data)
+      WikipediaApi.expects(:parse).once.raises(
+        WikipediaApi::PageNotFound,
+        'There is no page with ID 999999'
+      )
       FreebaseApi.expects(:lookup_wikipedia_pageid).never
-      @thing = WikipediaThing.load(999999)
     end
 
-    it "should return nil" do
-      @thing.should == nil
+    it "should return raise a PageNotFound exception" do
+      lambda {WikipediaThing.load(999999)}.should raise_error(
+        WikipediaApi::PageNotFound,
+        'There is no page with ID 999999'
+      )
     end
   end
 
   context "converting a thing to RDF" do
     before :each do
+      FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns({
+        'guid' => '#9202a8c04000641f8000000000066c8e',
+        'id' => '/en/u2',
+        'mid' => '/m/0dw4g',
+        'name' => 'U2',
+      })
       WikipediaApi.expects(:parse).never
-      FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(nil)
       @thing = WikipediaThing.new(52780,
         :title => 'U2',
         :abstract => "U2 are an Irish rock band.",
@@ -230,8 +238,8 @@ describe WikipediaThing do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 9 triples" do
-      @graph.count.should == 9
+    it "should return a graph with 11 triples" do
+      @graph.count.should == 11
     end
 
     it "should include an rdf:type triple for the thing" do
@@ -255,6 +263,38 @@ describe WikipediaThing do
         RDF::URI("http://dbpedialite.org/things/52780#id"),
         RDF::RDFS.comment,
         RDF::Literal("U2 are an Irish rock band."),
+      ])
+    end
+
+    it "should include a owl:sameAs triple for the Dbpedia URI" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::OWL.sameAs,
+        RDF::URI("http://dbpedia.org/resource/U2")
+      ])
+    end
+
+    it "should include a isPrimaryTopicOf triple for the Wikipedia page" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::FOAF.isPrimaryTopicOf,
+        RDF::URI("http://en.wikipedia.org/wiki/U2")
+      ])
+    end
+
+    it "should include a owl:sameAs triple for the FreeBase Machine ID" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::OWL.sameAs,
+        RDF::URI("http://rdf.freebase.com/ns/m.0dw4g")
+      ])
+    end
+
+    it "should include a owl:sameAs triple for the FreeBase GUID" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::OWL.sameAs,
+        RDF::URI("http://rdf.freebase.com/ns/guid.9202a8c04000641f8000000000066c8e")
       ])
     end
 

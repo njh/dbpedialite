@@ -25,7 +25,6 @@ class WikipediaThing < BaseModel
 
   def load
     data = WikipediaApi.parse(pageid)
-    return false if data.nil? or !data['valid']
 
     update(data)
 
@@ -38,8 +37,6 @@ class WikipediaThing < BaseModel
     #if data.has_key?('images')
     #  self.images = data['images'].map {|img| RDF::URI.parse(img)}
     #end
-
-    true
   end
 
   def freebase_guid_uri
@@ -59,10 +56,8 @@ class WikipediaThing < BaseModel
       # Attempt to match to Freebase, but silently fail on error
       begin
         data = FreebaseApi.lookup_wikipedia_pageid(pageid)
-        unless data.nil?
-          @freebase_mid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['mid'].sub('/m/','m.'))
-          @freebase_guid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['guid'].sub('#','guid.'))
-        end
+        @freebase_mid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['mid'].sub('/m/','m.'))
+        @freebase_guid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['guid'].sub('#','guid.'))
       rescue Timeout::Error => e
         $stderr.puts "Timed out while reading from Freebase: #{e.message}"
       rescue => e
