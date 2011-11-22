@@ -196,6 +196,27 @@ describe WikipediaApi do
     end
   end
 
+  context "parsing a redirect page" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text',
+        :body => fixture_data('parse-440555.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
+        :body => fixture_data('pageinfo-bse.json'),
+        :content_type => 'application/json'
+      )
+    end
+
+    it "should raise a Redirect exception" do
+      lambda {WikipediaApi.parse(440555)}.should raise_error(
+        WikipediaApi::Redirect
+      )
+    end
+  end
+
   context "parsing a non-existant page" do
     before :each do
       FakeWeb.register_uri(

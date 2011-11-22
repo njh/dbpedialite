@@ -9,6 +9,16 @@ module WikipediaApi
   class PageNotFound < WikipediaApi::Exception
   end
 
+  class Redirect < WikipediaApi::Exception
+    attr_reader :pageid
+    attr_reader :title
+
+    def initialize(pageid, title)
+      @pageid = pageid
+      @title = title
+    end
+  end
+
   USER_AGENT = 'DbpediaLite/1'
   API_URI = URI.parse('http://en.wikipedia.org/w/api.php')
   ABSTRACT_MAX_LENGTH = 500
@@ -83,7 +93,7 @@ module WikipediaApi
         )
       end
     end
-    
+
     return data
   end
 
@@ -122,7 +132,18 @@ module WikipediaApi
     # Perform the screen-scraping
     text = Nokogiri::HTML(data['text']['*'])
 
-    # Get the last modified time for the comment at the end of the page    
+    # Is it a redirect?
+    redirect = text.at('/html/body/ol/li')
+    if redirect and redirect.children.first.text == 'REDIRECT '
+      redirect_title = redirect.at('a/@title')
+      unless redirect_title.nil?
+        info = self.page_info(:titles => redirect_title)
+        # FIXME: hmm, maybe this isn't the best use of exceptions
+        raise WikipediaApi::Redirect.new(info['pageid'], info['title'])
+      end
+    end
+
+    # Get the last modified time for the comment at the end of the page
     comment = text.at('body').children.last
     if comment.inner_text.match(/Saved in parser cache with key (.+) and timestamp (\d+)/)
       data['updated_at'] = DateTime.strptime($2, "%Y%m%d%H%M%S")
@@ -144,11 +165,11 @@ module WikipediaApi
       image = img.attribute('src').value
       image.sub!(%r[/thumb/],'/')
       image.sub!(%r[/(\d+)px-(.+?)\.(\w+)$],'')
-      
-      # Fix for protocol-relative URLs 
+
+      # Fix for protocol-relative URLs
       # http://lists.wikimedia.org/pipermail/mediawiki-api-announce/2011-July/000023.html
       image = "http:#{image}" if image[0..1] == '//'
-      
+
       data['images'] << image
     end
     data['images'].uniq!
@@ -169,11 +190,11 @@ module WikipediaApi
 
     data
   end
-  
+
   def self.extract_abstract(text)
     # Extract the abstract
     abstract = ''
-    
+
     text.at('body').children.each do |node|
 
       # Look for paragraphs

@@ -485,6 +485,30 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing an HTML thing page that redirects" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text',
+        :body => fixture_data('parse-440555.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
+        :body => fixture_data('pageinfo-bse.json'),
+        :content_type => 'application/json'
+      )
+      get '/things/440555'
+    end
+
+    it "should return a redirect status" do
+      last_response.should be_redirect
+    end
+
+    it "should set the location header to redirect to /" do
+      last_response.location.should == 'http://example.org/things/19344418'
+    end
+  end
+
   context "GETing an HTML thing page for a thing that doesn't exist" do
     before :each do
       FakeWeb.register_uri(

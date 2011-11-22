@@ -176,6 +176,8 @@ class DbpediaLite < Sinatra::Base
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     begin
       @thing = WikipediaThing.load(pageid)
+    rescue WikipediaApi::Redirect => redirect
+      redirect("/things/#{redirect.pageid}", 301)
     rescue WikipediaApi::PageNotFound
       not_found("Thing not found.")
     end
@@ -190,6 +192,8 @@ class DbpediaLite < Sinatra::Base
   get %r{^/categories/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     begin
       @category = WikipediaCategory.load(pageid)
+    rescue WikipediaApi::Redirect => redirect
+      redirect("/categories/#{redirect.pageid}", 301)
     rescue WikipediaApi::PageNotFound
       not_found("Category not found.")
     end
