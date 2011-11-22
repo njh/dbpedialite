@@ -396,6 +396,18 @@ describe 'dbpedia lite' do
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
+
+      it "should set the RDFS prefix correctly" do
+        last_response.body.should =~ %r[@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \.]
+      end
+
+      it "should set the FOAF prefix correctly" do
+        last_response.body.should =~ %r[@prefix foaf: <http://xmlns.com/foaf/0.1/> \.]
+      end
+
+      it "should contain a rdfs:label triple" do
+        last_response.body.should =~ %r[rdfs:label "Ceres, Fife";]
+      end
     end
 
     context "as an RDF/XML document by content negotiation" do
