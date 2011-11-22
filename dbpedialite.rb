@@ -31,8 +31,7 @@ class DbpediaLite < Sinatra::Base
       format.sub!(/;.+$/,'')
     end
 
-    headers 'Vary' => 'Accept',
-            'Cache-Control' => 'public,max-age=600'
+    headers 'Vary' => 'Accept', 'Cache-Control' => 'public,max-age=600'
     case format
       when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
         content_type 'text/html'
@@ -58,10 +57,8 @@ class DbpediaLite < Sinatra::Base
   end
 
   def redirect_from_title(title)
-    data = WikipediaApi.page_info(:titles => title)
-    if data.nil?
-      not_found("Wikipedia page title not found.")
-    else
+    begin
+      data = WikipediaApi.page_info(:titles => title)
       case data['ns']
         when 0 then
           headers 'Cache-Control' => 'public,max-age=600'
@@ -70,8 +67,12 @@ class DbpediaLite < Sinatra::Base
           headers 'Cache-Control' => 'public,max-age=600'
           redirect "/categories/#{data['pageid']}", 301
         else
-          error 500, "Unsupported Wikipedia namespace: #{data['ns']}\n"
+          error 500, "Unsupported Wikipedia namespace: #{data['ns']}"
       end
+    rescue WikipediaApi::PageNotFound
+      not_found "Wikipedia page title not found."
+    rescue WikipediaApi::Exception => e
+      error 500, "Wikipedia API excpetion: #{e}"
     end
   end
 
@@ -173,8 +174,11 @@ class DbpediaLite < Sinatra::Base
   end
 
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
-    @thing = WikipediaThing.load(pageid)
-    not_found("Thing not found.") if @thing.nil?
+    begin
+      @thing = WikipediaThing.load(pageid)
+    rescue WikipediaApi::PageNotFound
+      not_found("Thing not found.")
+    end
 
     @thing.doc_uri = request.url
     @graph = @thing.to_rdf
@@ -184,8 +188,11 @@ class DbpediaLite < Sinatra::Base
   end
 
   get %r{^/categories/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
-    @category = WikipediaCategory.load(pageid)
-    not_found("Category not found.") if @category.nil?
+    begin
+      @category = WikipediaCategory.load(pageid)
+    rescue WikipediaApi::PageNotFound
+      not_found("Category not found.")
+    end
 
     @category.doc_uri = request.url
     @graph = @category.to_rdf
@@ -209,9 +216,13 @@ class DbpediaLite < Sinatra::Base
     elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
       redirect_from_title($2)
     elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)$}
-      data = WikipediaApi.page_info(:pageids => $3)
-      escaped = WikipediaApi.escape_title(data['title'])
-      redirect "http://en.wikipedia.org/wiki/#{escaped}", 301
+      begin
+        data = WikipediaApi.page_info(:pageids => $3)
+        escaped = WikipediaApi.escape_title(data['title'])
+        redirect "http://en.wikipedia.org/wiki/#{escaped}", 301
+      rescue WikipediaApi::PageNotFound
+        not_found
+      end
     else
       erb :flipfail
     end
