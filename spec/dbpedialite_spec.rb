@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'dbpedialite'
 
 
-## Note: these are integration tests. Mocking is done at the HTTP request level.
+## Note: these are integration tests. Mocking is done using FakeWeb.
 
 set :environment, :test
 
@@ -11,6 +11,11 @@ describe 'dbpedia lite' do
 
   def app
     DbpediaLite
+  end
+
+  before :each do
+    app.enable :raise_errors
+    app.disable :show_exceptions
   end
 
   context "GETing the homepage" do
@@ -62,7 +67,11 @@ describe 'dbpedia lite' do
 
   context "GETing a search page with a query string" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('search-rat.json'))
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('search-rat.json'),
+        :content_type => 'application/json'
+      )
       get '/search?term=rat'
     end
 
@@ -85,7 +94,11 @@ describe 'dbpedia lite' do
 
   context "GETing a search page with a query string (from jquery autocomplete)" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('search-rat.json'))
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('search-rat.json'),
+        :content_type => 'application/json'
+      )
       get '/search.json?term=rat'
     end
 
@@ -104,7 +117,11 @@ describe 'dbpedia lite' do
 
   context "GETing the search page for unsupport format" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('search-rat.json'))
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('search-rat.json'),
+        :content_type => 'application/json'
+      )
       get '/search.ratrat?term=rat'
     end
 
@@ -133,7 +150,11 @@ describe 'dbpedia lite' do
 
   context "GETing a title URL for a thing" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('pageinfo-u2.json'))
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('pageinfo-u2.json'),
+        :content_type => 'application/json'
+      )
       get '/titles/U2'
     end
 
@@ -153,8 +174,7 @@ describe 'dbpedia lite' do
   context "GETing a title URL for a category" do
     before :each do
       FakeWeb.register_uri(
-        :get,
-        'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Category%3AVillages_in_Fife',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Category:Villages_in_Fife',
         :body => fixture_data('pageinfo-villagesinfife.json'),
         :content_type => 'application/json'
       )
@@ -176,7 +196,11 @@ describe 'dbpedia lite' do
 
   context "GETing an invalid title URL" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('pageinfo-zsefpfs.json'))
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('pageinfo-zsefpfs.json'),
+        :content_type => 'application/json'
+      )
       get '/titles/zsefpfs'
     end
 
@@ -187,7 +211,11 @@ describe 'dbpedia lite' do
 
   context "GETing a title that isn't a thing" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/w/api.php], :body => fixture_data('pageinfo-user.json'))
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
+        :body => fixture_data('pageinfo-user.json'),
+        :content_type => 'application/json'
+      )
       get '/titles/User:Nhumfrey'
     end
 
@@ -203,14 +231,12 @@ describe 'dbpedia lite' do
   context "GETing a geographic thing" do
     before :each do
       FakeWeb.register_uri(
-        :get,
-        'http://en.wikipedia.org/wiki/index.php?curid=934787',
-        :body => fixture_data('ceres.html'),
-        :content_type => 'text/html; charset=UTF-8'
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text',
+        :body => fixture_data('parse-934787.json'),
+        :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get,
-        %r[http://www.freebase.com/api/service/mqlread],
+        :get, %r[http://www.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-ceres.json'),
         :content_type => 'application/json'
       )
@@ -290,7 +316,7 @@ describe 'dbpedia lite' do
         rdfa_graph.should have_triple([
                                        RDF::URI("http://dbpedialite.org/things/934787"),
                                        RDF::URI("http://purl.org/dc/terms/modified"),
-                                       RDF::Literal('2010-04-29T10:22:00Z')
+                                       RDF::Literal('2011-11-21T01:21:56Z')
                                       ])
       end
 
@@ -307,15 +333,16 @@ describe 'dbpedia lite' do
 
     context "as an N-Triples document" do
       before :each do
-        FakeWeb.register_uri(:get,
-                             'http://en.wikipedia.org/wiki/index.php?curid=934787',
-                             :body => fixture_data('ceres.html'),
-                             :content_type => 'text/html; charset=UTF-8'
-                             )
-        FakeWeb.register_uri(:get,
-                             %r[http://www.freebase.com/api/service/mqlread],
-                             :body => fixture_data('freebase-mqlread-ceres.json')
-                             )
+        FakeWeb.register_uri(
+          :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text',
+          :body => fixture_data('parse-934787.json'),
+          :content_type => 'application/json'
+        )
+        FakeWeb.register_uri(
+          :get, %r[http://www.freebase.com/api/service/mqlread],
+          :body => fixture_data('freebase-mqlread-ceres.json'),
+          :content_type => 'application/json'
+        )
         header "Accept", "text/plain"
         get '/things/934787'
       end
@@ -446,49 +473,13 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing a thing with multiple paragraphs" do
-    before :each do
-      FakeWeb.register_uri(
-        :get,
-        'http://en.wikipedia.org/wiki/index.php?curid=18624945',
-        :body => fixture_data('true_blood.html'),
-        :content_type => 'text/html; charset=UTF-8'
-      )
-      FakeWeb.register_uri(
-        :get,
-        %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-true_blood.json'),
-        :content_type => 'application/json'
-      )
-    end
-
-    context "as an HTML document" do
-      before :each do
-        header "Accept", "text/html"
-        get '/things/18624945'
-      end
-
-      it "should be successful" do
-        last_response.should be_ok
-      end
-
-      it "should contain an the first paragraph of the abastract for the thing" do
-        last_response.body.should =~ %r[<p>True Blood is an American television drama series created and produced by Alan Ball]
-      end
-
-      it "should contain the end of the second paragraph of the abastract for the thing" do
-        last_response.body.should =~ %r[It premiered on September 7, 2008.</p>]
-      end
-
-      it "should have no Map on the page" do
-        last_response.body.should_not =~ %r[<div id="map"></div>]
-      end
-    end
-  end
-
   context "GETing an HTML thing page for a thing that doesn't exist" do
     before :each do
-      FakeWeb.register_uri(:get, %r[http://en.wikipedia.org/wiki/index.php], :body => fixture_data('notfound.html'))
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text',
+        :body => fixture_data('parse-504825766.json'),
+        :content_type => 'application/json'
+      )
       get '/things/504825766'
     end
 
@@ -496,8 +487,8 @@ describe 'dbpedia lite' do
       last_response.should be_not_found
     end
 
-    it "should include the text 'Thing Not Found' in the body" do
-      last_response.body.should =~ /Thing Not Found/i
+    it "should include the text 'Thing not found' in the body" do
+      last_response.body.should =~ /Thing not found/i
     end
   end
 
@@ -522,14 +513,12 @@ describe 'dbpedia lite' do
   context "GETing a category" do
     before :each do
       FakeWeb.register_uri(
-        :get,
-        'http://en.wikipedia.org/w/api.php?action=query&format=json&pageids=4309010&prop=info&redirects=1',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&pageids=4309010&prop=info&redirects=1',
         :body => fixture_data('pageinfo-4309010.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get,
-        'http://en.wikipedia.org/w/api.php?action=query&cmlimit=500&cmprop=ids%7Ctitle&cmsort=sortkey&cmtitle=Category%3AVillages+in+Fife&format=json&list=categorymembers',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&cmlimit=500&cmprop=ids%7Ctitle&cmsort=sortkey&cmtitle=Category:Villages%20in%20Fife&format=json&list=categorymembers',
         :body => fixture_data('categorymembers-villages.json'),
         :content_type => 'application/json'
       )
@@ -591,7 +580,8 @@ describe 'dbpedia lite' do
       before :each do
         FakeWeb.register_uri(
           :get, %r[http://en.wikipedia.org/w/api.php],
-          :body => fixture_data('pageinfo-rat.json')
+          :body => fixture_data('pageinfo-rat.json'),
+          :content_type => 'application/json'
         )
         get '/flipr?url=http%3A%2F%2Fen.wikipedia.org%2Fwiki%2FRat'
       end
@@ -610,7 +600,8 @@ describe 'dbpedia lite' do
       before :each do
         FakeWeb.register_uri(
           :get, %r[http://en.wikipedia.org/w/api.php],
-          :body => fixture_data('pageinfo-rat.json')
+          :body => fixture_data('pageinfo-rat.json'),
+          :content_type => 'application/json'
         )
         get '/flipr?url=http%3A%2F%2Fdbpedialite.org%3A9393%2Fthings%2F52780'
       end
@@ -629,7 +620,8 @@ describe 'dbpedia lite' do
       before :each do
         FakeWeb.register_uri(
           :get, %r[http://en.wikipedia.org/w/api.php],
-          :body => fixture_data('pageinfo-villagesinfife.json')
+          :body => fixture_data('pageinfo-villagesinfife.json'),
+          :content_type => 'application/json'
         )
         get '/flipr?url=http%3A%2F%2Fdbpedialite.org%3A9393%2Fthings%2F4309010'
       end
@@ -648,7 +640,8 @@ describe 'dbpedia lite' do
       before :each do
         FakeWeb.register_uri(
           :get, %r[http://en.wikipedia.org/w/api.php],
-          :body => fixture_data('pageinfo-rat.json')
+          :body => fixture_data('pageinfo-rat.json'),
+          :content_type => 'application/json'
         )
         get '/flipr?url=http%3A%2F%2Fdbpedia.org%2Fpage%2FRat'
       end
