@@ -32,10 +32,10 @@ describe WikipediaApi do
     end
   end
 
-  context "parsing an HTML page" do
+  context "parsing a page" do
     before :each do
-      FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text%7Cdisplaytitle',
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text',
         :body => fixture_data('parse-934787.json'),
         :content_type => 'application/json'
       )
@@ -51,7 +51,7 @@ describe WikipediaApi do
     end
 
     it "should return the date it was last updated" do
-      @data['updated_at'].to_s.should == '2011-11-04T06:26:16+00:00'
+      @data['updated_at'].to_s.should == '2011-11-21T01:21:56+00:00'
       @data['updated_at'].class.should == DateTime
     end
 
@@ -84,10 +84,10 @@ describe WikipediaApi do
     end
   end
 
-  context "parsing an HTML page with <p> in the infobox" do
+  context "parsing a page with <p> in the infobox" do
     before :each do
-      FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=26471&prop=text%7Cdisplaytitle',
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=26471&prop=text',
         :body => fixture_data('parse-26471.json'),
         :content_type => 'application/json'
       )
@@ -112,10 +112,37 @@ describe WikipediaApi do
     end
   end
 
-  context "parsing an HTML page with pronunciation details in the abstract" do
+  context "parsing a page with multiple paragraphs" do
     before :each do
-      FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text%7Cdisplaytitle',
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=18624945&prop=text',
+        :body => fixture_data('parse-18624945.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(18624945)
+    end
+
+    it "should return a hash" do
+      @data.should be_a(Hash)
+    end
+
+    it "should return the artitle title" do
+      @data['title'].should == 'True Blood'
+    end
+
+    it "should contain an the first paragraph of the abastract" do
+      @data['abstract'].should =~ %r[^True Blood is an American television series created and produced by Alan Ball]
+    end
+
+    it "should contain the end of the second paragraph of the abastract" do
+      @data['abstract'].should =~ %r[been renewed for a fifth season of 12 episodes to air in summer 2012\.$]
+    end
+  end
+
+  context "parsing a page with pronunciation details in the abstract" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text',
         :body => fixture_data('parse-3354.json'),
         :content_type => 'application/json'
       )
@@ -169,10 +196,10 @@ describe WikipediaApi do
     end
   end
 
-  context "parsing a non-existant HTML page" do
+  context "parsing a non-existant page" do
     before :each do
-      FakeWeb.register_uri(:get,
-        'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text%7Cdisplaytitle',
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text',
         :body => fixture_data('parse-504825766.json'),
         :content_type => 'application/json'
       )
@@ -188,8 +215,8 @@ describe WikipediaApi do
 
   context "getting information about a page by title" do
     before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
         :body => fixture_data('pageinfo-u2.json'),
         :content_type => 'application/json'
       )
@@ -215,8 +242,8 @@ describe WikipediaApi do
 
   context "getting information about a page by pageid" do
     before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
         :body => fixture_data('pageinfo-4309010.json'),
         :content_type => 'application/json'
       )
@@ -242,8 +269,8 @@ describe WikipediaApi do
 
   context "getting information about a page title that doesn't exist" do
     before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
         :body => fixture_data('pageinfo-zsefpfs.json'),
         :content_type => 'application/json'
       )
@@ -258,8 +285,8 @@ describe WikipediaApi do
 
   context "a call to Wikipedia API returns something that isn't JSON" do
     before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
         :body => "<h1>There was an error</h1>",
         :content_type => 'text/html'
       )
@@ -275,8 +302,8 @@ describe WikipediaApi do
 
   context "searching for Rat" do
     before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
         :body => fixture_data('search-rat.json'),
         :content_type => 'application/json'
       )
@@ -302,8 +329,8 @@ describe WikipediaApi do
 
   context "getting the members of a category" do
     before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
         :body => fixture_data('categorymembers-villages.json'),
         :content_type => 'application/json'
       )
@@ -330,8 +357,8 @@ describe WikipediaApi do
 
   context "getting the categories that something is a member of" do
     before :each do
-      FakeWeb.register_uri(:get,
-        %r[http://en.wikipedia.org/w/api.php],
+      FakeWeb.register_uri(
+        :get, %r[http://en.wikipedia.org/w/api.php],
         :body => fixture_data('categories-934787.json'),
         :content_type => 'application/json'
       )

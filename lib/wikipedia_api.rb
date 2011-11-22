@@ -113,17 +113,11 @@ module WikipediaApi
 
   def self.parse(pageid, args={})
     data = self.get('parse', {
-      :prop => 'text|displaytitle',
+      :prop => 'text',
       :pageid => pageid
     }.merge(args))
 
     data = data['parse']
-
-    # Add a 'title' field to be consistent with other API results
-    data['title'] = data['displaytitle']
-    if data['title'].nil?
-      raise WikipediaApi::Exception.new('Page has no title')
-    end
 
     # Perform the screen-scraping
     text = Nokogiri::HTML(data['text']['*'])
