@@ -34,7 +34,7 @@ class WikipediaStubsCallbacks < XML::SAX::Document
     self.path.push(element)
     if self.path == ['mediawiki', 'page']
       self.page_id = nil
-      self.page_title = nil
+      self.page_title = ''
     end
   end
   
@@ -53,7 +53,7 @@ class WikipediaStubsCallbacks < XML::SAX::Document
     if self.path == ['mediawiki', 'page', 'id']
       self.page_id = string
     elsif self.path == ['mediawiki', 'page', 'title']
-      self.page_title = string
+      self.page_title += string
     end
   end
   
