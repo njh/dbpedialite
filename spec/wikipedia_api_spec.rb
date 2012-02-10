@@ -30,6 +30,10 @@ describe WikipediaApi do
     it "should convert 'Nat \"King\" Cole' to 'Nat_%22King%22_Cole'" do
       WikipediaApi.escape_title('Nat "King" Cole').should == 'Nat_%22King%22_Cole'
     end
+
+    it "should not convert '—We Also Walk Dogs' to '—We_Also_Walk_Dogs'" do
+      WikipediaApi.escape_title('—We Also Walk Dogs').should == '—We_Also_Walk_Dogs'
+    end
   end
 
   context "parsing a page" do
