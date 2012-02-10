@@ -2,13 +2,14 @@
 #
 # Script to convert Wikipeda database export to owl:sameAs doucument.
 #
-# Download 'stub-articles.xml.gz' available from:
-#   http://download.wikimedia.org/enwiki/
-#
-# Tested using enwiki-20100130-stub-articles.xml
+# Information about the dump format here:
+# http://meta.wikimedia.org/wiki/Data_dumps
 #
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+
+STUB_ARTICLES_URL='http://dumps.wikimedia.org/enwiki/latest/enwiki-latest-stub-articles.xml.gz'
+STUB_ARTICLES_FILE='enwiki-latest-stub-articles.xml'
 
 require 'rubygems'
 require 'nokogiri'
@@ -68,7 +69,20 @@ class WikipediaStubsCallbacks < XML::SAX::Document
 end
 
 
+# Download the latest version
+unless File.exists? STUB_ARTICLES_FILE
+  # FIXME: update automatically if file on sever is newer
+  puts "Downloading #{STUB_ARTICLES_URL}..."
+  system('curl', '-o', STUB_ARTICLES_FILE+'.gz', STUB_ARTICLES_URL) or
+    raise "Failed to fetch article stubs file"
+
+  # Decompress it
+  puts "Unzipping #{STUB_ARTICLES_FILE}..."
+  system('gunzip', STUB_ARTICLES_FILE+'.gz') or
+    raise "Failed to de-compress article stubs file"
+end
+
 output = File.new("dbpedialite-sameas.nt", "w")
 parser = XML::SAX::Parser.new(WikipediaStubsCallbacks.new(output))
-parser.parse_file("enwiki-20100130-stub-articles.xml")
+parser.parse_file(STUB_ARTICLES_FILE)
 output.close
