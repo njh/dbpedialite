@@ -8,7 +8,7 @@
 # Tested using enwiki-20100130-stub-articles.xml
 #
 
-$:.unshift File.join(File.dirname(__FILE__), 'lib')
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 
 require 'rubygems'
 require 'nokogiri'
