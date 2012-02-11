@@ -28,7 +28,7 @@ class WikipediaStubsCallbacks < XML::SAX::Document
 
   def initialize(filename)
     @ntriples_file = File.new(filename+'.nt', "w")
-    @text_file = File.new(filename+'.txt', "w")
+    @tsv_file = File.new(filename+'.tsv', "w")
     @ntriples = RDF::Writer.for(:ntriples).new(@ntriples_file)
   end
 
@@ -61,8 +61,8 @@ class WikipediaStubsCallbacks < XML::SAX::Document
       end
 
       unless type.nil?
-        @text_file << dbpedialite_uri(page_id, type) + "\t"
-        @text_file << dbpedia_uri(page_title) + "\n"
+        @tsv_file << dbpedialite_uri(page_id, type) + "\t"
+        @tsv_file << dbpedia_uri(page_title) + "\n"
 
         @ntriples << [
           dbpedialite_uri(page_id, type),
