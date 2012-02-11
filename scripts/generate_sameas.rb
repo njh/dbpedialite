@@ -23,6 +23,9 @@ class WikipediaStubsCallbacks < XML::SAX::Document
   attr_accessor :page_id
   attr_accessor :page_title
 
+  attr_accessor :namespaces
+  attr_accessor :namespace_id
+
   def initialize(filename)
     @ntriples_file = File.new(filename+'.nt', "w")
     @text_file = File.new(filename+'.txt', "w")
@@ -31,6 +34,7 @@ class WikipediaStubsCallbacks < XML::SAX::Document
 
   def start_document
     self.path = []
+    self.namespaces = {}
   end
 
   def start_element(element, attrs)
@@ -38,19 +42,36 @@ class WikipediaStubsCallbacks < XML::SAX::Document
     if self.path == ['mediawiki', 'page']
       self.page_id = nil
       self.page_title = ''
+    elsif self.path == ['mediawiki', 'siteinfo', 'namespaces', 'namespace']
+      attrs.each do |k,v|
+        self.namespace_id = v if k == 'key'
+      end
     end
   end
 
   def end_element(element)
     if self.path == ['mediawiki', 'page']
-      @text_file << dbpedialite_uri(page_id) + "\t"
-      @text_file << dbpedia_uri(page_title) + "\n"
+      # Check that this isn't a 'special page'
+      if page_title.match(/^([a-zA-Z ]+):/) and namespaces.has_key?($1)
+        if $1 == 'Category'
+          type = 'categories'
+        end
+      else
+        type = 'things'
+      end
 
-      @ntriples << [
-        dbpedialite_uri(page_id),
-        RDF::OWL.sameAs,
-        dbpedia_uri(page_title)
-      ]
+      unless type.nil?
+        @text_file << dbpedialite_uri(page_id, type) + "\t"
+        @text_file << dbpedia_uri(page_title) + "\n"
+
+        @ntriples << [
+          dbpedialite_uri(page_id, type),
+          RDF::OWL.sameAs,
+          dbpedia_uri(page_title)
+        ]
+      end
+    elsif self.path == ['mediawiki', 'siteinfo', 'namespaces']
+      puts "Namespaces: #{namespaces.inspect}"
     end
     self.path.pop
   end
@@ -60,6 +81,8 @@ class WikipediaStubsCallbacks < XML::SAX::Document
       self.page_id = string
     elsif self.path == ['mediawiki', 'page', 'title']
       self.page_title += string
+    elsif self.path == ['mediawiki', 'siteinfo', 'namespaces', 'namespace']
+      self.namespaces[string] = namespace_id
     end
   end
 
@@ -68,8 +91,8 @@ class WikipediaStubsCallbacks < XML::SAX::Document
     RDF::URI("http://dbpedia.org/resource/#{escaped}")
   end
 
-  def dbpedialite_uri(id)
-    RDF::URI("http://dbpedialite.org/things/#{id}#id")
+  def dbpedialite_uri(id, type='things')
+    RDF::URI("http://dbpedialite.org/#{type}/#{id}#id")
   end
 end
 
