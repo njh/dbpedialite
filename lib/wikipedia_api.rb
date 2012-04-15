@@ -179,7 +179,7 @@ module WikipediaApi
     text.search("ul/li/a.external").each do |link|
       if link.has_attribute?('href')
         href = link.attribute('href').value
-        next if href =~ %r[^http://(\w+)\.wikipedia\.org/]
+        next if href =~ %r[^(\w*):?//(\w+)\.wikipedia\.org/]
         data['externallinks'] << href
       end
     end

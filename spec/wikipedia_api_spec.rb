@@ -200,6 +200,31 @@ describe WikipediaApi do
     end
   end
 
+  context "parsing a page with an edit link in the page" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=32838&prop=text',
+        :body => fixture_data('parse-32838.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(32838)
+    end
+
+    it "should have a correct page title" do
+      @data['title'].should == 'Vincent Ward'
+    end
+
+    it "should pull out the correct abstract" do
+      @data['abstract'].should == 'Vincent Ward, ONZM (born 16 February 1956) is a film director and screenwriter.'
+    end
+
+    it "should have an array of external links" do
+      @data['externallinks'].should == [
+        'http://www.imdb.com/name/nm0911910/'
+      ]
+    end
+  end
+
   context "parsing a redirect page" do
     before :each do
       FakeWeb.register_uri(
