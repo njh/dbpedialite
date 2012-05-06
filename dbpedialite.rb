@@ -224,7 +224,7 @@ class DbpediaLite < Sinatra::Base
         data = FreebaseApi.lookup_by_id($2)
         redirect "/things/#{data['key']['value']}", 301
       rescue FreebaseApi::NotFound
-        not_found
+        not_found("No Wikipedia page found for Freebase topic")
       end
     elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)$}
       begin
@@ -232,7 +232,7 @@ class DbpediaLite < Sinatra::Base
         escaped = WikipediaApi.escape_title(data['title'])
         redirect "http://en.wikipedia.org/wiki/#{escaped}", 301
       rescue WikipediaApi::PageNotFound
-        not_found
+        not_found("Wikipedia page id not found")
       end
     else
       erb :flipfail
