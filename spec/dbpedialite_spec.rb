@@ -237,7 +237,7 @@ describe 'dbpedia lite' do
       )
       FakeWeb.register_uri(
         :get, %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json'),
+        :body => fixture_data('freebase-mqlread-934787.json'),
         :content_type => 'application/json'
       )
     end
@@ -340,7 +340,7 @@ describe 'dbpedia lite' do
         )
         FakeWeb.register_uri(
           :get, %r[http://www.freebase.com/api/service/mqlread],
-          :body => fixture_data('freebase-mqlread-ceres.json'),
+          :body => fixture_data('freebase-mqlread-934787.json'),
           :content_type => 'application/json'
         )
         header "Accept", "text/plain"
@@ -685,6 +685,26 @@ describe 'dbpedia lite' do
       it "should redirect to the coresponding wikipedia page" do
         last_response.status.should == 301
         last_response.location.should == 'http://example.org/things/26471'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
+    context "flipping from a Freebase page" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://www.freebase.com/api/service/mqlread],
+          :body => fixture_data('freebase-mqlread-en-new-york.json'),
+          :content_type => 'application/json'
+        )
+        get '/flipr?url=http%3A%2F%2Fwww.freebase.com%2Fview%2Fen%2Fnew_york'
+      end
+
+      it "should redirect to the coresponding Dbpedia lite thing page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://example.org/things/645042'
       end
 
       it "should be cachable" do

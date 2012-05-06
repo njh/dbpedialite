@@ -219,6 +219,13 @@ class DbpediaLite < Sinatra::Base
       redirect_from_title($2)
     elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
       redirect_from_title($2)
+    elsif params[:url] =~ %r{^http://www.freebase.com/(view|inspect|edit/topic)(/.+)$}
+      begin
+        data = FreebaseApi.lookup_by_id($2)
+        redirect "/things/#{data['key']['value']}", 301
+      rescue FreebaseApi::NotFound
+        not_found
+      end
     elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)$}
       begin
         data = WikipediaApi.page_info(:pageids => $3)

@@ -7,6 +7,12 @@ module FreebaseApi
   RDF_BASE_URI = URI.parse('http://rdf.freebase.com/rdf/')
   HTTP_TIMEOUT = 2
 
+  class Exception < Exception
+  end
+
+  class NotFound < FreebaseApi::Exception
+  end
+
   def self.mqlread(query)
     uri = MQLREAD_URI.clone
     uri.query = 'query='+CGI::escape(JSON.dump({'query' => query}))
@@ -22,14 +28,18 @@ module FreebaseApi
     # Throw and exception if the JSON response was unsuccessful
     data = JSON.parse(res.body)
     unless data['code'] == '/api/status/ok'
-      raise "Freebase query failed: #{data['messages'][0]['message']}"
+      raise FreebaseApi::Exception.new("Freebase query failed: #{data['messages'][0]['message']}")
+    end
+
+    if data['result'].nil?
+      raise FreebaseApi::NotFound.new("Freebase query failed return no results")
     end
 
     data['result']
   end
 
   def self.lookup_wikipedia_pageid(pageid, language='en')
-    data = mqlread({
+    mqlread({
       'key' => {
         'namespace' => "/wikipedia/#{language}_id",
         'value' => pageid.to_s,
@@ -41,11 +51,21 @@ module FreebaseApi
        'guid' => nil,
        'limit' => 1
     })
-
-    if data.nil? or data['mid'].nil?
-      raise "Failed to lookup wikipedia page id"
-    end
-
-    data
   end
+
+  def self.lookup_by_id(identifier, language='en')
+    mqlread({
+      'id' => identifier,
+      'key' => {
+        'namespace' => "/wikipedia/#{language}_id",
+        'value' => nil,
+        'limit' => 1
+      },
+      'name' => nil,
+      'mid' => nil,
+      'guid' => nil,
+      'limit' => 1
+    })
+  end
+
 end
