@@ -36,6 +36,16 @@ describe WikipediaApi do
     end
   end
 
+  context "escaping a query parameter" do
+    it "should convert 'Florence + the Machine' to 'Florence%20%2B%20the%20Machine'" do
+      WikipediaApi.escape_query('Florence + the Machine').should == 'Florence%20%2B%20the%20Machine'
+    end
+
+    it "should convert 'C#' to 'C%23'" do
+      WikipediaApi.escape_query('C#').should == 'C%23'
+    end
+  end
+
   context "parsing a page" do
     before :each do
       FakeWeb.register_uri(

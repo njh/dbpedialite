@@ -25,6 +25,10 @@ module WikipediaApi
   ABSTRACT_TRUNCATE_LENGTH = 800
   HTTP_TIMEOUT = 5
 
+  def self.escape_query(str)
+    URI::escape(str, ' ?#%"+=|')
+  end
+
   def self.escape_title(title)
     URI::escape(title.gsub(' ','_'), ' ?#%"+=')
   end
@@ -56,7 +60,7 @@ module WikipediaApi
 
     keys = args.keys.sort {|a,b| a.to_s <=> b.to_s}
     keys.each do |key|
-     items << URI::escape(key.to_s)+'='+URI::escape(args[key].to_s)
+     items << escape_query(key.to_s)+'='+escape_query(args[key].to_s)
     end
 
     uri = API_URI.clone
