@@ -26,7 +26,8 @@ describe WikipediaCategory do
       @category = WikipediaCategory.new(
         'pageid' => 4309010,
         'ns' => 14,
-        'title' => 'Category:Villages in Fife'
+        'title' => 'Category:Villages in Fife',
+        'displaytitle' => 'Category:Villages in Fife'
       )
     end
 
@@ -42,6 +43,10 @@ describe WikipediaCategory do
       @category.title.should == 'Category:Villages in Fife'
     end
 
+    it "should have the correct diaplay title" do
+      @category.title.should == 'Category:Villages in Fife'
+    end
+
     it "should have the correct label" do
       @category.label.should == 'Villages in Fife'
     end
@@ -53,19 +58,19 @@ describe WikipediaCategory do
         'pageid' => 4309010,
         'ns' => 14,
         'title' => 'Category:Villages in Fife',
+        'displaytitle' => 'Category:Villages in Fife',
         'touched' => '2010-11-04T04:11:11Z',
         'lastrevid' => 325602311,
         'counter' => 0,
         'length' => 259
       }
       category_members = [
-        {'pageid' => 2712,'ns' => 0, 'title' => 'Aberdour'},
-        {'pageid' => 934787, 'ns' => 0, 'title' => 'Ceres, Fife'},
-        {'pageid' => 986129, 'ns' => 10, 'title' => 'Template:Village pump pages'},
-        {'pageid' => 986129, 'ns' => 14, 'title' => 'Category:Villages with greens'}
+        {'pageid' => 2712,'ns' => 0, 'title' => 'Aberdour', 'displaytitle' => 'Aberdour'},
+        {'pageid' => 934787, 'ns' => 0, 'title' => 'Ceres, Fife', 'displaytitle' => 'Ceres, Fife'},
+        {'pageid' => 986129, 'ns' => 14, 'title' => 'Category:Villages with greens', 'displaytitle' => 'Category:Villages with greens'}
       ]
       WikipediaApi.expects(:page_info).with(:pageids => 4309010).once.returns(page_info)
-      WikipediaApi.expects(:category_members).with('Category:Villages in Fife').once.returns(category_members)
+      WikipediaApi.expects(:category_members).with(4309010).once.returns(category_members)
       @category = WikipediaCategory.load(4309010)
     end
 
@@ -116,6 +121,7 @@ describe WikipediaCategory do
         'pageid' => 52780,
         'ns' => 0,
         'title' => 'U2',
+        'displaytitle' => 'U2',
         'touched' => '2010-05-12T22:44:49Z',
         'lastrevid' => 361771300,
         'counter' => 787,
@@ -136,6 +142,7 @@ describe WikipediaCategory do
     before :each do
       @category = WikipediaCategory.new(4309010,
         :title => 'Category:Villages in Fife',
+        :displaytitle => 'Category:Villages in Fife',
         :abstract => "U2 are an Irish rock band.",
         :things => [
           WikipediaThing.new(1137426, :title => "Anstruther"),

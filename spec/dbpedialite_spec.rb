@@ -618,8 +618,8 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&cmlimit=500&cmprop=ids%7Ctitle&cmsort=sortkey&cmtitle=Category:Villages%20in%20Fife&format=json&list=categorymembers',
-        :body => fixture_data('categorymembers-villages.json'),
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&gcmlimit=500&gcmnamespace=0%7C14&gcmpageid=4309010&generator=categorymembers&inprop=displaytitle&prop=info',
+        :body => fixture_data('categorymembers-4309010.json'),
         :content_type => 'application/json'
       )
     end

@@ -19,7 +19,7 @@ class WikipediaCategory < BaseModel
     # Update object properties with the data that was loaded
     update(data)
 
-    data = WikipediaApi.category_members(title)
+    data = WikipediaApi.category_members(pageid)
     data.each do |member|
       case member['ns']
         when 0
@@ -33,7 +33,7 @@ class WikipediaCategory < BaseModel
   end
 
   def label
-    @label ||= title.sub(/^Category:/,'')
+    @label ||= displaytitle.sub(/^Category:/,'')
   end
 
   def to_rdf

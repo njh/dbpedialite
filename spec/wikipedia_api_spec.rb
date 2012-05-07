@@ -478,11 +478,11 @@ describe WikipediaApi do
   context "getting the members of a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&cmlimit=500&cmprop=ids%7Ctitle&cmsort=sortkey&cmtitle=Category:Villages%20in%20Fife&format=json&list=categorymembers',
-        :body => fixture_data('categorymembers-villages.json'),
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&gcmlimit=500&gcmnamespace=0%7C14&gcmpageid=4309010&generator=categorymembers&inprop=displaytitle&prop=info',
+        :body => fixture_data('categorymembers-4309010.json'),
         :content_type => 'application/json'
       )
-      @data = WikipediaApi.category_members('Category:Villages in Fife')
+      @data = WikipediaApi.category_members(4309010)
       @data.sort! {|a,b| a['pageid'] <=> b['pageid']}
     end
 
@@ -494,8 +494,9 @@ describe WikipediaApi do
       @data.first['title'].should == 'Aberdour'
     end
 
-    # FIXME: work out how to implement this
-    it "should return the page display title"
+    it "should return the page display title" do
+      @data.first['displaytitle'].should == 'Aberdour'
+    end
 
     it "should return a pageid for the first result" do
       @data.first['pageid'].should == 2712

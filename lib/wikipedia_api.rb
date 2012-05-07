@@ -112,17 +112,17 @@ module WikipediaApi
     return data
   end
 
-  def self.category_members(title, args={})
-    # FIXME: this should use pageid, when it is available in the MediaWiki API
+  def self.category_members(pageid, args={})
     data = self.get('query', {
-      :list => 'categorymembers',
-      :cmprop => 'ids|title',
-      :cmsort => 'sortkey',
-      :cmtitle => title,
-      :cmlimit => 500
+      :generator => 'categorymembers',
+      :gcmnamespace => '0|14',   # Only pages and sub-categories
+      :gcmpageid => pageid,
+      :gcmlimit => 500,
+      :prop => 'info',
+      :inprop => 'displaytitle'
     }.merge(args))
 
-    data['query']['categorymembers']
+    data['query']['pages'].values
   end
 
   def self.page_categories(pageid, args={})
