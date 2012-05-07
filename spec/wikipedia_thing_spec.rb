@@ -26,6 +26,7 @@ describe WikipediaThing do
       @thing = WikipediaThing.new(
         :pageid => '934787',
         :title => 'Ceres, Fife',
+        :displaytitle => 'Ceres, Fife',
         :latitude => 56.293431,
         :longitude => -2.970134,
         :updated_at => DateTime.parse('2010-05-08T17:20:04Z'),
@@ -51,6 +52,10 @@ describe WikipediaThing do
 
     it "should have the correct title" do
       @thing.title.should == 'Ceres, Fife'
+    end
+
+    it "should have the correct display title" do
+      @thing.displaytitle.should == 'Ceres, Fife'
     end
 
     it "should have the correct abstract" do
@@ -93,6 +98,7 @@ describe WikipediaThing do
     before :each do
       wikipedia_data = {
         'title' => 'Ceres, Fife',
+        'displaytitle' => 'Ceres, Fife',
         'longitude' => -2.970134,
         'latitude' => 56.293431,
         'abstract' => 'Ceres is a village in Fife, Scotland',
@@ -228,6 +234,7 @@ describe WikipediaThing do
       WikipediaApi.expects(:parse).never
       @thing = WikipediaThing.new(52780,
         :title => 'U2',
+        :displaytitle => 'U2',
         :abstract => "U2 are an Irish rock band.",
         :updated_at => DateTime.parse('2010-05-08T17:20:04Z')
       )

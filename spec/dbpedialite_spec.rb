@@ -174,7 +174,7 @@ describe 'dbpedia lite' do
   context "GETing a title URL for a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Category:Villages_in_Fife',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=Category:Villages_in_Fife',
         :body => fixture_data('pageinfo-villagesinfife.json'),
         :content_type => 'application/json'
       )
@@ -231,7 +231,7 @@ describe 'dbpedia lite' do
   context "GETing a geographic thing" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-934787.json'),
         :content_type => 'application/json'
       )
@@ -316,7 +316,7 @@ describe 'dbpedia lite' do
         rdfa_graph.should have_triple([
                                        RDF::URI("http://dbpedialite.org/things/934787"),
                                        RDF::URI("http://purl.org/dc/terms/modified"),
-                                       RDF::Literal('2011-11-21T01:21:56Z')
+                                       RDF::Literal('2012-05-05T04:35:21Z')
                                       ])
       end
 
@@ -485,15 +485,44 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing a thing with an alternate display title" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=21492980&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-21492980.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get, %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-21492980.json'),
+        :content_type => 'application/json'
+      )
+    end
+
+    context "as an HTML document" do
+      before :each do
+        get '/things/21492980'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should have the alternate title in the <title> element" do
+        last_response.body.should =~ %r|<title>dbpedia lite - iMac</title>|
+      end
+    end
+  end
+
   context "GETing an HTML thing page that redirects" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-440555.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
         :body => fixture_data('pageinfo-bse.json'),
         :content_type => 'application/json'
       )
@@ -512,7 +541,7 @@ describe 'dbpedia lite' do
   context "GETing an HTML thing page for a thing that doesn't exist" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-504825766.json'),
         :content_type => 'application/json'
       )
@@ -549,7 +578,7 @@ describe 'dbpedia lite' do
   context "GETing a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&pageids=4309010&prop=info&redirects=1',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=4309010&prop=info&redirects=1',
         :body => fixture_data('pageinfo-4309010.json'),
         :content_type => 'application/json'
       )

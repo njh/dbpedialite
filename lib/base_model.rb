@@ -4,6 +4,7 @@ require 'uri'
 class BaseModel < Doodle
   has :pageid
   has :title, :default => nil
+  has :displaytitle, :default => nil
 
   class << self
     has :identifier_path, :default => 'base'

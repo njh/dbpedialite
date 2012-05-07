@@ -71,7 +71,7 @@ class WikipediaThing < BaseModel
   end
 
   def label
-    title
+    displaytitle || title
   end
 
   def to_rdf
