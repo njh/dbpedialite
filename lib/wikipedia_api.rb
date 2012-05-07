@@ -34,7 +34,11 @@ module WikipediaApi
   end
 
   def self.page_info(args)
-    data = self.get('query', {:redirects => 1, :prop => 'info'}.merge(args))
+    data = self.get('query', {
+      :prop => 'info',
+      :inprop => 'displaytitle',
+      :redirects => 1
+    }.merge(args))
 
     if data['query'].nil? or data['query']['pages'].empty?
       raise WikipediaApi::Exception.new('Empty response')
@@ -43,13 +47,14 @@ module WikipediaApi
       if info.has_key?('missing')
         raise WikipediaApi::PageNotFound.new
       else
+        info['displaytitle'].gsub!(%r|<.+?>|, '')
         return info
       end
     end
   end
 
   def self.search(query, args={})
-    data = self.get('query', {:list => 'search', :prop => 'info', :srsearch => query}.merge(args))
+    data = self.get('query', {:list => 'search', :srprop => 'snippet|titlesnippet', :srsearch => query}.merge(args))
 
     data['query']['search']
   end
@@ -118,6 +123,8 @@ module WikipediaApi
     data = self.get('query', {
       :generator => 'categories',
       :pageids => pageid,
+      :prop => 'info',
+      :inprop => 'displaytitle',
       :gcllimit => 500,
     }.merge(args))
 
@@ -127,7 +134,7 @@ module WikipediaApi
 
   def self.parse(pageid, args={})
     data = self.get('parse', {
-      :prop => 'text',
+      :prop => 'text|displaytitle',
       :pageid => pageid
     }.merge(args))
 
@@ -191,6 +198,9 @@ module WikipediaApi
 
     # Extract the abstract from the body of the page
     data['abstract'] = extract_abstract(text)
+    
+    # Clean up the display title (remove HTML tags)
+    data['displaytitle'].gsub!(%r|<.+?>|, '')
 
     data
   end
