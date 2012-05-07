@@ -33,6 +33,12 @@ module WikipediaApi
     URI::escape(title.gsub(' ','_'), ' ?#%"+=')
   end
 
+  def self.clean_displaytitle(hash)
+    if hash['displaytitle']
+      hash['displaytitle'].gsub!(%r|<.+?>|, '')
+    end
+  end
+
   def self.page_info(args)
     data = self.get('query', {
       :prop => 'info',
@@ -47,7 +53,7 @@ module WikipediaApi
       if info.has_key?('missing')
         raise WikipediaApi::PageNotFound.new
       else
-        info['displaytitle'].gsub!(%r|<.+?>|, '')
+        clean_displaytitle(info)
         return info
       end
     end
@@ -198,9 +204,9 @@ module WikipediaApi
 
     # Extract the abstract from the body of the page
     data['abstract'] = extract_abstract(text)
-    
+
     # Clean up the display title (remove HTML tags)
-    data['displaytitle'].gsub!(%r|<.+?>|, '')
+    clean_displaytitle(data)
 
     data
   end
