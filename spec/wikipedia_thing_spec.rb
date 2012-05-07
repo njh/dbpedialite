@@ -185,13 +185,13 @@ describe WikipediaThing do
       end
     end
 
-    context "when FreebaseApi raises any error other than timeout" do
+    context "when FreebaseApi raises an a NotFound exception" do
       it "should send a message to stderr" do
-        FreebaseApi.expects(:lookup_wikipedia_pageid).raises()
+        FreebaseApi.expects(:lookup_wikipedia_pageid).raises(FreebaseApi::NotFound)
         previous_stderr, $stderr = $stderr, StringIO.new
 
         @thing.freebase_mid_uri
-        $stderr.string.should == "Error while reading from Freebase: RuntimeError\n"
+        $stderr.string.should == "Error while reading from Freebase: FreebaseApi::NotFound\n"
 
         $stderr = previous_stderr
       end

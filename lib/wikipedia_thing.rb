@@ -60,7 +60,7 @@ class WikipediaThing < BaseModel
         @freebase_guid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['guid'].sub('#','guid.'))
       rescue Timeout::Error => e
         $stderr.puts "Timed out while reading from Freebase: #{e.message}"
-      rescue => e
+      rescue FreebaseApi::Exception => e
         $stderr.puts "Error while reading from Freebase: #{e.message}"
       end
     end

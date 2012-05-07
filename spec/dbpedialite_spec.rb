@@ -557,6 +557,41 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing an HTML thing for something that doesn't exist in Freebase" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=2008435&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-2008435.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get, %r[http://www.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-notfound.json'),
+        :content_type => 'application/json'
+      )
+      @stderr_buffer = StringIO.new
+      previous_stderr, $stderr = $stderr, @stderr_buffer
+      get '/things/2008435'
+      $stderr = previous_stderr
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should have the correct title in the <title> element" do
+      last_response.body.should =~ %r|<title>dbpedia lite - IMAC</title>|
+    end
+
+    it "should not contain a link to FreeBase" do
+      last_response.body.should_not =~ %r|rdf\.freebase\.com|
+    end
+
+    it "should write an error message to stderr" do
+      @stderr_buffer.string.should == "Error while reading from Freebase: Freebase query failed return no results\n"
+    end
+  end
+
   context "GETing the gems information page" do
     before :each do
       get '/gems'
