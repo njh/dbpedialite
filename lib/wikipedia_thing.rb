@@ -14,16 +14,6 @@ class WikipediaThing < BaseModel
   has :freebase_guid, :kind => String, :default => nil
   has :freebase_mid, :kind => String, :default => nil
 
-  # Additionally:
-  #  foaf:depiction
-  #  skos:subject
-  #  dbpedia-owl:abstract
-  #  dbpprop:reference (External Links)
-  #  dbpprop:redirect
-  #  dbpprop:disambiguates
-
-  # Document properties
-  #  lasttouched, lastrevid, ns, length, counter
 
   def load
     data = WikipediaApi.parse(pageid)
