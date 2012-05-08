@@ -164,6 +164,14 @@ describe WikipediaThing do
         FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(freebase_data)
       end
 
+      it "should have a machine id property" do
+        @thing.freebase_mid.should == '/m/03rf2x'
+      end
+
+      it "should have a GUID property" do
+        @thing.freebase_guid.should == '#9202a8c04000641f80000000003bb45c'
+      end
+
       it "should have a freebase URI based on the machine id" do
         @thing.freebase_mid_uri.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
       end

@@ -11,6 +11,8 @@ class WikipediaThing < BaseModel
   has :latitude, :kind => Float, :default => nil
   has :externallinks, :kind => Array, :default => []
   has :updated_at, :kind => DateTime, :default => nil
+  has :freebase_guid, :kind => String, :default => nil
+  has :freebase_mid, :kind => String, :default => nil
 
   # Additionally:
   #  foaf:depiction
@@ -39,14 +41,28 @@ class WikipediaThing < BaseModel
     #end
   end
 
+  def freebase_guid
+    fetch_freebase_uris
+    @freebase_guid
+  end
+
+  def freebase_mid
+    fetch_freebase_uris
+    @freebase_mid
+  end
+
   def freebase_guid_uri
     fetch_freebase_uris
-    @freebase_guid_uri
+    if freebase_guid
+      @freebase_guid_uri ||= RDF::URI.parse("http://rdf.freebase.com/ns/"+freebase_guid.sub('#','guid.'))
+    end
   end
 
   def freebase_mid_uri
     fetch_freebase_uris
-    @freebase_mid_uri
+    if freebase_mid
+      @freebase_mid_uri ||= RDF::URI.parse("http://rdf.freebase.com/ns/"+freebase_mid.sub('/m/','m.'))
+    end
   end
 
   def fetch_freebase_uris
@@ -56,8 +72,8 @@ class WikipediaThing < BaseModel
       # Attempt to match to Freebase, but silently fail on error
       begin
         data = FreebaseApi.lookup_wikipedia_pageid(pageid)
-        @freebase_mid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['mid'].sub('/m/','m.'))
-        @freebase_guid_uri = RDF::URI.parse("http://rdf.freebase.com/ns/"+data['guid'].sub('#','guid.'))
+        self.freebase_mid = data['mid']
+        self.freebase_guid = data['guid']
       rescue Timeout::Error => e
         $stderr.puts "Timed out while reading from Freebase: #{e.message}"
       rescue FreebaseApi::Exception => e
