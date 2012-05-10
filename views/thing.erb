@@ -1,18 +1,30 @@
 <% @title = @thing.displaytitle %>
-
-<div id="header">
-  <h1>About: <%= link_to(@thing.displaytitle, @thing.uri) %></h1>
-  <p><%= link_to(@thing.uri) %></p>
-</div>
+<% @vocabularies = {
+     :dc => RDF::DC,
+     :foaf => RDF::FOAF,
+     :geo => RDF::GEO,
+     :owl => RDF::OWL,
+     :rdf => RDF,
+     :rdfs => RDF::RDFS,
+     :xsd => RDF::XSD
+   }
+%>
 
 <% content_for :head do %>
   <link rel="foaf:primaryTopic" href="<%= @thing.uri %>" />
-  <link rel="rdf:type" href="[foaf:Document]" />
+  <link rel="rdf:type" href="<%= RDF::FOAF.Document %>" />
+  <meta property="rdfs:label" content="dbpedia lite thing - <%= h @thing.label %>" />
   <meta name="description" content="<%= h(truncate(@thing.abstract, 140)) %>" />
 <% end %>
 
-<div id="content">
+<div id="header" about="<%= h @thing.uri %>" typeof="owl:Thing">
+  <h1>About: <%= link_to(@thing.displaytitle, @thing.uri, :property => 'rdfs:label') %></h1>
+  <p><%= link_to(@thing.uri) %></p>
+</div>
+
+<div id="content" about="<%= h @thing.uri %>">
   <% if @thing.has_coordinates? %>
+    <h2>Geographic</h2>
     <div id="map"></div>
     <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAArv9G1BkO0gxnWS5UwgAUcxTpFJMlrih0EInfmgkti7-ZKQDRBRTphKY0sV9v8PuRfqpo9onlsV4ZPw" type="text/javascript"></script>
     <script type="text/javascript">
@@ -22,29 +34,43 @@
       map.addControl(new GSmallMapControl());
     }
     </script>
+    <dl>
+      <dt>Latitude:</dt> <dd property="geo:lat" datatype="xsd:double"><%= @thing.latitude %></dd>
+      <dt>Longitude:</dt> <dd property="geo:long" datatype="xsd:double"><%= @thing.longitude %></dd>
+    </dl>
   <% end %>
 
-  <table id="description" about="<%= h @thing.uri %>">
-   <tr><th>Property</th><th>Value</th></tr>
-   <% @graph.query([@thing.uri, nil, nil]) do |s| %>
-    <tr>
-      <td><%= shorten(s.predicate) %></td>
-      <% if s.object.uri? %>
-      <td><%= link_to(s.object, s.object, :rel => shorten(s.predicate)) %></td>
-      <% elsif s.object.to_s =~ /[\n\r]/ %>
-      <td property="<%= shorten(s.predicate) %>"><%= nl2p(s.object.value) %></td>
-      <% else %>
-      <td property="<%= shorten(s.predicate) %>"><%= h(s.object.value) %></td>
-      <% end %>
-    </tr>
-   <% end %>
-  </table>
+  <h2>Wikipedia Abstract</h2>
+  <div property="rdfs:comment" datatype=""><%= nl2p(@thing.abstract) %></div>
+  <span><%= link_to('Read more at Wikipedia...', @thing.wikipedia_uri, :rel => 'foaf:isPrimaryTopicOf') %></span>
 
+  <h2>Equivalent Identifiers</h2>
+  <dl>
+    <dt>dbpedia:</dt> <dd><%= link_to(@thing.dbpedia_uri, @thing.dbpedia_uri, :rel => 'owl:sameAs') %></dd>
+    <% if @thing.freebase_guid %>
+    <dt>Freebase GUID:</dt> <dd><%= link_to(@thing.freebase_guid, @thing.freebase_guid_uri, :rel => 'owl:sameAs') %></dd>
+    <% end %>
+    <% if @thing.freebase_mid %>
+    <dt>Freebase MID:</dt> <dd><%= link_to(@thing.freebase_mid, @thing.freebase_mid_uri, :rel => 'owl:sameAs') %></dd>
+    <% end %>
+  </dl>
+  <span>
+    See more equivalent identifiers at <%= link_to('sameas.org', 'http://www.sameas.org/html?uri='+URI.encode(@thing.uri.to_s)) %>.
+  </span>
+
+  <% unless @thing.externallinks.empty? %>
+  <h2>Related Web Pages</h2>
+  <ul>
+    <% @thing.externallinks.each do |link| %>
+    <li><%= link_to(link, link, :rel => 'foaf:page') %></li>
+    <% end %>
+  </ul>
+  <% end %>
 </div>
 
 <%= erb :alternatives, {}, :object => @thing %>
 
 <p id="lastmodified">
   This data was last modified at
-  <span property="dc:modified"><%= format_iso8061(@thing.updated_at) %></span>.
+  <span property="dc:modified" datatype="xsd:dateTime"><%= format_iso8061(@thing.updated_at) %></span>.
 </p>

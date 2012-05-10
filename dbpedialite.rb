@@ -9,27 +9,14 @@ class DbpediaLite < Sinatra::Base
 
   DEFAULT_HOST = 'dbpedialite.org'
 
-  def self.extract_vocabularies(graph)
-    vocabs = {}
-    graph.predicates.each do |predicate|
-      RDF::Vocabulary.each do |vocab|
-        if predicate.to_s.index(vocab.to_uri.to_s) == 0
-          vocab_name = vocab.__name__.split('::').last.downcase
-          unless vocab_name.empty?
-            vocabs[vocab_name.to_sym] = vocab
-            break
-          end
-        end
-      end
-    end
-    vocabs
-  end
-
-  def negotiate_content(graph, format, html_view)
+  def negotiate_content(object, format, html_view)
     if format.empty?
       format = request.accept.first || ''
       format.sub!(/;.+$/,'')
     end
+
+    # Set the URI of the document, so we can make statements about it
+    object.doc_uri = request.url
 
     headers 'Vary' => 'Accept', 'Cache-Control' => 'public,max-age=600'
     case format
@@ -38,19 +25,19 @@ class DbpediaLite < Sinatra::Base
         erb html_view
       when 'json', 'application/json', 'text/json' then
         content_type 'application/json'
-        graph.dump(:json)
+        object.to_rdf.dump(:json)
       when 'turtle', 'ttl', 'text/turtle', 'application/turtle' then
         content_type 'text/turtle'
-        graph.dump(:turtle, :standard_prefixes => true)
+        object.to_rdf.dump(:turtle, :standard_prefixes => true)
       when 'nt', 'ntriples', 'text/plain' then
         content_type 'text/plain'
-        graph.dump(:ntriples)
+        object.to_rdf.dump(:ntriples)
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
-        graph.dump(:rdfxml, :standard_prefixes => true)
+        object.to_rdf.dump(:rdfxml, :standard_prefixes => true)
       when 'trix', 'application/trix' then
         content_type 'application/trix'
-        graph.dump(:trix)
+        object.to_rdf.dump(:trix)
       else
         error 400, "Unsupported format: #{format}\n"
     end
@@ -90,11 +77,6 @@ class DbpediaLite < Sinatra::Base
     def nl2p(text)
       paragraphs = text.to_s.split(/[\n\r]+/)
       paragraphs.map {|para| "<p>#{para}</p>"}.join
-    end
-
-    def shorten(uri)
-      qname = uri.qname.join(':') rescue uri.to_s
-      escape_html(qname)
     end
 
     # Escape ampersands, brackets and quotes to their HTML/XML entities.
@@ -182,11 +164,7 @@ class DbpediaLite < Sinatra::Base
       not_found("Thing not found.")
     end
 
-    @thing.doc_uri = request.url
-    @graph = @thing.to_rdf
-    @vocabularies = DbpediaLite.extract_vocabularies(@graph)
-
-    negotiate_content(@graph, format, :thing)
+    negotiate_content(@thing, format, :thing)
   end
 
   get %r{^/categories/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
@@ -198,11 +176,7 @@ class DbpediaLite < Sinatra::Base
       not_found("Category not found.")
     end
 
-    @category.doc_uri = request.url
-    @graph = @category.to_rdf
-    @vocabularies = DbpediaLite.extract_vocabularies(@graph)
-
-    negotiate_content(@graph, format, :category)
+    negotiate_content(@category, format, :category)
   end
 
   get '/gems' do
