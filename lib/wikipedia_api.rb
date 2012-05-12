@@ -237,8 +237,8 @@ protected
           end
         end
 
-        # Remove references and other super-scripts
-        node.css('sup').each { |sup| sup.remove }
+        # Remove references
+        node.css('sup.reference').each { |ref| ref.remove }
 
         # Remove listen links
         node.css('a').each do |link|

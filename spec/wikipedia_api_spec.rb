@@ -166,6 +166,29 @@ describe WikipediaApi do
     end
   end
 
+  context "parsing a page with a superscript in the title and abstract" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=10841865&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-10841865.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(10841865)
+    end
+
+    it "should return the article's page url title" do
+      @data['title'].should == 'E=MC2 (song)'
+    end
+
+    it "should return the article display title" do
+      @data['displaytitle'].should == 'E=MC2 (song)'
+    end
+
+    it "should return the article abstract" do
+      @data['abstract'].should =~ /^"E=MC2" is a 1985 single by Big Audio Dynamite/
+    end
+  end
+
   context "parsing a page with multiple paragraphs" do
     before :each do
       FakeWeb.register_uri(
