@@ -24,6 +24,7 @@ module WikipediaApi
   ABSTRACT_MAX_LENGTH = 500
   ABSTRACT_TRUNCATE_LENGTH = 800
   HTTP_TIMEOUT = 5
+  NBSP = Nokogiri::HTML("&nbsp;").text
 
   def self.escape_query(str)
     URI::escape(str, ' ?#%"+=|')
@@ -211,6 +212,9 @@ module WikipediaApi
     data
   end
 
+
+protected
+
   def self.extract_abstract(text)
     # Extract the abstract
     abstract = ''
@@ -219,8 +223,27 @@ module WikipediaApi
 
       # Look for paragraphs
       if node.name == 'p'
+        # Remove non-printing items of text
+        # (http://en.wikipedia.org/wiki/Wikipedia:Catalogue_of_CSS_classes)
+        node.css('.metadata').each { |metadata| metadata.remove }
+        node.css('.noprint').each { |noprint| noprint.remove }
+
+        # Mark pronunciation for later deletion
+        node.css('.IPA').each do |ipa|
+          if ipa.parent.name == 'span'
+            ipa.parent.replace('<span>|IPAMARKER|</span>')
+          else
+            ipa.replace('<span>|IPAMARKER|</span>')
+          end
+        end
+
         # Remove references and other super-scripts
         node.css('sup').each { |sup| sup.remove }
+
+        # Remove listen links
+        node.css('a').each do |link|
+          link.remove if link.text == 'listen'
+        end
 
         # Remove co-ordinates
         node.css('#coordinates').each { |coor| coor.remove }
@@ -236,8 +259,20 @@ module WikipediaApi
       break if abstract.size > ABSTRACT_MAX_LENGTH
     end
 
-    # Remove pronunciation and append the paragraph
-    abstract = self.strip_pronunciation(abstract)
+    # Convert non-breaking whitespace into whitespace
+    abstract.gsub!(NBSP, ' ')
+
+    # Remove empty brackets, as a result of deleting elements
+    abstract.gsub!(/\(\s*\)/, '')
+
+    # Strip out any marked pronunciation enclosed in brackets
+    abstract.gsub!(/ ?\([^()]*?\|IPAMARKER\|[^()]*?\)/, '')
+
+    # Strip out any other marked pronunciation text
+    abstract.gsub!(/\|IPAMARKER\|/, '')
+
+    # Remove double spaces (as a result of deleting elements)
+    abstract.gsub!(/ {2,}/, ' ')
 
     # Remove trailing whitespace
     abstract.strip!
@@ -253,22 +288,4 @@ module WikipediaApi
     return abstract
   end
 
-
-  def self.strip_pronunciation(string)
-    result = string.dup
-    regexes = [
-      %r/\(.*?pronunciation:.*?\) /,
-      %r[\(IPA: ["\[/].*?["\]/]\) ],
-      %r[\(pronounced ["\[/].*?["\]/]\) ],
-      # for when pronounciation is mixed in with birthdate, e.g. (pronounced /bəˈɹɛlɪs/; born December 7, 1979)
-      %r[pronounced ["\[/].*?["\]/]\; ],
-    ]
-    regexes.each do |regex|
-      if result =~ regex
-        result.sub!(regex, '')
-        break
-      end
-    end
-    return result
-  end
 end

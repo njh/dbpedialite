@@ -197,60 +197,95 @@ describe WikipediaApi do
     end
   end
 
-  context "parsing a page with pronunciation details in the abstract" do
-    before :each do
+  context "removing pronunciation from abstracts" do
+    it "should remove the IPA pronunciation from the article about London" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=17867&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-17867.json'),
+        :content_type => 'application/json'
+      )
+      data = WikipediaApi.parse(17867)
+      data['abstract'].should =~ /^London is the capital city of England and the United Kingdom/
+    end
+
+    it "should remove the IPA pronunciation from the article about Paris" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=22989&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-22989.json'),
+        :content_type => 'application/json'
+      )
+      data = WikipediaApi.parse(22989)
+      data['abstract'].should =~ /^Paris is the capital and largest city of France\./
+    end
+
+    it "should remove the IPA pronunciation from the article about Berlin" do
       FakeWeb.register_uri(
         :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-3354.json'),
         :content_type => 'application/json'
       )
-      @data = WikipediaApi.parse(3354)
+      data = WikipediaApi.parse(3354)
+      data['abstract'].should =~ /^Berlin is the capital city of Germany/
     end
 
-    it "should return the article abstract without pronunciation" do
-      @data['abstract'].should =~ /\ABerlin is the capital city of Germany/
-    end
-  end
-
-  context "removing pronunciation from abstracts" do
-    it "should remove the pronunciation from the U2 article" do
-      WikipediaApi.strip_pronunciation(
-        'U2 (IPA: /ˌjuːˈtuː/) are a rock band from Dublin,'
-      ).should be_eql(
-        'U2 are a rock band from Dublin,'
+    it "should remove the IPA pronunciation from the article about Lyon" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=8638634&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-8638634.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(8638634)
+      data['abstract'].should =~ /^Lyon, traditionally spelt Lyons in English, is a city in east-central France in the Rhône-Alpes region/
     end
 
-    it "should remove the pronunciation from the Albert Camus article" do
-      WikipediaApi.strip_pronunciation(
-        'Albert Camus (IPA: [albɛʁ kamy]) is '
-      ).should be_eql(
-        'Albert Camus is '
+    it "should remove the pronunciation audio link from the article about Auchtertool" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=9259027&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-9259027.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(9259027)
+      data['abstract'].should =~ /^Auchtertool is a small village in Fife, Scotland\./
     end
 
-    it "should remove the pronunciation from the Anton Corbijn article" do
-      WikipediaApi.strip_pronunciation(
-        'Anton Corbijn (pronounced [kɔrˈbɛin]) (born May 20, 1955) '
-      ).should be_eql(
-        'Anton Corbijn (born May 20, 1955) '
+    it "should remove the pronunciation audio link from the article about Canada" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=5042916&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-5042916.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(5042916)
+      data['abstract'].should =~ /^Canada is a North American country consisting of ten provinces and three territories\./
     end
 
-    it "should remove the pronunciation from the Breed 77 article" do
-      WikipediaApi.strip_pronunciation(
-        'Breed 77 (pronounced "Breed Seven-Seven") is a band whose'
-      ).should be_eql(
-        'Breed 77 is a band whose'
+    it "should remove the pronunciation from the article about Albert Camus" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=983&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-983.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(983)
+      data['abstract'].should =~ /^Albert Camus was a French author, journalist, and philosopher\./
     end
 
-    it "should remove the pronunciation from the Sara Beth Bareilles article" do
-      WikipediaApi.strip_pronunciation(
-        'Sara Beth Bareilles (pronounced /bəˈɹɛlɪs/; born December 7, 1979) is an American'
-      ).should be_eql(
-        'Sara Beth Bareilles (born December 7, 1979) is an American'
+    it "should remove the pronunciation from the article about Anton Corbijn" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=1073796&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-1073796.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(1073796)
+      data['abstract'].should =~ /^Anton Corbijn is a Dutch photographer, music video and film director\./
+    end
+
+    it "should remove the pronunciation from the article about Sara Beth Bareilles article" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6100815&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-6100815.json'),
+        :content_type => 'application/json'
+      )
+      data = WikipediaApi.parse(6100815)
+      data['abstract'].should =~ /^Sara Beth Bareilles is an American singer-songwriter and pianist\./
     end
   end
 
