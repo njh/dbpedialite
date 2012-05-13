@@ -1,16 +1,13 @@
 <% content_for :head do %>
-  <link rel="alternate" type="application/json" href="<%= object.doc_path(:json) %>" title="JSON" />
-  <link rel="alternate" type="text/turtle" href="<%= object.doc_path(:ttl) %>" title="Turtle" />
-  <link rel="alternate" type="text/plain" href="<%= object.doc_path(:nt) %>" title="N-Triples" />
-  <link rel="alternate" type="application/rdf+xml" href="<%= object.doc_path(:rdf) %>" title="RDF/XML" />
-  <link rel="alternate" type="application/trix" href="<%= object.doc_path(:trix) %>" title="TriX" />
+  <% Dbpedialite::FORMATS.each do |format| %>
+  <link rel="alternate" type="<%= format[:mime] %>" href="<%= object.doc_path(format[:suffix]) %>" title="<%= format[:name] %>" />
+  <% end %>
 <% end %>
 
 <div id="alternates">
   <h4>Alternative formats:</h4>
-  <%= link_to('JSON', object.doc_path(:json)) %> |
-  <%= link_to('Turtle', object.doc_path(:ttl)) %> |
-  <%= link_to('N-Triples', object.doc_path(:nt)) %> |
-  <%= link_to('RDF/XML', object.doc_path(:rdf)) %> |
-  <%= link_to('TriX', object.doc_path(:trix)) %>
+  <% Dbpedialite::FORMATS.each_with_index do |format,i| %>
+    <%= link_to(format[:name], object.doc_path(format[:suffix])) %>
+    <%= '|' unless i == Dbpedialite::FORMATS.count - 1 %>
+  <% end %>
 </div>

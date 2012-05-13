@@ -2,6 +2,7 @@
 
 require 'wikipedia_thing'
 require 'wikipedia_category'
+require 'formats'
 
 
 class DbpediaLite < Sinatra::Base
