@@ -592,24 +592,6 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing the gems information page" do
-    before :each do
-      get '/gems'
-    end
-
-    it "should be successful" do
-      last_response.should be_ok
-    end
-
-    it "should be of type text/html" do
-      last_response.content_type.should == 'text/html;charset=utf-8'
-    end
-
-    it "should include a summary for the Sinatra gem" do
-      last_response.body.should =~ /Classy web-development dressed in a DSL/
-    end
-  end
-
   context "GETing a category" do
     before :each do
       FakeWeb.register_uri(
@@ -640,7 +622,50 @@ describe 'dbpedia lite' do
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
+    end
 
+    context "as a N-Triples document" do
+      before :each do
+        get '/categories/4309010.nt'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type text/html" do
+        last_response.content_type.should == 'text/plain;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should have a triple for the name of the category" do
+        last_response.body.should =~ %r|<http://dbpedialite.org/categories/4309010#id> <http://www.w3.org/2000/01/rdf-schema#label> "Villages in Fife" \.|
+      end
+
+      it "should have a triple for Ceres being in the category" do
+        last_response.body.should =~ %r|<http://dbpedialite.org/things/934787#id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedialite.org/categories/4309010#id> \.|
+      end
+    end
+  end
+
+  context "GETing the gems information page" do
+    before :each do
+      get '/gems'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type text/html" do
+      last_response.content_type.should == 'text/html;charset=utf-8'
+    end
+
+    it "should include a summary for the Sinatra gem" do
+      last_response.body.should =~ /Classy web-development dressed in a DSL/
     end
   end
 

@@ -1,14 +1,15 @@
 <% @title = "Category - #{@category.label}" %>
 
-<div id="header">
+<% content_for :head do %>
+  <link rel="foaf:primaryTopic" href="<%= @category.uri %>" />
+  <link rel="rdf:type" href="<%= RDF::FOAF.Document %>" />
+  <meta property="rdfs:label" content="dbpedia lite category - <%= h @category.label %>" />
+<% end %>
+
+<div id="header" about="<%= h @category.uri %>" typeof="owl:Class">
   <h1>Category: <%= link_to(@category.label, @category.uri) %></h1>
   <p><%= link_to(@category.uri) %></p>
 </div>
-
-<% content_for :head do %>
-  <link rel="foaf:primaryTopic" href="<%= @category.uri %>" />
-  <link rel="rdf:type" href="[foaf:Document]" />
-<% end %>
 
 <div id="content">
 <% unless @category.subcategories.empty? %>

@@ -44,14 +44,19 @@ class WikipediaCategory < BaseModel
       graph << [doc_uri, RDF::FOAF.primaryTopic, self.uri]
 
       # Triples about the Concept
-      graph << [self.uri, RDF.type, RDF::SKOS.Concept]
+      graph << [self.uri, RDF.type, RDF::OWL.Class]
       graph << [self.uri, RDF::RDFS.label, label]
-      graph << [self.uri, RDF::SKOS.prefLabel, label]
       graph << [self.uri, RDF::FOAF.isPrimaryTopicOf, wikipedia_uri]
       graph << [self.uri, RDF::OWL.sameAs, dbpedia_uri]
+
       things.each do |thing|
-        graph << [thing.uri, RDF::SKOS.subject, self.uri]
-        graph << [thing.uri, RDF::RDFS.label, thing.title]
+        graph << [thing.uri, RDF.type, self.uri]
+        graph << [thing.uri, RDF::RDFS.label, thing.label]
+      end
+
+      subcategories.each do |subcat|
+        graph << [subcat.uri, RDF::RDFS.subClassOf, self.uri]
+        graph << [subcat.uri, RDF::RDFS.label, subcat.label]
       end
     end
   end
