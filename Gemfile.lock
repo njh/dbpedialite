@@ -33,7 +33,7 @@ GEM
       htmlentities (>= 4.3.0)
       rdf (>= 0.3.3)
       rdf-xsd (>= 0.3.5)
-    rdf-rdfxml (0.3.6)
+    rdf-rdfxml (0.3.7)
       rdf (>= 0.3.4)
       rdf-xsd (>= 0.3.5)
     rdf-trix (0.3.0)
@@ -79,7 +79,7 @@ DEPENDENCIES
   rdf (>= 0.3.1)
   rdf-json
   rdf-rdfa
-  rdf-rdfxml
+  rdf-rdfxml (>= 0.3.7)
   rdf-trix
   rdf-turtle
   rdiscount

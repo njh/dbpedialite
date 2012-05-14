@@ -428,6 +428,16 @@ describe 'dbpedia lite' do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
 
+      it "should have a XML declaration in the first line of the response" do
+        lines = last_response.body.split(/[\r\n]+/)
+        lines.first.should == '<?xml version="1.0" encoding="UTF-8"?>'
+      end
+
+      it "should have a stylesheet processing instruction in the second line of the response" do
+        lines = last_response.body.split(/[\r\n]+/)
+        lines[1].should == '<?xml-stylesheet type="text/xsl" href="/rdfxml.xsl"?>'
+      end
+
       it "should contain the URI of the document we requested" do
         last_response.body.should =~ %r[<foaf:Document rdf:about="http://example.org/things/934787">]
       end
