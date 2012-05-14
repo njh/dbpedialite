@@ -211,12 +211,12 @@ describe WikipediaApi do
       @data['displaytitle'].should == 'True Blood'
     end
 
-    it "should contain an the first paragraph of the abastract" do
+    it "should the first paragraph of the abstract" do
       @data['abstract'].should =~ %r[^True Blood is an American television series created and produced by Alan Ball]
     end
 
-    it "should contain the end of the second paragraph of the abastract" do
-      @data['abstract'].should =~ %r[been renewed for a fifth season of 12 episodes to air on June 10, 2012\.$]
+    it "should truncate the end of the second paragraph" do
+      @data['abstract'].should =~ %r[received critical acclaim and won several awards, including one Golden\.\.\.\Z]
     end
   end
 

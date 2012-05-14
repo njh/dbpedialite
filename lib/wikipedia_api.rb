@@ -22,7 +22,7 @@ module WikipediaApi
   USER_AGENT = 'DbpediaLite/1'
   API_URI = URI.parse('http://en.wikipedia.org/w/api.php')
   ABSTRACT_MAX_LENGTH = 500
-  ABSTRACT_TRUNCATE_LENGTH = 800
+  ABSTRACT_TRUNCATE_LENGTH = 700
   HTTP_TIMEOUT = 5
   NBSP = Nokogiri::HTML("&nbsp;").text
 
@@ -279,10 +279,10 @@ protected
 
     # Truncate if the abstract is too long
     if (abstract.length > ABSTRACT_TRUNCATE_LENGTH)
-      abstract.slice!(ABSTRACT_TRUNCATE_LENGTH-3)
+      abstract.slice!(ABSTRACT_TRUNCATE_LENGTH-3, abstract.length)
 
       # Remove trailing partial word and replace with an ellipsis
-      abstract.sub!(/[^\w\s]?\s*\w*$/, '...')
+      abstract.sub!(/[^\w\s]?\s*\w*\Z/, '...')
     end
 
     return abstract
