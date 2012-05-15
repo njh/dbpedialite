@@ -44,6 +44,10 @@ describe WikipediaApi do
     it "should convert 'C#' to 'C%23'" do
       WikipediaApi.escape_query('C#').should == 'C%23'
     end
+
+    it "should convert 'Café' to 'Café'" do
+      WikipediaApi.escape_query('Café').should == 'Caf%C3%A9'
+    end
   end
 
   context "parsing a page" do
