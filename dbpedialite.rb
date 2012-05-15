@@ -2,6 +2,7 @@
 
 require 'wikipedia_thing'
 require 'wikipedia_category'
+require 'formats'
 
 
 class DbpediaLite < Sinatra::Base
@@ -34,7 +35,7 @@ class DbpediaLite < Sinatra::Base
         object.to_rdf.dump(:ntriples)
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
-        object.to_rdf.dump(:rdfxml, :standard_prefixes => true)
+        object.to_rdf.dump(:rdfxml, :standard_prefixes => true, :stylesheet => '/rdfxml.xsl')
       when 'trix', 'application/trix' then
         content_type 'application/trix'
         object.to_rdf.dump(:trix)

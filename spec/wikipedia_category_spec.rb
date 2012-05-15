@@ -143,10 +143,16 @@ describe WikipediaCategory do
       @category = WikipediaCategory.new(4309010,
         :title => 'Category:Villages in Fife',
         :displaytitle => 'Category:Villages in Fife',
-        :abstract => "U2 are an Irish rock band.",
+        :abstract => "Villages located in Fife, Scotland.",
         :things => [
           WikipediaThing.new(1137426, :title => "Anstruther"),
           WikipediaThing.new(52780, :title => "Ceres, Fife")
+        ],
+        :subcategories => [
+          WikipediaCategory.new(1234567,
+            :title => 'Category:Hamlets in Fife',
+            :displaytitle => 'Category:Hamlets in Fife'
+          )
         ]
       )
       @graph = @category.to_rdf
@@ -156,15 +162,15 @@ describe WikipediaCategory do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 12 triples" do
-      @graph.count.should == 12
+    it "should return a graph with 13 triples" do
+      @graph.count.should == 13
     end
 
     it "should include an rdf:type triple for the category" do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/categories/4309010#id"),
         RDF.type,
-        RDF::SKOS.Concept
+        RDF::OWL.Class
       ])
     end
 
@@ -200,10 +206,18 @@ describe WikipediaCategory do
       ])
     end
 
-    it "should have a SKOS:subject triple relating Ceres to Villages in Fife" do
+    it "should have a RDF:type triple relating Ceres to Villages in Fife" do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/things/52780#id"),
-        RDF::SKOS.subject,
+        RDF.type,
+        RDF::URI("http://dbpedialite.org/categories/4309010#id")
+      ])
+    end
+
+    it "should have a RDFS:subClassOf triple subclassing Hamlets from Villages" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/categories/1234567#id"),
+        RDF::RDFS.subClassOf,
         RDF::URI("http://dbpedialite.org/categories/4309010#id")
       ])
     end

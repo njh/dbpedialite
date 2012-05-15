@@ -1,6 +1,10 @@
-body
+html
 {
   background: url(/images/background.gif) repeat-x left top;
+}
+
+body
+{
   font: normal 9pt "lucida grande", helvetica, arial, sans-serif;
   text-align: left;
   width: 740px;
@@ -62,6 +66,12 @@ a img { border: none; padding: 0; margin: 0; }
 
 #content {}
 
+#content h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  padding-bottom: 0.4em;
+}
+
 #content p {
   line-height: 15px;
   margin: 0 0 1.2em;
@@ -103,6 +113,23 @@ a img { border: none; padding: 0; margin: 0; }
 #content a:link,  a:visited { color: #930; }
 #content a:hover, a:active  { color: #fff; background: #000; }
 
+#content th
+{
+  font-weight: bold;
+  vertical-align: top;
+  text-align: left;
+  border: 0px;
+  padding: 5px;
+}
+
+#content td
+{
+  vertical-align: top;
+  text-align: left;
+  border: 0px;
+  padding: 5px;
+}
+
 #search-results .result
 {
   width: 500px;
@@ -113,22 +140,6 @@ a img { border: none; padding: 0; margin: 0; }
 {
   font-size: 120%;
   display: block;
-}
-
-#description th
-{
-  vertical-align: top;
-  text-align: left;
-  border: 0px;
-  padding: 5px;
-}
-
-#description td
-{
-  vertical-align: top;
-  text-align: left;
-  border: 0px;
-  padding: 5px;
 }
 
 #map
