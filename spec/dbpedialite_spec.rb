@@ -751,6 +751,26 @@ describe 'dbpedia lite' do
       end
     end
 
+    context "flipping from a dbpedia lite thing page with a fragment identifier" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://en.wikipedia.org/w/api.php],
+          :body => fixture_data('pageinfo-rat.json'),
+          :content_type => 'application/json'
+        )
+        get '/flipr?url=http%3A%2F%2Fdbpedialite.org%2Fthings%2F26471%23id'
+      end
+
+      it "should redirect to the coresponding wikipedia page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://en.wikipedia.org/wiki/Rat'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
     context "flipping from a dbpedia lite category page" do
       before :each do
         FakeWeb.register_uri(
@@ -817,6 +837,7 @@ describe 'dbpedia lite' do
       end
 
       it "should display an error message" do
+        last_response.status.should == 200
         last_response.body.should =~ %r{Sorry but I don't know how to flip from: http://www.bbc.co.uk/}
       end
     end
