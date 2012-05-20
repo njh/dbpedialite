@@ -6,9 +6,11 @@ require 'formats'
 
 
 class DbpediaLite < Sinatra::Base
-  set :public_folder, File.join(File.dirname(__FILE__), 'public')
+  set :public_folder, File.join(root, 'public')
 
   DEFAULT_HOST = 'dbpedialite.org'
+  GIT_REPO_PATH = File.join(root, '.git')
+  GIT_LAST_COMMIT = Grit::Repo.new(GIT_REPO_PATH).commits.first
 
   def self.extract_vocabularies(graph)
     vocabs = {}
