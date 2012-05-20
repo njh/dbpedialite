@@ -9,6 +9,7 @@ class DbpediaLite < Sinatra::Base
   set :public_folder, File.join(root, 'public')
 
   DEFAULT_HOST = 'dbpedialite.org'
+  APP_LAST_UPDATED = File.mtime(root).gmtime
   GIT_LAST_COMMIT = ENV['COMMIT_HASH'] || `git rev-parse HEAD`
 
   def self.extract_vocabularies(graph)
