@@ -8,7 +8,6 @@ gem 'json_pure', :require => 'json'
 gem 'nokogiri'
 gem 'rdiscount'
 gem 'doodle'
-gem 'grit'
 
 gem 'rdf', ">=0.3.1"
 gem 'rdf-json', :require => 'rdf/json'
