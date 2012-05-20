@@ -37,7 +37,7 @@ module WikipediaApi
 
   def self.clean_displaytitle(hash)
     if hash['displaytitle']
-      hash['displaytitle'].gsub!(%r|<.+?>|, '')
+      hash['displaytitle'] = Nokogiri::HTML(hash['displaytitle']).text
     end
   end
 
@@ -124,7 +124,8 @@ module WikipediaApi
       :inprop => 'displaytitle'
     }.merge(args))
 
-    data['query']['pages'].values
+    values = data['query']['pages'].values
+    values.each {|v| clean_displaytitle(v) }
   end
 
   def self.page_categories(pageid, args={})
@@ -136,7 +137,8 @@ module WikipediaApi
       :gcllimit => 500,
     }.merge(args))
 
-    data['query']['pages'].values
+    values = data['query']['pages'].values
+    values.each {|v| clean_displaytitle(v) }
   end
 
 

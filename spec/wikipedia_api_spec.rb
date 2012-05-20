@@ -138,6 +138,33 @@ describe WikipediaApi do
     end
   end
 
+  context "parsing a page with HTML in the display title" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6268880&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-6268880.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(6268880)
+    end
+
+    it "should return a hash" do
+      @data.should be_a(Hash)
+    end
+
+    it "should return the article's page url title" do
+      @data['title'].should == "On Her Majesty's Secret Service (film)"
+    end
+
+    it "should return the article display title" do
+      @data['displaytitle'].should == "On Her Majesty's Secret Service (film)"
+    end
+
+    it "should return the article abstract" do
+      @data['abstract'].should =~ /^On Her Majesty's Secret Service \(1969\) is the sixth spy film in the James Bond series/
+    end
+  end
+
   context "parsing a page with <p> in the infobox" do
     before :each do
       FakeWeb.register_uri(
