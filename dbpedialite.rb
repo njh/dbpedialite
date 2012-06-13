@@ -6,9 +6,11 @@ require 'formats'
 
 
 class DbpediaLite < Sinatra::Base
-  set :public_folder, File.join(File.dirname(__FILE__), 'public')
+  set :public_folder, File.join(root, 'public')
 
   DEFAULT_HOST = 'dbpedialite.org'
+  APP_LAST_UPDATED = File.mtime(root).gmtime
+  GIT_LAST_COMMIT = ENV['COMMIT_HASH'] || `git rev-parse HEAD`
 
   def negotiate_content(object, format, html_view)
     if format.empty?
@@ -190,7 +192,7 @@ class DbpediaLite < Sinatra::Base
     headers 'Cache-Control' => 'public,max-age=3600'
     redirect "/", 301 if params[:url].nil? or params[:url].empty?
 
-    if params[:url] =~ %r{^http://(\w+)\.wikipedia.org/wiki/(.+)$}
+    if params[:url] =~ %r{^http://(\w+)\.wikipedia.org/wiki/(.+)(\#\w*)?$}
       redirect_from_title($2)
     elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
       redirect_from_title($2)
@@ -201,7 +203,7 @@ class DbpediaLite < Sinatra::Base
       rescue FreebaseApi::NotFound
         not_found("No Wikipedia page id found for Freebase topic")
       end
-    elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)$}
+    elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)(\#\w*)?$}
       begin
         data = WikipediaApi.page_info(:pageids => $3)
         escaped = WikipediaApi.escape_title(data['title'])

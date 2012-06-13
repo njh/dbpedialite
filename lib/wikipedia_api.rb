@@ -25,9 +25,10 @@ module WikipediaApi
   ABSTRACT_TRUNCATE_LENGTH = 700
   HTTP_TIMEOUT = 5
   NBSP = Nokogiri::HTML("&nbsp;").text
+  UNSAFE_REGEXP = Regexp.new('[^-_\.!~*\'()a-zA-Z0-9;/:@&=$,]', false, 'N').freeze
 
   def self.escape_query(str)
-    URI::escape(str, ' ?#%"+=|')
+    URI::escape(str, UNSAFE_REGEXP)
   end
 
   def self.escape_title(title)
@@ -36,7 +37,7 @@ module WikipediaApi
 
   def self.clean_displaytitle(hash)
     if hash['displaytitle']
-      hash['displaytitle'].gsub!(%r|<.+?>|, '')
+      hash['displaytitle'] = Nokogiri::HTML(hash['displaytitle']).text
     end
   end
 
@@ -123,7 +124,8 @@ module WikipediaApi
       :inprop => 'displaytitle'
     }.merge(args))
 
-    data['query']['pages'].values
+    values = data['query']['pages'].values
+    values.each {|v| clean_displaytitle(v) }
   end
 
   def self.page_categories(pageid, args={})
@@ -135,7 +137,8 @@ module WikipediaApi
       :gcllimit => 500,
     }.merge(args))
 
-    data['query']['pages'].values
+    values = data['query']['pages'].values
+    values.each {|v| clean_displaytitle(v) }
   end
 
 
