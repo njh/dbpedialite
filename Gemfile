@@ -24,7 +24,7 @@ group :test do
   gem 'rspec', '>=2.7.0'
   gem 'mocha'
   gem 'fakeweb'
-  gem 'rcov'
+  gem 'simplecov'
   gem 'rack-test', :require => 'rack/test'
   gem 'rdf-rdfa', :require => 'rdf/rdfa'
   gem 'equivalent-xml'

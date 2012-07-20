@@ -87,7 +87,7 @@ class WikipediaStubsCallbacks < XML::SAX::Document
   end
 
   def dbpedia_uri(title)
-    escaped = WikipediaApi.escape_title(title)
+    escaped = WikipediaApi.title_to_dbpedia_key(title)
     RDF::URI("http://dbpedia.org/resource/#{escaped}")
   end
 
