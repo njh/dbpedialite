@@ -26,6 +26,7 @@ module WikipediaApi
   HTTP_TIMEOUT = 5
   NBSP = Nokogiri::HTML("&nbsp;").text
   UNSAFE_REGEXP = Regexp.new('[^-_\.!~*\'()a-zA-Z0-9;/:@&=$,]', false, 'N').freeze
+  DBPEDIA_UNSAFE_REGEXP = Regexp.new('[^a-zA-Z0-9\.\-*/:_,&]', false, 'N').freeze
 
   def self.escape_query(str)
     URI::escape(str, UNSAFE_REGEXP)
@@ -33,6 +34,11 @@ module WikipediaApi
 
   def self.escape_title(title)
     URI::escape(title.gsub(' ','_'), ' ?#%"+=')
+  end
+
+  def self.title_to_dbpedia_key(title)
+    # From http://dbpedia.org/URIencoding
+    URI::escape(title.gsub(' ', '_').squeeze('_'), DBPEDIA_UNSAFE_REGEXP)
   end
 
   def self.clean_displaytitle(hash)
