@@ -137,10 +137,6 @@ describe WikipediaThing do
       @thing.longitude.should == -2.970134
     end
 
-    it "should escape titles correctly" do
-      @thing.escaped_title.should == 'Ceres,_Fife'
-    end
-
     it "should encode the Wikipedia page URL correctly" do
       @thing.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres,_Fife')
     end

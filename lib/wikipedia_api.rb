@@ -33,7 +33,7 @@ module WikipediaApi
   end
 
   def self.escape_title(title)
-    URI::escape(title.gsub(' ','_'), ' ?#%"+=()')
+    URI::escape(title.gsub(' ','_'), ' ?#%"+=')
   end
 
   def self.title_to_dbpedia_key(title)
