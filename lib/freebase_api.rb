@@ -3,7 +3,7 @@ require 'cgi'
 
 module FreebaseApi
   USER_AGENT = 'DbpediaLite/1'
-  MQLREAD_URI = URI.parse('http://www.freebase.com/api/service/mqlread')
+  MQLREAD_URI = URI.parse('http://api.freebase.com/api/service/mqlread')
   RDF_BASE_URI = URI.parse('http://rdf.freebase.com/rdf/')
   HTTP_TIMEOUT = 2
 

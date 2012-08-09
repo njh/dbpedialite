@@ -236,7 +236,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, %r[http://www.freebase.com/api/service/mqlread],
+        :get, %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-934787.json'),
         :content_type => 'application/json'
       )
@@ -339,7 +339,7 @@ describe 'dbpedia lite' do
           :content_type => 'application/json'
         )
         FakeWeb.register_uri(
-          :get, %r[http://www.freebase.com/api/service/mqlread],
+          :get, %r[http://api.freebase.com/api/service/mqlread],
           :body => fixture_data('freebase-mqlread-934787.json'),
           :content_type => 'application/json'
         )
@@ -503,7 +503,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, %r[http://www.freebase.com/api/service/mqlread],
+        :get, %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-21492980.json'),
         :content_type => 'application/json'
       )
@@ -575,7 +575,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, %r[http://www.freebase.com/api/service/mqlread],
+        :get, %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-notfound.json'),
         :content_type => 'application/json'
       )
@@ -814,7 +814,7 @@ describe 'dbpedia lite' do
     context "flipping from a Freebase page" do
       before :each do
         FakeWeb.register_uri(
-          :get, %r[http://www.freebase.com/api/service/mqlread],
+          :get, %r[http://api.freebase.com/api/service/mqlread],
           :body => fixture_data('freebase-mqlread-en-new-york.json'),
           :content_type => 'application/json'
         )

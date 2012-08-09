@@ -5,7 +5,7 @@ describe FreebaseApi do
   context "looking up the Freebase MID for a Wikipedia Pageid" do
     before :each do
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
+        %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-934787.json')
       )
       @data = FreebaseApi.lookup_wikipedia_pageid(934787)
@@ -35,7 +35,7 @@ describe FreebaseApi do
   context "looking up the Wikipedia Pageid for a Freebase identifier" do
     before :each do
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
+        %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-en-new-york.json')
       )
       @data = FreebaseApi.lookup_by_id('/en/new_york')
@@ -73,7 +73,7 @@ describe FreebaseApi do
   context "lookup up a Wikipedia pageid that doesn't exist in Freebase" do
     before :each do
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
+        %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-notfound.json')
       )
     end
@@ -88,7 +88,7 @@ describe FreebaseApi do
   context "making an invalid mqlread query" do
     before :each do
       FakeWeb.register_uri(:get,
-        %r[http://www.freebase.com/api/service/mqlread],
+        %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-invalid.json')
       )
     end
