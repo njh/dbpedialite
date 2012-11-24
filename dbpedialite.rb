@@ -189,7 +189,11 @@ class DbpediaLite < Sinatra::Base
     redirect_from_title(title)
   end
 
-  get %r{^/wikidata/Q(\d+)$} do |id|
+  get %r{^/wikidata/[qQ](\d+)$} do |id|
+    redirect_from_wikidata(id)
+  end
+
+  get %r{^/things/[Qq](\d+)$} do |id|
     redirect_from_wikidata(id)
   end
 
