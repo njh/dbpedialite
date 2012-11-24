@@ -1,4 +1,5 @@
 source "http://rubygems.org"
+ruby "1.8.7"
 
 gem 'sinatra'
 gem 'sinatra-content-for', :require => 'sinatra/content_for'
