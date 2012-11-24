@@ -1,15 +1,12 @@
-require 'net/http'
-require 'uri'
+require 'mediawiki_api'
 
-module WikipediaApi
+class WikipediaApi < MediaWikiApi
 
-  class Exception < Exception
-  end
+  ABSTRACT_MAX_LENGTH = 500
+  ABSTRACT_TRUNCATE_LENGTH = 700
+  DBPEDIA_UNSAFE_REGEXP = Regexp.new('[^a-zA-Z0-9\.\-*/:_,&]', false, 'N').freeze
 
-  class PageNotFound < WikipediaApi::Exception
-  end
-
-  class Redirect < WikipediaApi::Exception
+  class Redirect < MediaWikiApi::Exception
     attr_reader :pageid
     attr_reader :title
 
@@ -19,21 +16,8 @@ module WikipediaApi
     end
   end
 
-  USER_AGENT = 'DbpediaLite/1'
-  API_URI = URI.parse('http://en.wikipedia.org/w/api.php')
-  ABSTRACT_MAX_LENGTH = 500
-  ABSTRACT_TRUNCATE_LENGTH = 700
-  HTTP_TIMEOUT = 5
-  NBSP = Nokogiri::HTML("&nbsp;").text
-  UNSAFE_REGEXP = Regexp.new('[^-_\.!~*\'()a-zA-Z0-9;/:@&=$,]', false, 'N').freeze
-  DBPEDIA_UNSAFE_REGEXP = Regexp.new('[^a-zA-Z0-9\.\-*/:_,&]', false, 'N').freeze
-
-  def self.escape_query(str)
-    URI::escape(str, UNSAFE_REGEXP)
-  end
-
-  def self.escape_title(title)
-    URI::escape(title.gsub(' ','_'), ' ?#%"+=')
+  def self.api_uri
+    URI.parse('http://en.wikipedia.org/w/api.php')
   end
 
   def self.title_to_dbpedia_key(title)
@@ -55,11 +39,11 @@ module WikipediaApi
     }.merge(args))
 
     if data['query'].nil? or data['query']['pages'].empty?
-      raise WikipediaApi::Exception.new('Empty response')
+      raise MediaWikiApi::Exception.new('Empty response')
     else
       info = data['query']['pages'].values.first
       if info.has_key?('missing')
-        raise WikipediaApi::PageNotFound.new
+        raise MediaWikiApi::NotFound.new
       else
         clean_displaytitle(info)
         return info
@@ -71,53 +55,6 @@ module WikipediaApi
     data = self.get('query', {:list => 'search', :srprop => 'snippet|titlesnippet', :srsearch => query}.merge(args))
 
     data['query']['search']
-  end
-
-  def self.get(action, args={})
-    items = []
-    args.merge!(:action => action, :format => 'json')
-
-    keys = args.keys.sort {|a,b| a.to_s <=> b.to_s}
-    keys.each do |key|
-     items << escape_query(key.to_s)+'='+escape_query(args[key].to_s)
-    end
-
-    uri = API_URI.clone
-    uri.query = items.join('&')
-    res = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.read_timeout = HTTP_TIMEOUT
-      http.open_timeout = HTTP_TIMEOUT
-      http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
-    end
-
-    # Throw exception if unsuccessful
-    res.value
-
-    # Parse the response if it is JSON
-    if res.content_type == 'application/json'
-      data = JSON.parse(res.body)
-    else
-      raise WikipediaApi::Exception.new(
-        "Response from Wikipedia API was not of type application/json."
-      )
-    end
-
-    # Check for errors in the response
-    if data.nil?
-      raise WikipediaApi::Exception.new('Empty response')
-    elsif data.has_key?('error')
-      if data['error']['code'] == 'nosuchpageid'
-        raise WikipediaApi::PageNotFound.new(
-          data['error']['info']
-        )
-      else
-        raise WikipediaApi::Exception.new(
-          data['error']['info']
-        )
-      end
-    end
-
-    return data
   end
 
   def self.category_members(pageid, args={})
@@ -146,7 +83,6 @@ module WikipediaApi
     values = data['query']['pages'].values
     values.each {|v| clean_displaytitle(v) }
   end
-
 
   def self.parse(pageid, args={})
     data = self.get('parse', {

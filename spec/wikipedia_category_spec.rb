@@ -132,7 +132,7 @@ describe WikipediaCategory do
 
     it "should return raise a PageNotFound exception" do
       lambda {WikipediaCategory.load(52780)}.should raise_error(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'Page 52780 is not a category'
       )
     end

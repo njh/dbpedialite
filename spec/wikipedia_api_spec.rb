@@ -412,7 +412,7 @@ describe WikipediaApi do
 
     it "should raise an exception" do
       lambda {WikipediaApi.parse(504825766)}.should raise_error(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'There is no page with ID 504825766'
       )
     end
@@ -523,7 +523,7 @@ describe WikipediaApi do
 
     it "should trow a PageNotFound exception" do
       lambda { WikipediaApi.page_info(:titles => 'zsefpfs') }.should raise_error(
-        WikipediaApi::PageNotFound
+        MediaWikiApi::NotFound
       )
     end
   end
@@ -539,8 +539,8 @@ describe WikipediaApi do
 
     it "should raise an exception" do
       expect { WikipediaApi.get('query') }.should raise_error(
-        WikipediaApi::Exception,
-        'Response from Wikipedia API was not of type application/json.'
+        MediaWikiApi::Exception,
+        'Response from MediaWiki API was not of type application/json.'
       )
     end
   end

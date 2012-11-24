@@ -73,9 +73,9 @@ class DbpediaLite < Sinatra::Base
         else
           error 500, "Unsupported Wikipedia namespace: #{data['ns']}"
       end
-    rescue WikipediaApi::PageNotFound
+    rescue MediaWikiApi::NotFound
       not_found "Wikipedia page title not found."
-    rescue WikipediaApi::Exception => e
+    rescue MediaWikiApi::Exception => e
       error 500, "Wikipedia API excpetion: #{e}"
     end
   end
@@ -198,7 +198,7 @@ class DbpediaLite < Sinatra::Base
       @thing = WikipediaThing.load(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/things/#{redirect.pageid}", 301)
-    rescue WikipediaApi::PageNotFound
+    rescue MediaWikiApi::NotFound
       not_found("Thing not found.")
     end
 
@@ -214,7 +214,7 @@ class DbpediaLite < Sinatra::Base
       @category = WikipediaCategory.load(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/categories/#{redirect.pageid}", 301)
-    rescue WikipediaApi::PageNotFound
+    rescue MediaWikiApi::NotFound
       not_found("Category not found.")
     end
 
@@ -253,7 +253,7 @@ class DbpediaLite < Sinatra::Base
         data = WikipediaApi.page_info(:pageids => $3)
         escaped = WikipediaApi.escape_title(data['title'])
         redirect "http://en.wikipedia.org/wiki/#{escaped}", 301
-      rescue WikipediaApi::PageNotFound
+      rescue MediaWikiApi::NotFound
         not_found("Wikipedia page id not found")
       end
     else

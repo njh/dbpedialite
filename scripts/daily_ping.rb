@@ -93,7 +93,7 @@ links.each do |link|
       ping_the_semantic_web(rdf_url)
       rdf_urls << rdf_url
     end
-  rescue WikipediaApi::PageNotFound
+  rescue MediaWikiApi::NotFound
   end
 end
 

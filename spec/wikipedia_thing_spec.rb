@@ -213,7 +213,7 @@ describe WikipediaThing do
   context "loading a non-existant page from wikipedia" do
     before :each do
       WikipediaApi.expects(:parse).once.raises(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'There is no page with ID 999999'
       )
       FreebaseApi.expects(:lookup_wikipedia_pageid).never
@@ -221,7 +221,7 @@ describe WikipediaThing do
 
     it "should return raise a PageNotFound exception" do
       lambda {WikipediaThing.load(999999)}.should raise_error(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'There is no page with ID 999999'
       )
     end

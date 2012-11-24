@@ -13,7 +13,7 @@ class WikipediaCategory < BaseModel
 
     # Is it actually a category?
     unless data['ns'] == 14
-      raise WikipediaApi::PageNotFound.new("Page #{pageid} is not a category")
+      raise MediaWikiApi::NotFound.new("Page #{pageid} is not a category")
     end
 
     # Update object properties with the data that was loaded
