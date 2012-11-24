@@ -137,6 +137,7 @@ class WikipediaThing < BaseModel
       # Link to WikiData
       unless wikidata_id.nil?
         graph << [self.uri, RDF::FOAF.page, wikidata_url]
+        graph << [wikidata_url, RDF.type, RDF::FOAF.Document]
         graph << [wikidata_url, RDF::RDFS.label, wikidata_label]
         graph << [wikidata_url, RDF::RDFS.comment, wikidata_description]
       end
