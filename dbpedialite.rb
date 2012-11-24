@@ -2,6 +2,7 @@
 
 require 'wikipedia_thing'
 require 'wikipedia_category'
+require 'wikidata_api'
 require 'formats'
 
 
@@ -77,6 +78,18 @@ class DbpediaLite < Sinatra::Base
     rescue WikipediaApi::Exception => e
       error 500, "Wikipedia API excpetion: #{e}"
     end
+  end
+
+  def redirect_from_wikidata(id)
+    begin
+      sitelink = WikidataApi.get_sitelink(id)
+      redirect_from_title sitelink['title']
+    rescue MediaWiki::NotFound => e
+      not_found e.to_s
+    rescue MediaWiki::Exception => e
+      error 500, "Wikidata API excpetion: #{e}"
+    end
+    redirect_from_title(title)
   end
 
   helpers do
@@ -176,6 +189,10 @@ class DbpediaLite < Sinatra::Base
     redirect_from_title(title)
   end
 
+  get %r{^/wikidata/Q(\d+)$} do |id|
+    redirect_from_wikidata(id)
+  end
+
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     begin
       @thing = WikipediaThing.load(pageid)
@@ -222,6 +239,8 @@ class DbpediaLite < Sinatra::Base
       redirect_from_title($2)
     elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
       redirect_from_title($2)
+    elsif params[:url] =~ %r{^http://(www\.)?wikidata.org/wiki/Q(\d+)$}
+      redirect_from_wikidata($2)
     elsif params[:url] =~ %r{^http://www.freebase.com/(view|inspect|edit/topic)(/.+)$}
       begin
         data = FreebaseApi.lookup_by_id($2)
