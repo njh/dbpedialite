@@ -34,9 +34,9 @@ class WikidataApi < MediaWikiApi
     })
 
     if data['items'].nil?
-      raise MediaWiki::Exception.new('Empty response')
-    elsif data['items'].empty?
-      raise MediaWiki::NotFound.new('Failed to lookup title in Wikidata')
+      raise MediaWikiApi::Exception.new('Empty response')
+    elsif data['items'].empty? or data['items'].keys.first == "-1"
+      raise MediaWikiApi::NotFound.new('Failed to lookup title in Wikidata')
     end
 
     data['items'].values.first

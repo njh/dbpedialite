@@ -92,12 +92,14 @@ class WikipediaThing < BaseModel
       # Attempt to lookup in WikiData, but silently fail on error
       begin
         data = WikidataApi.find_by_title(title)
-        self.wikidata_id = data['title']
-        if data['labels'].has_key?('en')
-          self.wikidata_label = data['labels']['en']['value']
-        end
-        if data['descriptions'].has_key?('en')
-          self.wikidata_description = data['descriptions']['en']['value']
+        if data.has_key?('id')
+          self.wikidata_id = data['title']
+          if data.has_key?('labels') and data['labels'].has_key?('en')
+            self.wikidata_label = data['labels']['en']['value']
+          end
+          if data.has_key?('descriptions') and data['descriptions'].has_key?('en')
+            self.wikidata_description = data['descriptions']['en']['value']
+          end
         end
       rescue Timeout::Error => e
         $stderr.puts "Timed out while reading from Wikidata: #{e.message}"
@@ -138,8 +140,8 @@ class WikipediaThing < BaseModel
       unless wikidata_id.nil?
         graph << [self.uri, RDF::FOAF.page, wikidata_url]
         graph << [wikidata_url, RDF.type, RDF::FOAF.Document]
-        graph << [wikidata_url, RDF::RDFS.label, wikidata_label]
-        graph << [wikidata_url, RDF::RDFS.comment, wikidata_description]
+        graph << [wikidata_url, RDF::RDFS.label, wikidata_label] unless wikidata_label.nil?
+        graph << [wikidata_url, RDF::RDFS.comment, wikidata_description] unless wikidata_description.nil?
       end
 
       # External links
