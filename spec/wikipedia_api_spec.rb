@@ -1,7 +1,15 @@
+# encoding: utf-8
 require 'spec_helper'
 require 'wikipedia_api'
 
 describe WikipediaApi do
+  context "escaping a page title to a DBpedia key" do
+    it "should apply the encoding rules from dbpedia.org" do
+      WikipediaApi.title_to_dbpedia_key('Mozambique (Portugal)').should == 'Mozambique_%28Portugal%29'
+      WikipediaApi.title_to_dbpedia_key('S/2012_P_1').should == 'S/2012_P_1'
+    end
+  end
+
   context "escaping a page title" do
     it "should convert 'AC/DC' to 'AC/DC'" do
       WikipediaApi.escape_title('AC/DC').should == 'AC/DC'
@@ -36,10 +44,24 @@ describe WikipediaApi do
     end
   end
 
+  context "escaping a query parameter" do
+    it "should convert 'Florence + the Machine' to 'Florence%20%2B%20the%20Machine'" do
+      WikipediaApi.escape_query('Florence + the Machine').should == 'Florence%20%2B%20the%20Machine'
+    end
+
+    it "should convert 'C#' to 'C%23'" do
+      WikipediaApi.escape_query('C#').should == 'C%23'
+    end
+
+    it "should convert 'Café' to 'Café'" do
+      WikipediaApi.escape_query('Café').should == 'Caf%C3%A9'
+    end
+  end
+
   context "parsing a page" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-934787.json'),
         :content_type => 'application/json'
       )
@@ -50,12 +72,16 @@ describe WikipediaApi do
       @data.should be_a(Hash)
     end
 
-    it "should return the artitle title" do
+    it "should return the article's page url title" do
       @data['title'].should == 'Ceres, Fife'
     end
 
+    it "should return the article display title" do
+      @data['displaytitle'].should == 'Ceres, Fife'
+    end
+
     it "should return the date it was last updated" do
-      @data['updated_at'].to_s.should == '2011-11-21T01:21:56+00:00'
+      @data['updated_at'].to_s.should == '2012-05-05T04:35:21+00:00'
       @data['updated_at'].class.should == DateTime
     end
 
@@ -67,7 +93,7 @@ describe WikipediaApi do
       @data['latitude'].should == 56.29205
     end
 
-    it "should return the artitle abstract" do
+    it "should return the article abstract" do
       @data['abstract'].should =~ /\ACeres is a village in Fife, Scotland/
     end
 
@@ -88,10 +114,69 @@ describe WikipediaApi do
     end
   end
 
+  context "parsing a page titled with a lowercase first letter" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=21492980&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-21492980.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(21492980)
+    end
+
+    it "should return a hash" do
+      @data.should be_a(Hash)
+    end
+
+    it "should return the article's page url title" do
+      @data['title'].should == 'IMac'
+    end
+
+    it "should return the article display title" do
+      @data['displaytitle'].should == 'iMac'
+    end
+
+    it "should have no latitude and longitude" do
+      @data['latitude'].should be_nil
+      @data['longitude'].should be_nil
+    end
+
+    it "should return the article abstract" do
+      @data['abstract'].should =~ /^The iMac is a range of all-in-one Macintosh desktop computers built by Apple Inc\./
+    end
+  end
+
+  context "parsing a page with HTML in the display title" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6268880&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-6268880.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(6268880)
+    end
+
+    it "should return a hash" do
+      @data.should be_a(Hash)
+    end
+
+    it "should return the article's page url title" do
+      @data['title'].should == "On Her Majesty's Secret Service (film)"
+    end
+
+    it "should return the article display title" do
+      @data['displaytitle'].should == "On Her Majesty's Secret Service (film)"
+    end
+
+    it "should return the article abstract" do
+      @data['abstract'].should =~ /^On Her Majesty's Secret Service \(1969\) is the sixth spy film in the James Bond series/
+    end
+  end
+
   context "parsing a page with <p> in the infobox" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=26471&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=26471&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-26471.json'),
         :content_type => 'application/json'
       )
@@ -102,8 +187,12 @@ describe WikipediaApi do
       @data.should be_a(Hash)
     end
 
-    it "should return the artitle title" do
+    it "should return the article's page url title" do
       @data['title'].should == 'Rat'
+    end
+
+    it "should return the article display title" do
+      @data['displaytitle'].should == 'Rat'
     end
 
     it "should have no latitude and longitude" do
@@ -111,15 +200,38 @@ describe WikipediaApi do
       @data['longitude'].should be_nil
     end
 
-    it "should return the artitle abstract" do
+    it "should return the article abstract" do
       @data['abstract'].should =~ /\ARats are various medium-sized, long-tailed rodents of the superfamily Muroidea/
+    end
+  end
+
+  context "parsing a page with a superscript in the title and abstract" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=10841865&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-10841865.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(10841865)
+    end
+
+    it "should return the article's page url title" do
+      @data['title'].should == 'E=MC2 (song)'
+    end
+
+    it "should return the article display title" do
+      @data['displaytitle'].should == 'E=MC2 (song)'
+    end
+
+    it "should return the article abstract" do
+      @data['abstract'].should =~ /^"E=MC2" is a 1985 single by Big Audio Dynamite/
     end
   end
 
   context "parsing a page with multiple paragraphs" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=18624945&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=18624945&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-18624945.json'),
         :content_type => 'application/json'
       )
@@ -130,85 +242,153 @@ describe WikipediaApi do
       @data.should be_a(Hash)
     end
 
-    it "should return the artitle title" do
+    it "should return the article's page url title" do
       @data['title'].should == 'True Blood'
     end
 
-    it "should contain an the first paragraph of the abastract" do
+    it "should return the article display title without HTML" do
+      @data['displaytitle'].should == 'True Blood'
+    end
+
+    it "should the first paragraph of the abstract" do
       @data['abstract'].should =~ %r[^True Blood is an American television series created and produced by Alan Ball]
     end
 
-    it "should contain the end of the second paragraph of the abastract" do
-      @data['abstract'].should =~ %r[been renewed for a fifth season of 12 episodes to air in summer 2012\.$]
-    end
-  end
-
-  context "parsing a page with pronunciation details in the abstract" do
-    before :each do
-      FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text',
-        :body => fixture_data('parse-3354.json'),
-        :content_type => 'application/json'
-      )
-      @data = WikipediaApi.parse(3354)
-    end
-
-    it "should return the artitle abstract without pronunciation" do
-      @data['abstract'].should =~ /\ABerlin is the capital city of Germany/
+    it "should truncate the end of the second paragraph" do
+      @data['abstract'].should =~ %r[received critical acclaim and won several awards, including one Golden\.\.\.\Z]
     end
   end
 
   context "removing pronunciation from abstracts" do
-    it "should remove the pronunciation from the U2 article" do
-      WikipediaApi.strip_pronunciation(
-        'U2 (IPA: /ˌjuːˈtuː/) are a rock band from Dublin,'
-      ).should be_eql(
-        'U2 are a rock band from Dublin,'
+    it "should remove the IPA pronunciation from the article about London" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=17867&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-17867.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(17867)
+      data['abstract'].should =~ /^London is the capital city of England and the United Kingdom/
     end
 
-    it "should remove the pronunciation from the Albert Camus article" do
-      WikipediaApi.strip_pronunciation(
-        'Albert Camus (IPA: [albɛʁ kamy]) is '
-      ).should be_eql(
-        'Albert Camus is '
+    it "should remove the IPA pronunciation from the article about Paris" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=22989&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-22989.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(22989)
+      data['abstract'].should =~ /^Paris is the capital and largest city of France\./
     end
 
-    it "should remove the pronunciation from the Anton Corbijn article" do
-      WikipediaApi.strip_pronunciation(
-        'Anton Corbijn (pronounced [kɔrˈbɛin]) (born May 20, 1955) '
-      ).should be_eql(
-        'Anton Corbijn (born May 20, 1955) '
+    it "should remove the IPA pronunciation from the article about Berlin" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-3354.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(3354)
+      data['abstract'].should =~ /^Berlin is the capital city of Germany/
     end
 
-    it "should remove the pronunciation from the Breed 77 article" do
-      WikipediaApi.strip_pronunciation(
-        'Breed 77 (pronounced "Breed Seven-Seven") is a band whose'
-      ).should be_eql(
-        'Breed 77 is a band whose'
+    it "should remove the IPA pronunciation from the article about Lyon" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=8638634&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-8638634.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(8638634)
+      data['abstract'].should =~ /^Lyon, traditionally spelt Lyons in English, is a city in east-central France in the Rhône-Alpes region/
     end
 
-    it "should remove the pronunciation from the Sara Beth Bareilles article" do
-      WikipediaApi.strip_pronunciation(
-        'Sara Beth Bareilles (pronounced /bəˈɹɛlɪs/; born December 7, 1979) is an American'
-      ).should be_eql(
-        'Sara Beth Bareilles (born December 7, 1979) is an American'
+    it "should remove the pronunciation audio link from the article about Auchtertool" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=9259027&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-9259027.json'),
+        :content_type => 'application/json'
       )
+      data = WikipediaApi.parse(9259027)
+      data['abstract'].should =~ /^Auchtertool is a small village in Fife, Scotland\./
+    end
+
+    it "should remove the pronunciation audio link from the article about Canada" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=5042916&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-5042916.json'),
+        :content_type => 'application/json'
+      )
+      data = WikipediaApi.parse(5042916)
+      data['abstract'].should =~ /^Canada is a North American country consisting of ten provinces and three territories\./
+    end
+
+    it "should remove the pronunciation from the article about Albert Camus" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=983&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-983.json'),
+        :content_type => 'application/json'
+      )
+      data = WikipediaApi.parse(983)
+      data['abstract'].should =~ /^Albert Camus was a French author, journalist, and philosopher\./
+    end
+
+    it "should remove the pronunciation from the article about Anton Corbijn" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=1073796&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-1073796.json'),
+        :content_type => 'application/json'
+      )
+      data = WikipediaApi.parse(1073796)
+      data['abstract'].should =~ /^Anton Corbijn is a Dutch photographer, music video and film director\./
+    end
+
+    it "should remove the pronunciation from the article about Sara Beth Bareilles article" do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6100815&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-6100815.json'),
+        :content_type => 'application/json'
+      )
+      data = WikipediaApi.parse(6100815)
+      data['abstract'].should =~ /^Sara Beth Bareilles is an American singer-songwriter and pianist\./
+    end
+  end
+
+  context "parsing a page with an edit link in the page" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=32838&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-32838.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.parse(32838)
+    end
+
+    it "should have a page url title" do
+      @data['title'].should == 'Vincent Ward'
+    end
+
+    it "should have a display title" do
+      @data['displaytitle'].should == 'Vincent Ward'
+    end
+
+    it "should pull out the correct abstract" do
+      @data['abstract'].should == 'Vincent Ward, ONZM (born 16 February 1956) is a film director and screenwriter.'
+    end
+
+    it "should have an array of external links" do
+      @data['externallinks'].should == [
+        'http://www.imdb.com/name/nm0911910/'
+      ]
     end
   end
 
   context "parsing a redirect page" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-440555.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
         :body => fixture_data('pageinfo-bse.json'),
         :content_type => 'application/json'
       )
@@ -224,7 +404,7 @@ describe WikipediaApi do
   context "parsing a non-existant page" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-504825766.json'),
         :content_type => 'application/json'
       )
@@ -232,7 +412,7 @@ describe WikipediaApi do
 
     it "should raise an exception" do
       lambda {WikipediaApi.parse(504825766)}.should raise_error(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'There is no page with ID 504825766'
       )
     end
@@ -241,15 +421,19 @@ describe WikipediaApi do
   context "getting information about a page by title" do
     before :each do
       FakeWeb.register_uri(
-        :get, %r[http://en.wikipedia.org/w/api.php],
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=U2',
         :body => fixture_data('pageinfo-u2.json'),
         :content_type => 'application/json'
       )
       @data = WikipediaApi.page_info(:titles => 'U2')
     end
 
-    it "should return the title" do
+    it "should return the article's page url title" do
       @data['title'].should == 'U2'
+    end
+
+    it "should return the article display title" do
+      @data['displaytitle'].should == 'U2'
     end
 
     it "should return the pageid" do
@@ -261,22 +445,26 @@ describe WikipediaApi do
     end
 
     it "should return the last modified date" do
-      @data['touched'].should == "2010-05-12T22:44:49Z"
+      @data['touched'].should == "2012-05-07T12:24:23Z"
     end
   end
 
   context "getting information about a page by pageid" do
     before :each do
       FakeWeb.register_uri(
-        :get, %r[http://en.wikipedia.org/w/api.php],
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=4309010&prop=info&redirects=1',
         :body => fixture_data('pageinfo-4309010.json'),
         :content_type => 'application/json'
       )
       @data = WikipediaApi.page_info(:pageids => '4309010')
     end
 
-    it "should return the title" do
+    it "should return the page url title" do
       @data['title'].should == 'Category:Villages in Fife'
+    end
+
+    it "should return the display title" do
+      @data['displaytitle'].should == 'Category:Villages in Fife'
     end
 
     it "should return the pageid" do
@@ -288,14 +476,46 @@ describe WikipediaApi do
     end
 
     it "should return the last modified date" do
-      @data['touched'].should == "2010-11-04T04:11:11Z"
+      @data['touched'].should == "2012-05-07T12:15:28Z"
     end
   end
+
+  context "getting information about a page with HTML in the display title" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=18624945&prop=info&redirects=1',
+        :body => fixture_data('pageinfo-18624945.json'),
+        :content_type => 'application/json'
+      )
+      @data = WikipediaApi.page_info(:pageids => '18624945')
+    end
+
+    it "should return the page url title" do
+      @data['title'].should == 'True Blood'
+    end
+
+    it "should return the display title without HTML" do
+      @data['displaytitle'].should == 'True Blood'
+    end
+
+    it "should return the pageid" do
+      @data['pageid'].should == 18624945
+    end
+
+    it "should return the namespace" do
+      @data['ns'].should == 0
+    end
+
+    it "should return the last modified date" do
+      @data['touched'].should == "2012-05-07T13:33:10Z"
+    end
+  end
+
 
   context "getting information about a page title that doesn't exist" do
     before :each do
       FakeWeb.register_uri(
-        :get, %r[http://en.wikipedia.org/w/api.php],
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=zsefpfs',
         :body => fixture_data('pageinfo-zsefpfs.json'),
         :content_type => 'application/json'
       )
@@ -303,7 +523,7 @@ describe WikipediaApi do
 
     it "should trow a PageNotFound exception" do
       lambda { WikipediaApi.page_info(:titles => 'zsefpfs') }.should raise_error(
-        WikipediaApi::PageNotFound
+        MediaWikiApi::NotFound
       )
     end
   end
@@ -311,7 +531,7 @@ describe WikipediaApi do
   context "a call to Wikipedia API returns something that isn't JSON" do
     before :each do
       FakeWeb.register_uri(
-        :get, %r[http://en.wikipedia.org/w/api.php],
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json',
         :body => "<h1>There was an error</h1>",
         :content_type => 'text/html'
       )
@@ -319,8 +539,8 @@ describe WikipediaApi do
 
     it "should raise an exception" do
       expect { WikipediaApi.get('query') }.should raise_error(
-        WikipediaApi::Exception,
-        'Response from Wikipedia API was not of type application/json.'
+        MediaWikiApi::Exception,
+        'Response from MediaWiki API was not of type application/json.'
       )
     end
   end
@@ -328,7 +548,7 @@ describe WikipediaApi do
   context "searching for Rat" do
     before :each do
       FakeWeb.register_uri(
-        :get, %r[http://en.wikipedia.org/w/api.php],
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srlimit=20&srprop=snippet%7Ctitlesnippet&srsearch=Rat',
         :body => fixture_data('search-rat.json'),
         :content_type => 'application/json'
       )
@@ -339,8 +559,8 @@ describe WikipediaApi do
       @data.first['title'].should == 'Rat'
     end
 
-    it "the first result should have a timestamp" do
-      @data.first['timestamp'].should == '2010-05-01T09:22:19Z'
+    it "the first result should have a title snippet" do
+      @data.first['titlesnippet'].should == "<span class='searchmatch'>Rat</span>"
     end
 
     it "the first result should have a namespace" do
@@ -355,20 +575,24 @@ describe WikipediaApi do
   context "getting the members of a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, %r[http://en.wikipedia.org/w/api.php],
-        :body => fixture_data('categorymembers-villages.json'),
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&gcmlimit=500&gcmnamespace=0%7C14&gcmpageid=4309010&generator=categorymembers&inprop=displaytitle&prop=info',
+        :body => fixture_data('categorymembers-4309010.json'),
         :content_type => 'application/json'
       )
-      @data = WikipediaApi.category_members('Category:Villages in Fife')
+      @data = WikipediaApi.category_members(4309010)
       @data.sort! {|a,b| a['pageid'] <=> b['pageid']}
     end
 
-    it "should return eighty results" do
-      @data.size.should == 80
+    it "should return eighty three results" do
+      @data.size.should == 83
     end
 
-    it "should return a title for the first result" do
+    it "should return a page url title for the first result" do
       @data.first['title'].should == 'Aberdour'
+    end
+
+    it "should return the page display title" do
+      @data.first['displaytitle'].should == 'Aberdour'
     end
 
     it "should return a pageid for the first result" do
@@ -383,7 +607,7 @@ describe WikipediaApi do
   context "getting the categories that something is a member of" do
     before :each do
       FakeWeb.register_uri(
-        :get, %r[http://en.wikipedia.org/w/api.php],
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&gcllimit=500&generator=categories&inprop=displaytitle&pageids=934787&prop=info',
         :body => fixture_data('categories-934787.json'),
         :content_type => 'application/json'
       )
@@ -391,12 +615,16 @@ describe WikipediaApi do
       @data.sort! {|a,b| a['pageid'] <=> b['pageid']}
     end
 
-    it "should return 3 results" do
-      @data.size.should == 3
+    it "should return 4 results" do
+      @data.size.should == 4
     end
 
     it "should return a title for the first result" do
       @data.first['title'].should == 'Category:Villages in Fife'
+    end
+
+    it "should return the article display title" do
+      @data.first['displaytitle'].should == 'Category:Villages in Fife'
     end
 
     it "should return a pageid for the first result" do

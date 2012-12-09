@@ -1,15 +1,12 @@
-require 'net/http'
-require 'uri'
+require 'mediawiki_api'
 
-module WikipediaApi
+class WikipediaApi < MediaWikiApi
 
-  class Exception < Exception
-  end
+  ABSTRACT_MAX_LENGTH = 500
+  ABSTRACT_TRUNCATE_LENGTH = 700
+  DBPEDIA_UNSAFE_REGEXP = Regexp.new('[^a-zA-Z0-9\.\-*/:_,&]', false, 'N').freeze
 
-  class PageNotFound < WikipediaApi::Exception
-  end
-
-  class Redirect < WikipediaApi::Exception
+  class Redirect < MediaWikiApi::Exception
     attr_reader :pageid
     attr_reader :title
 
@@ -19,111 +16,77 @@ module WikipediaApi
     end
   end
 
-  USER_AGENT = 'DbpediaLite/1'
-  API_URI = URI.parse('http://en.wikipedia.org/w/api.php')
-  ABSTRACT_MAX_LENGTH = 500
-  ABSTRACT_TRUNCATE_LENGTH = 800
-  HTTP_TIMEOUT = 5
+  def self.api_uri
+    URI.parse('http://en.wikipedia.org/w/api.php')
+  end
 
-  def self.escape_title(title)
-    URI::escape(title.gsub(' ','_'), ' ?#%"+=')
+  def self.title_to_dbpedia_key(title)
+    # From http://dbpedia.org/URIencoding
+    URI::escape(title.gsub(' ', '_').squeeze('_'), DBPEDIA_UNSAFE_REGEXP)
+  end
+
+  def self.clean_displaytitle(hash)
+    if hash['displaytitle']
+      hash['displaytitle'] = Nokogiri::HTML(hash['displaytitle']).text
+    end
   end
 
   def self.page_info(args)
-    data = self.get('query', {:redirects => 1, :prop => 'info'}.merge(args))
+    data = self.get('query', {
+      :prop => 'info',
+      :inprop => 'displaytitle',
+      :redirects => 1
+    }.merge(args))
 
     if data['query'].nil? or data['query']['pages'].empty?
-      raise WikipediaApi::Exception.new('Empty response')
+      raise MediaWikiApi::Exception.new('Empty response')
     else
       info = data['query']['pages'].values.first
       if info.has_key?('missing')
-        raise WikipediaApi::PageNotFound.new
+        raise MediaWikiApi::NotFound.new
       else
+        clean_displaytitle(info)
         return info
       end
     end
   end
 
   def self.search(query, args={})
-    data = self.get('query', {:list => 'search', :prop => 'info', :srsearch => query}.merge(args))
+    data = self.get('query', {:list => 'search', :srprop => 'snippet|titlesnippet', :srsearch => query}.merge(args))
 
     data['query']['search']
   end
 
-  def self.get(action, args={})
-    items = []
-    args.merge!(:action => action, :format => 'json')
-
-    keys = args.keys.sort {|a,b| a.to_s <=> b.to_s}
-    keys.each do |key|
-     items << URI::escape(key.to_s)+'='+URI::escape(args[key].to_s)
-    end
-
-    uri = API_URI.clone
-    uri.query = items.join('&')
-    res = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.read_timeout = HTTP_TIMEOUT
-      http.open_timeout = HTTP_TIMEOUT
-      http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
-    end
-
-    # Throw exception if unsuccessful
-    res.value
-
-    # Parse the response if it is JSON
-    if res.content_type == 'application/json'
-      data = JSON.parse(res.body)
-    else
-      raise WikipediaApi::Exception.new(
-        "Response from Wikipedia API was not of type application/json."
-      )
-    end
-
-    # Check for errors in the response
-    if data.nil?
-      raise WikipediaApi::Exception.new('Empty response')
-    elsif data.has_key?('error')
-      if data['error']['code'] == 'nosuchpageid'
-        raise WikipediaApi::PageNotFound.new(
-          data['error']['info']
-        )
-      else
-        raise WikipediaApi::Exception.new(
-          data['error']['info']
-        )
-      end
-    end
-
-    return data
-  end
-
-  def self.category_members(title, args={})
-    # FIXME: this should use pageid, when it is available in the MediaWiki API
+  def self.category_members(pageid, args={})
     data = self.get('query', {
-      :list => 'categorymembers',
-      :cmprop => 'ids|title',
-      :cmsort => 'sortkey',
-      :cmtitle => title,
-      :cmlimit => 500
+      :generator => 'categorymembers',
+      :gcmnamespace => '0|14',   # Only pages and sub-categories
+      :gcmpageid => pageid,
+      :gcmlimit => 500,
+      :prop => 'info',
+      :inprop => 'displaytitle'
     }.merge(args))
 
-    data['query']['categorymembers']
+    values = data['query']['pages'].values
+    values.each {|v| clean_displaytitle(v) }
   end
 
   def self.page_categories(pageid, args={})
     data = self.get('query', {
       :generator => 'categories',
       :pageids => pageid,
+      :prop => 'info',
+      :inprop => 'displaytitle',
       :gcllimit => 500,
     }.merge(args))
 
-    data['query']['pages'].values
+    values = data['query']['pages'].values
+    values.each {|v| clean_displaytitle(v) }
   end
-
 
   def self.parse(pageid, args={})
     data = self.get('parse', {
-      :prop => 'text',
+      :prop => 'text|displaytitle',
       :pageid => pageid
     }.merge(args))
 
@@ -179,7 +142,7 @@ module WikipediaApi
     text.search("ul/li/a.external").each do |link|
       if link.has_attribute?('href')
         href = link.attribute('href').value
-        next if href =~ %r[^http://(\w+)\.wikipedia\.org/]
+        next if href =~ %r[^(\w*):?//(\w+)\.wikipedia\.org/]
         data['externallinks'] << href
       end
     end
@@ -188,8 +151,14 @@ module WikipediaApi
     # Extract the abstract from the body of the page
     data['abstract'] = extract_abstract(text)
 
+    # Clean up the display title (remove HTML tags)
+    clean_displaytitle(data)
+
     data
   end
+
+
+protected
 
   def self.extract_abstract(text)
     # Extract the abstract
@@ -199,8 +168,27 @@ module WikipediaApi
 
       # Look for paragraphs
       if node.name == 'p'
-        # Remove references and other super-scripts
-        node.css('sup').each { |sup| sup.remove }
+        # Remove non-printing items of text
+        # (http://en.wikipedia.org/wiki/Wikipedia:Catalogue_of_CSS_classes)
+        node.css('.metadata').each { |metadata| metadata.remove }
+        node.css('.noprint').each { |noprint| noprint.remove }
+
+        # Mark pronunciation for later deletion
+        node.css('.IPA').each do |ipa|
+          if ipa.parent.name == 'span'
+            ipa.parent.replace('<span>|IPAMARKER|</span>')
+          else
+            ipa.replace('<span>|IPAMARKER|</span>')
+          end
+        end
+
+        # Remove references
+        node.css('sup.reference').each { |ref| ref.remove }
+
+        # Remove listen links
+        node.css('a').each do |link|
+          link.remove if link.text == 'listen'
+        end
 
         # Remove co-ordinates
         node.css('#coordinates').each { |coor| coor.remove }
@@ -216,39 +204,33 @@ module WikipediaApi
       break if abstract.size > ABSTRACT_MAX_LENGTH
     end
 
-    # Remove pronunciation and append the paragraph
-    abstract = self.strip_pronunciation(abstract)
+    # Convert non-breaking whitespace into whitespace
+    abstract.gsub!(NBSP, ' ')
+
+    # Remove empty brackets, as a result of deleting elements
+    abstract.gsub!(/\(\s*\)/, '')
+
+    # Strip out any marked pronunciation enclosed in brackets
+    abstract.gsub!(/ ?\([^()]*?\|IPAMARKER\|[^()]*?\)/, '')
+
+    # Strip out any other marked pronunciation text
+    abstract.gsub!(/\|IPAMARKER\|/, '')
+
+    # Remove double spaces (as a result of deleting elements)
+    abstract.gsub!(/ {2,}/, ' ')
 
     # Remove trailing whitespace
     abstract.strip!
 
     # Truncate if the abstract is too long
     if (abstract.length > ABSTRACT_TRUNCATE_LENGTH)
-      abstract.slice!(ABSTRACT_TRUNCATE_LENGTH-3)
+      abstract.slice!(ABSTRACT_TRUNCATE_LENGTH-3, abstract.length)
 
       # Remove trailing partial word and replace with an ellipsis
-      abstract.sub!(/[^\w\s]?\s*\w*$/, '...')
+      abstract.sub!(/[^\w\s]?\s*\w*\Z/, '...')
     end
 
     return abstract
   end
 
-
-  def self.strip_pronunciation(string)
-    result = string.dup
-    regexes = [
-      %r/\(.*?pronunciation:.*?\) /,
-      %r[\(IPA: ["\[/].*?["\]/]\) ],
-      %r[\(pronounced ["\[/].*?["\]/]\) ],
-      # for when pronounciation is mixed in with birthdate, e.g. (pronounced /bəˈɹɛlɪs/; born December 7, 1979)
-      %r[pronounced ["\[/].*?["\]/]\; ],
-    ]
-    regexes.each do |regex|
-      if result =~ regex
-        result.sub!(regex, '')
-        break
-      end
-    end
-    return result
-  end
 end

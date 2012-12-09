@@ -73,7 +73,7 @@ links.each do |link|
       rdf_url = "http://dbpedialite.org/things/#{info['pageid']}.rdf"
       rdf_urls << rdf_url
     end
-  rescue WikipediaApi::PageNotFound
+  rescue MediaWikiApi::NotFound
   end
 end
 

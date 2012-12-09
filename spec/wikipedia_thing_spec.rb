@@ -26,6 +26,7 @@ describe WikipediaThing do
       @thing = WikipediaThing.new(
         :pageid => '934787',
         :title => 'Ceres, Fife',
+        :displaytitle => 'Ceres, Fife',
         :latitude => 56.293431,
         :longitude => -2.970134,
         :updated_at => DateTime.parse('2010-05-08T17:20:04Z'),
@@ -51,6 +52,10 @@ describe WikipediaThing do
 
     it "should have the correct title" do
       @thing.title.should == 'Ceres, Fife'
+    end
+
+    it "should have the correct display title" do
+      @thing.displaytitle.should == 'Ceres, Fife'
     end
 
     it "should have the correct abstract" do
@@ -93,6 +98,7 @@ describe WikipediaThing do
     before :each do
       wikipedia_data = {
         'title' => 'Ceres, Fife',
+        'displaytitle' => 'Ceres, Fife',
         'longitude' => -2.970134,
         'latitude' => 56.293431,
         'abstract' => 'Ceres is a village in Fife, Scotland',
@@ -131,10 +137,6 @@ describe WikipediaThing do
       @thing.longitude.should == -2.970134
     end
 
-    it "should escape titles correctly" do
-      @thing.escaped_title.should == 'Ceres,_Fife'
-    end
-
     it "should encode the Wikipedia page URL correctly" do
       @thing.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres,_Fife')
     end
@@ -158,6 +160,14 @@ describe WikipediaThing do
         FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(freebase_data)
       end
 
+      it "should have a machine id property" do
+        @thing.freebase_mid.should == '/m/03rf2x'
+      end
+
+      it "should have a GUID property" do
+        @thing.freebase_guid.should == '#9202a8c04000641f80000000003bb45c'
+      end
+
       it "should have a freebase URI based on the machine id" do
         @thing.freebase_mid_uri.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
       end
@@ -179,13 +189,13 @@ describe WikipediaThing do
       end
     end
 
-    context "when FreebaseApi raises any error other than timeout" do
+    context "when FreebaseApi raises an a NotFound exception" do
       it "should send a message to stderr" do
-        FreebaseApi.expects(:lookup_wikipedia_pageid).raises()
+        FreebaseApi.expects(:lookup_wikipedia_pageid).raises(FreebaseApi::NotFound)
         previous_stderr, $stderr = $stderr, StringIO.new
 
         @thing.freebase_mid_uri
-        $stderr.string.should == "Error while reading from Freebase: RuntimeError\n"
+        $stderr.string.should == "Error while reading from Freebase: FreebaseApi::NotFound\n"
 
         $stderr = previous_stderr
       end
@@ -203,7 +213,7 @@ describe WikipediaThing do
   context "loading a non-existant page from wikipedia" do
     before :each do
       WikipediaApi.expects(:parse).once.raises(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'There is no page with ID 999999'
       )
       FreebaseApi.expects(:lookup_wikipedia_pageid).never
@@ -211,7 +221,7 @@ describe WikipediaThing do
 
     it "should return raise a PageNotFound exception" do
       lambda {WikipediaThing.load(999999)}.should raise_error(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'There is no page with ID 999999'
       )
     end
@@ -228,6 +238,7 @@ describe WikipediaThing do
       WikipediaApi.expects(:parse).never
       @thing = WikipediaThing.new(52780,
         :title => 'U2',
+        :displaytitle => 'U2',
         :abstract => "U2 are an Irish rock band.",
         :updated_at => DateTime.parse('2010-05-08T17:20:04Z')
       )

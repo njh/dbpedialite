@@ -4,6 +4,7 @@ require 'uri'
 class BaseModel < Doodle
   has :pageid
   has :title, :default => nil
+  has :displaytitle, :default => nil
 
   class << self
     has :identifier_path, :default => 'base'
@@ -50,17 +51,15 @@ class BaseModel < Doodle
     "/#{self.class.identifier_path}/#{pageid}#{format ? '.' + format.to_s : ''}" 
   end
 
-  def escaped_title
+  def wikipedia_uri
     unless title.nil?
-      WikipediaApi.escape_title(title)
+      @wikipedia_uri ||= RDF::URI.parse("http://en.wikipedia.org/wiki/#{WikipediaApi.escape_title(title)}")
     end
   end
 
-  def wikipedia_uri
-    @wikipedia_uri ||= RDF::URI.parse("http://en.wikipedia.org/wiki/#{escaped_title}")
-  end
-
   def dbpedia_uri
-    @dbpedia_uri ||= RDF::URI.parse("http://dbpedia.org/resource/#{escaped_title}")
+    unless title.nil?
+      @dbpedia_uri ||= RDF::URI.parse("http://dbpedia.org/resource/#{WikipediaApi.title_to_dbpedia_key(title)}")
+    end
   end
 end

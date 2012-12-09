@@ -13,13 +13,13 @@ class WikipediaCategory < BaseModel
 
     # Is it actually a category?
     unless data['ns'] == 14
-      raise WikipediaApi::PageNotFound.new("Page #{pageid} is not a category")
+      raise MediaWikiApi::NotFound.new("Page #{pageid} is not a category")
     end
 
     # Update object properties with the data that was loaded
     update(data)
 
-    data = WikipediaApi.category_members(title)
+    data = WikipediaApi.category_members(pageid)
     data.each do |member|
       case member['ns']
         when 0
@@ -33,7 +33,7 @@ class WikipediaCategory < BaseModel
   end
 
   def label
-    @label ||= title.sub(/^Category:/,'')
+    @label ||= displaytitle.sub(/^Category:/,'')
   end
 
   def to_rdf
@@ -44,14 +44,19 @@ class WikipediaCategory < BaseModel
       graph << [doc_uri, RDF::FOAF.primaryTopic, self.uri]
 
       # Triples about the Concept
-      graph << [self.uri, RDF.type, RDF::SKOS.Concept]
+      graph << [self.uri, RDF.type, RDF::OWL.Class]
       graph << [self.uri, RDF::RDFS.label, label]
-      graph << [self.uri, RDF::SKOS.prefLabel, label]
       graph << [self.uri, RDF::FOAF.isPrimaryTopicOf, wikipedia_uri]
       graph << [self.uri, RDF::OWL.sameAs, dbpedia_uri]
+
       things.each do |thing|
-        graph << [thing.uri, RDF::SKOS.subject, self.uri]
-        graph << [thing.uri, RDF::RDFS.label, thing.title]
+        graph << [thing.uri, RDF.type, self.uri]
+        graph << [thing.uri, RDF::RDFS.label, thing.label]
+      end
+
+      subcategories.each do |subcat|
+        graph << [subcat.uri, RDF::RDFS.subClassOf, self.uri]
+        graph << [subcat.uri, RDF::RDFS.label, subcat.label]
       end
     end
   end

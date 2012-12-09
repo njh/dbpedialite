@@ -13,14 +13,14 @@
   <%= @readme.to_html %>
 
   <h2>Search</h2>
-  <form action="/search" method="get"><div>
+  <form action="/search" method="get"><p>
     <input id="search" name="term" type="text" size="15" />
     <input type="submit" value="Search" />
-  </div></form>
+  </p></form>
 
   <h2>Bookmarklet</h2>
   <p>
-    Drag this <a href="javascript:location.href='<%= url_for('/flipr', :full) %>?url='+encodeURIComponent(location.href)">dbpedialite flipr</a>
+    Drag this <a style="cursor: move" href="javascript:location.href='<%= url_for('/flipr', :full) %>?url='+encodeURIComponent(location.href)">dbpedialite flipr</a>
     link to your bookmarks bar in your browser. Now, when you're on Wikipedia page click on the bookmarklet to switch to the coresponding dbpedia lite page.
     When you're on a dbpedia lite page, click on the bookmarklet to take you back to the respective Wikipedia page.
   </p>
@@ -34,6 +34,7 @@
     <li><a href="/titles/Ermine">Ermine</a></li>
     <li><a href="/titles/Ceres,_Fife">Ceres, Fife</a></li>
     <li><a href="/titles/Berlin">Berlin</a></li>
+    <li><a href="/things/Q9531">British Broadcasting Corporation</a></li>
   </ul>
 
   <h2>Example Categories</h2>
@@ -41,4 +42,15 @@
     <li><a href="/titles/Category:Towns_in_Fife">Towns in Fife</a></li>
     <li><a href="/titles/Category:James_Bond_films">James Bond films</a></li>
   </ul>
+  
+  <h2>Data Dumps</h2>
+  <p>
+    Although there is currently no data dump of the whole of dbpedia lite available, there
+    is an <a href="http://www.w3.org/TR/owl-ref/#sameAs-def">owl:sameAs</a> mapping to dbpedia URIs
+    available at <a href="http://downloads.dbpedialite.org">downloads.dbpedialite.org</a>.
+    This dump was created from an <a href="http://meta.wikimedia.org/wiki/Data_dumps">Wikipedia XML article stubs</a>
+    export. The mapping has been loaded into <a href="http://sameas.org/">sameas.org</a>.
+    See <a href="http://sameas.org/html?uri=http%3A%2F%2Fdbpedialite.org%2Fthings%2F30034%23id">Tim Berners-Lee</a>
+    as an example.
+  </p>
 </div>

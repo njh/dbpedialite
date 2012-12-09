@@ -26,7 +26,8 @@ describe WikipediaCategory do
       @category = WikipediaCategory.new(
         'pageid' => 4309010,
         'ns' => 14,
-        'title' => 'Category:Villages in Fife'
+        'title' => 'Category:Villages in Fife',
+        'displaytitle' => 'Category:Villages in Fife'
       )
     end
 
@@ -42,6 +43,10 @@ describe WikipediaCategory do
       @category.title.should == 'Category:Villages in Fife'
     end
 
+    it "should have the correct diaplay title" do
+      @category.title.should == 'Category:Villages in Fife'
+    end
+
     it "should have the correct label" do
       @category.label.should == 'Villages in Fife'
     end
@@ -53,19 +58,19 @@ describe WikipediaCategory do
         'pageid' => 4309010,
         'ns' => 14,
         'title' => 'Category:Villages in Fife',
+        'displaytitle' => 'Category:Villages in Fife',
         'touched' => '2010-11-04T04:11:11Z',
         'lastrevid' => 325602311,
         'counter' => 0,
         'length' => 259
       }
       category_members = [
-        {'pageid' => 2712,'ns' => 0, 'title' => 'Aberdour'},
-        {'pageid' => 934787, 'ns' => 0, 'title' => 'Ceres, Fife'},
-        {'pageid' => 986129, 'ns' => 10, 'title' => 'Template:Village pump pages'},
-        {'pageid' => 986129, 'ns' => 14, 'title' => 'Category:Villages with greens'}
+        {'pageid' => 2712,'ns' => 0, 'title' => 'Aberdour', 'displaytitle' => 'Aberdour'},
+        {'pageid' => 934787, 'ns' => 0, 'title' => 'Ceres, Fife', 'displaytitle' => 'Ceres, Fife'},
+        {'pageid' => 986129, 'ns' => 14, 'title' => 'Category:Villages with greens', 'displaytitle' => 'Category:Villages with greens'}
       ]
       WikipediaApi.expects(:page_info).with(:pageids => 4309010).once.returns(page_info)
-      WikipediaApi.expects(:category_members).with('Category:Villages in Fife').once.returns(category_members)
+      WikipediaApi.expects(:category_members).with(4309010).once.returns(category_members)
       @category = WikipediaCategory.load(4309010)
     end
 
@@ -116,6 +121,7 @@ describe WikipediaCategory do
         'pageid' => 52780,
         'ns' => 0,
         'title' => 'U2',
+        'displaytitle' => 'U2',
         'touched' => '2010-05-12T22:44:49Z',
         'lastrevid' => 361771300,
         'counter' => 787,
@@ -126,7 +132,7 @@ describe WikipediaCategory do
 
     it "should return raise a PageNotFound exception" do
       lambda {WikipediaCategory.load(52780)}.should raise_error(
-        WikipediaApi::PageNotFound,
+        MediaWikiApi::NotFound,
         'Page 52780 is not a category'
       )
     end
@@ -136,10 +142,17 @@ describe WikipediaCategory do
     before :each do
       @category = WikipediaCategory.new(4309010,
         :title => 'Category:Villages in Fife',
-        :abstract => "U2 are an Irish rock band.",
+        :displaytitle => 'Category:Villages in Fife',
+        :abstract => "Villages located in Fife, Scotland.",
         :things => [
           WikipediaThing.new(1137426, :title => "Anstruther"),
           WikipediaThing.new(52780, :title => "Ceres, Fife")
+        ],
+        :subcategories => [
+          WikipediaCategory.new(1234567,
+            :title => 'Category:Hamlets in Fife',
+            :displaytitle => 'Category:Hamlets in Fife'
+          )
         ]
       )
       @graph = @category.to_rdf
@@ -149,15 +162,15 @@ describe WikipediaCategory do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 12 triples" do
-      @graph.count.should == 12
+    it "should return a graph with 13 triples" do
+      @graph.count.should == 13
     end
 
     it "should include an rdf:type triple for the category" do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/categories/4309010#id"),
         RDF.type,
-        RDF::SKOS.Concept
+        RDF::OWL.Class
       ])
     end
 
@@ -193,10 +206,18 @@ describe WikipediaCategory do
       ])
     end
 
-    it "should have a SKOS:subject triple relating Ceres to Villages in Fife" do
+    it "should have a RDF:type triple relating Ceres to Villages in Fife" do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/things/52780#id"),
-        RDF::SKOS.subject,
+        RDF.type,
+        RDF::URI("http://dbpedialite.org/categories/4309010#id")
+      ])
+    end
+
+    it "should have a RDFS:subClassOf triple subclassing Hamlets from Villages" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/categories/1234567#id"),
+        RDF::RDFS.subClassOf,
         RDF::URI("http://dbpedialite.org/categories/4309010#id")
       ])
     end

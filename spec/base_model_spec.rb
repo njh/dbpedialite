@@ -47,16 +47,34 @@ describe BaseModel do
       @obj.title.should == 'Ceres, Fife'
     end
 
-    it "should escape characters in the title" do
-      @obj.escaped_title.should == 'Ceres,_Fife'
-    end
-
     it "should respond to 'wikipedia_uri' with the Wikipedia URI" do
       @obj.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Ceres,_Fife')
     end
 
     it "should respond to 'dbpedia_uri' with the dbpedia URI" do
       @obj.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Ceres,_Fife')
+    end
+  end
+
+  context "creating an object with brackets in the title" do
+    before :each do
+      @obj = BaseModel.new(:pageid => '192584', :ns => 0, :title => 'Keith Allen (actor)')
+    end
+
+    it "should respond to 'pageid' with its pageid" do
+      @obj.pageid.should == '192584'
+    end
+
+    it "should respond to 'title' with its title" do
+      @obj.title.should == 'Keith Allen (actor)'
+    end
+
+    it "should respond to 'wikipedia_uri' with the Wikipedia URI" do
+      @obj.wikipedia_uri.should == RDF::URI('http://en.wikipedia.org/wiki/Keith_Allen_(actor)')
+    end
+
+    it "should respond to 'dbpedia_uri' with the dbpedia URI" do
+      @obj.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Keith_Allen_%28actor%29')
     end
   end
 

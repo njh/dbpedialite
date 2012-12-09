@@ -2,12 +2,16 @@
 
 require 'wikipedia_thing'
 require 'wikipedia_category'
+require 'wikidata_api'
+require 'formats'
 
 
 class DbpediaLite < Sinatra::Base
-  set :public_folder, File.join(File.dirname(__FILE__), 'public')
+  set :public_folder, File.join(root, 'public')
 
   DEFAULT_HOST = 'dbpedialite.org'
+  APP_LAST_UPDATED = File.mtime(root).gmtime
+  GIT_LAST_COMMIT = ENV['COMMIT_HASH'] || `git rev-parse HEAD`
 
   def self.extract_vocabularies(graph)
     vocabs = {}
@@ -47,7 +51,7 @@ class DbpediaLite < Sinatra::Base
         graph.dump(:ntriples)
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
-        graph.dump(:rdfxml, :standard_prefixes => true)
+        graph.dump(:rdfxml, :standard_prefixes => true, :stylesheet => '/rdfxml.xsl')
       when 'trix', 'application/trix' then
         content_type 'application/trix'
         graph.dump(:trix)
@@ -69,11 +73,23 @@ class DbpediaLite < Sinatra::Base
         else
           error 500, "Unsupported Wikipedia namespace: #{data['ns']}"
       end
-    rescue WikipediaApi::PageNotFound
+    rescue MediaWikiApi::NotFound
       not_found "Wikipedia page title not found."
-    rescue WikipediaApi::Exception => e
+    rescue MediaWikiApi::Exception => e
       error 500, "Wikipedia API excpetion: #{e}"
     end
+  end
+
+  def redirect_from_wikidata(id)
+    begin
+      sitelink = WikidataApi.get_sitelink(id)
+      redirect_from_title sitelink['title']
+    rescue MediaWiki::NotFound => e
+      not_found e.to_s
+    rescue MediaWiki::Exception => e
+      error 500, "Wikidata API excpetion: #{e}"
+    end
+    redirect_from_title(title)
   end
 
   helpers do
@@ -173,12 +189,20 @@ class DbpediaLite < Sinatra::Base
     redirect_from_title(title)
   end
 
+  get %r{^/wikidata/[qQ](\d+)$} do |id|
+    redirect_from_wikidata(id)
+  end
+
+  get %r{^/things/[Qq](\d+)$} do |id|
+    redirect_from_wikidata(id)
+  end
+
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     begin
       @thing = WikipediaThing.load(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/things/#{redirect.pageid}", 301)
-    rescue WikipediaApi::PageNotFound
+    rescue MediaWikiApi::NotFound
       not_found("Thing not found.")
     end
 
@@ -194,7 +218,7 @@ class DbpediaLite < Sinatra::Base
       @category = WikipediaCategory.load(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/categories/#{redirect.pageid}", 301)
-    rescue WikipediaApi::PageNotFound
+    rescue MediaWikiApi::NotFound
       not_found("Category not found.")
     end
 
@@ -215,17 +239,26 @@ class DbpediaLite < Sinatra::Base
     headers 'Cache-Control' => 'public,max-age=3600'
     redirect "/", 301 if params[:url].nil? or params[:url].empty?
 
-    if params[:url] =~ %r{^http://(\w+)\.wikipedia.org/wiki/(.+)$}
+    if params[:url] =~ %r{^http://(\w+)\.wikipedia.org/wiki/(.+)(\#\w*)?$}
       redirect_from_title($2)
     elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
       redirect_from_title($2)
-    elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)$}
+    elsif params[:url] =~ %r{^http://(www\.)?wikidata.org/wiki/Q(\d+)$}
+      redirect_from_wikidata($2)
+    elsif params[:url] =~ %r{^http://www.freebase.com/(view|inspect|edit/topic)(/.+)$}
+      begin
+        data = FreebaseApi.lookup_by_id($2)
+        redirect "/things/#{data['key']['value']}", 301
+      rescue FreebaseApi::NotFound
+        not_found("No Wikipedia page id found for Freebase topic")
+      end
+    elsif params[:url] =~ %r{^http://([\w\.\-\:]+)/(things|categories)/(\d+)(\#\w*)?$}
       begin
         data = WikipediaApi.page_info(:pageids => $3)
         escaped = WikipediaApi.escape_title(data['title'])
         redirect "http://en.wikipedia.org/wiki/#{escaped}", 301
-      rescue WikipediaApi::PageNotFound
-        not_found
+      rescue MediaWikiApi::NotFound
+        not_found("Wikipedia page id not found")
       end
     else
       erb :flipfail

@@ -174,7 +174,7 @@ describe 'dbpedia lite' do
   context "GETing a title URL for a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Category:Villages_in_Fife',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=Category:Villages_in_Fife',
         :body => fixture_data('pageinfo-villagesinfife.json'),
         :content_type => 'application/json'
       )
@@ -231,13 +231,13 @@ describe 'dbpedia lite' do
   context "GETing a geographic thing" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-934787.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, %r[http://www.freebase.com/api/service/mqlread],
-        :body => fixture_data('freebase-mqlread-ceres.json'),
+        :get, %r[http://api.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-934787.json'),
         :content_type => 'application/json'
       )
     end
@@ -316,7 +316,7 @@ describe 'dbpedia lite' do
         rdfa_graph.should have_triple([
                                        RDF::URI("http://dbpedialite.org/things/934787"),
                                        RDF::URI("http://purl.org/dc/terms/modified"),
-                                       RDF::Literal('2011-11-21T01:21:56Z')
+                                       RDF::Literal('2012-05-05T04:35:21Z')
                                       ])
       end
 
@@ -339,8 +339,8 @@ describe 'dbpedia lite' do
           :content_type => 'application/json'
         )
         FakeWeb.register_uri(
-          :get, %r[http://www.freebase.com/api/service/mqlread],
-          :body => fixture_data('freebase-mqlread-ceres.json'),
+          :get, %r[http://api.freebase.com/api/service/mqlread],
+          :body => fixture_data('freebase-mqlread-934787.json'),
           :content_type => 'application/json'
         )
         header "Accept", "text/plain"
@@ -428,6 +428,16 @@ describe 'dbpedia lite' do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
 
+      it "should have a XML declaration in the first line of the response" do
+        lines = last_response.body.split(/[\r\n]+/)
+        lines.first.should == '<?xml version="1.0" encoding="UTF-8"?>'
+      end
+
+      it "should have a stylesheet processing instruction in the second line of the response" do
+        lines = last_response.body.split(/[\r\n]+/)
+        lines[1].should == '<?xml-stylesheet type="text/xsl" href="/rdfxml.xsl"?>'
+      end
+
       it "should contain the URI of the document we requested" do
         last_response.body.should =~ %r[<foaf:Document rdf:about="http://example.org/things/934787">]
       end
@@ -485,15 +495,44 @@ describe 'dbpedia lite' do
     end
   end
 
+  context "GETing a thing with an alternate display title" do
+    before :each do
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=21492980&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-21492980.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get, %r[http://api.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-21492980.json'),
+        :content_type => 'application/json'
+      )
+    end
+
+    context "as an HTML document" do
+      before :each do
+        get '/things/21492980'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should have the alternate title in the <title> element" do
+        last_response.body.should =~ %r|<title>dbpedia lite - iMac</title>|
+      end
+    end
+  end
+
   context "GETing an HTML thing page that redirects" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-440555.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
         :body => fixture_data('pageinfo-bse.json'),
         :content_type => 'application/json'
       )
@@ -512,7 +551,7 @@ describe 'dbpedia lite' do
   context "GETing an HTML thing page for a thing that doesn't exist" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text',
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-504825766.json'),
         :content_type => 'application/json'
       )
@@ -528,34 +567,51 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing the gems information page" do
+  context "GETing an HTML thing for something that doesn't exist in Freebase" do
     before :each do
-      get '/gems'
+      FakeWeb.register_uri(
+        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=2008435&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-2008435.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get, %r[http://api.freebase.com/api/service/mqlread],
+        :body => fixture_data('freebase-mqlread-notfound.json'),
+        :content_type => 'application/json'
+      )
+      @stderr_buffer = StringIO.new
+      previous_stderr, $stderr = $stderr, @stderr_buffer
+      get '/things/2008435'
+      $stderr = previous_stderr
     end
 
     it "should be successful" do
       last_response.should be_ok
     end
 
-    it "should be of type text/html" do
-      last_response.content_type.should == 'text/html;charset=utf-8'
+    it "should have the correct title in the <title> element" do
+      last_response.body.should =~ %r|<title>dbpedia lite - IMAC</title>|
     end
 
-    it "should include a summary for the Sinatra gem" do
-      last_response.body.should =~ /Classy web-development dressed in a DSL/
+    it "should not contain a link to FreeBase" do
+      last_response.body.should_not =~ %r|rdf\.freebase\.com|
+    end
+
+    it "should write an error message to stderr" do
+      @stderr_buffer.string.should == "Error while reading from Freebase: Freebase query failed return no results\n"
     end
   end
 
   context "GETing a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&pageids=4309010&prop=info&redirects=1',
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=4309010&prop=info&redirects=1',
         :body => fixture_data('pageinfo-4309010.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&cmlimit=500&cmprop=ids%7Ctitle&cmsort=sortkey&cmtitle=Category:Villages%20in%20Fife&format=json&list=categorymembers',
-        :body => fixture_data('categorymembers-villages.json'),
+        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&gcmlimit=500&gcmnamespace=0%7C14&gcmpageid=4309010&generator=categorymembers&inprop=displaytitle&prop=info',
+        :body => fixture_data('categorymembers-4309010.json'),
         :content_type => 'application/json'
       )
     end
@@ -576,7 +632,50 @@ describe 'dbpedia lite' do
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
+    end
 
+    context "as a N-Triples document" do
+      before :each do
+        get '/categories/4309010.nt'
+      end
+
+      it "should be successful" do
+        last_response.should be_ok
+      end
+
+      it "should be of type text/html" do
+        last_response.content_type.should == 'text/plain;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should have a triple for the name of the category" do
+        last_response.body.should =~ %r|<http://dbpedialite.org/categories/4309010#id> <http://www.w3.org/2000/01/rdf-schema#label> "Villages in Fife" \.|
+      end
+
+      it "should have a triple for Ceres being in the category" do
+        last_response.body.should =~ %r|<http://dbpedialite.org/things/934787#id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedialite.org/categories/4309010#id> \.|
+      end
+    end
+  end
+
+  context "GETing the gems information page" do
+    before :each do
+      get '/gems'
+    end
+
+    it "should be successful" do
+      last_response.should be_ok
+    end
+
+    it "should be of type text/html" do
+      last_response.content_type.should == 'text/html;charset=utf-8'
+    end
+
+    it "should include a summary for the Sinatra gem" do
+      last_response.body.should =~ /Classy web-development dressed in a DSL/
     end
   end
 
@@ -652,6 +751,26 @@ describe 'dbpedia lite' do
       end
     end
 
+    context "flipping from a dbpedia lite thing page with a fragment identifier" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://en.wikipedia.org/w/api.php],
+          :body => fixture_data('pageinfo-rat.json'),
+          :content_type => 'application/json'
+        )
+        get '/flipr?url=http%3A%2F%2Fdbpedialite.org%2Fthings%2F26471%23id'
+      end
+
+      it "should redirect to the coresponding wikipedia page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://en.wikipedia.org/wiki/Rat'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
     context "flipping from a dbpedia lite category page" do
       before :each do
         FakeWeb.register_uri(
@@ -692,12 +811,33 @@ describe 'dbpedia lite' do
       end
     end
 
+    context "flipping from a Freebase page" do
+      before :each do
+        FakeWeb.register_uri(
+          :get, %r[http://api.freebase.com/api/service/mqlread],
+          :body => fixture_data('freebase-mqlread-en-new-york.json'),
+          :content_type => 'application/json'
+        )
+        get '/flipr?url=http%3A%2F%2Fwww.freebase.com%2Fview%2Fen%2Fnew_york'
+      end
+
+      it "should redirect to the coresponding Dbpedia lite thing page" do
+        last_response.status.should == 301
+        last_response.location.should == 'http://example.org/things/645042'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+    end
+
     context "flipping from an unknown page" do
       before :each do
         get '/flipr?url=http%3A%2F%2Fwww.bbc.co.uk%2F'
       end
 
       it "should display an error message" do
+        last_response.status.should == 200
         last_response.body.should =~ %r{Sorry but I don't know how to flip from: http://www.bbc.co.uk/}
       end
     end

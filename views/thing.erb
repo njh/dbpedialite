@@ -1,7 +1,7 @@
-<% @title = @thing.title %>
+<% @title = @thing.displaytitle %>
 
 <div id="header">
-  <h1>About: <%= link_to(@thing.title, @thing.uri) %></h1>
+  <h1>About: <%= link_to(@thing.displaytitle, @thing.uri) %></h1>
   <p><%= link_to(@thing.uri) %></p>
 </div>
 

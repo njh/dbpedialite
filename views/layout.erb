@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
         "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"<%= format_xmlns(@vocabularies) %>>
+<html xmlns="http://www.w3.org/1999/xhtml" version="XHTML+RDFa 1.0"<%= format_xmlns(@vocabularies) %>>
 <head>
   <title>dbpedia lite<%= " - #{h(@title)}" unless @title.nil? %></title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <link type="text/css" rel="stylesheet" href="/css/stylesheet.css" />
+  <link type="text/css" rel="stylesheet" href="/css/cssreset-min.css" />
+  <link type="text/css" rel="stylesheet" href="/css/dbpedialite.css" />
   <% yield_content :head %>
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -43,6 +44,9 @@
   </div>
   <div class="links">
     Source code: <%= link_to('http://github.com/njh/dbpedialite') %>
+  </div>
+  <div class="links">
+    Code last updated: <%= link_to(APP_LAST_UPDATED, 'http://github.com/njh/dbpedialite/tree/' + GIT_LAST_COMMIT) %>
   </div>
 </div>
 
