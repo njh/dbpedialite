@@ -2,8 +2,7 @@
 #
 # This script fetches the Wikipedia english front page
 # scans it for links to articles, looks each of them up,
-# and submits the dbpedialite.org URI for them to Sindice
-# and Ping The Semantic Web.
+# and submits the dbpedialite.org URI for them to Sindice.
 #
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
@@ -60,24 +59,6 @@ def ping_sindice(data)
   end
 end
 
-def ping_the_semantic_web(ping_url)
-  uri = URI.parse("http://pingthesemanticweb.com/rest/?url=#{URI.escape(ping_url)}")
-  begin
-    res = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.read_timeout = HTTP_TIMEOUT
-      http.open_timeout = HTTP_TIMEOUT
-      http.get(uri.request_uri)
-    end
-    if res.code == '200' and res.body =~ /Thanks for pinging/
-      puts "  => Ping OK"
-    else
-      raise res.body 
-    end 
-  rescue Exception => e
-    $stderr.puts "Failed to ping the semantic web: #{e}"
-  end
-end
-
 
 
 rdf_urls = []
@@ -90,7 +71,6 @@ links.each do |link|
     #lastmod = Time.parse(info['touched'])
     if info['ns'] == 0
       rdf_url = "http://dbpedialite.org/things/#{info['pageid']}.rdf"
-      ping_the_semantic_web(rdf_url)
       rdf_urls << rdf_url
     end
   rescue MediaWikiApi::NotFound
