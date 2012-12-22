@@ -14,14 +14,15 @@ class WikidataApi < MediaWikiApi
       :languages => 'en'
     })
 
+    key = id.downcase
     if data['entities'].nil?
-      raise MediaWiki::Exception.new('Empty response')
-    elsif data['entities'][id].nil?
-      raise MediaWiki::NotFound.new('Wikidata identifier does not exist')
-    elsif data['entities'][id]['sitelinks'][site].nil?
-      raise MediaWiki::NotFound.new('Sitelink does not exist for Wikidata identifier')
+      raise MediaWikiApi::Exception.new('Empty response')
+    elsif data['entities'][key].nil?
+      raise MediaWikiApi::NotFound.new('Wikidata identifier does not exist')
+    elsif data['entities'][key]['sitelinks'][site].nil?
+      raise MediaWikiApi::NotFound.new('Sitelink does not exist for Wikidata identifier')
     else
-      return data['entities'][id]['sitelinks'][site]
+      return data['entities'][key]['sitelinks'][site]
     end
   end
 
