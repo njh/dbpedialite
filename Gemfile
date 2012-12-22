@@ -2,7 +2,7 @@ source "http://rubygems.org"
 #ruby "1.8.7"
 
 gem 'sinatra'
-gem 'sinatra-content-for', :require => 'sinatra/content_for'
+gem 'sinatra-contrib', :require => 'sinatra/content_for'
 gem 'emk-sinatra-url-for', :require => 'sinatra/url_for'
 
 gem 'json_pure', :require => 'json'
