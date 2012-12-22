@@ -84,9 +84,9 @@ class DbpediaLite < Sinatra::Base
     begin
       sitelink = WikidataApi.get_sitelink(id)
       redirect_from_title sitelink['title']
-    rescue MediaWiki::NotFound => e
+    rescue MediaWikiApi::NotFound => e
       not_found e.to_s
-    rescue MediaWiki::Exception => e
+    rescue MediaWikiApi::Exception => e
       error 500, "Wikidata API excpetion: #{e}"
     end
     redirect_from_title(title)
@@ -189,11 +189,11 @@ class DbpediaLite < Sinatra::Base
     redirect_from_title(title)
   end
 
-  get %r{^/wikidata/[qQ](\d+)$} do |id|
+  get %r{^/wikidata/([qQ]\d+)$} do |id|
     redirect_from_wikidata(id)
   end
 
-  get %r{^/things/[Qq](\d+)$} do |id|
+  get %r{^/things/([Qq]\d+)$} do |id|
     redirect_from_wikidata(id)
   end
 
@@ -243,7 +243,7 @@ class DbpediaLite < Sinatra::Base
       redirect_from_title($2)
     elsif params[:url] =~ %r{^http://dbpedia.org/(page|resource|data)/(.+)$}
       redirect_from_title($2)
-    elsif params[:url] =~ %r{^http://(www\.)?wikidata.org/wiki/Q(\d+)$}
+    elsif params[:url] =~ %r{^http://(www\.)?wikidata.org/wiki/(Q\d+)$}
       redirect_from_wikidata($2)
     elsif params[:url] =~ %r{^http://www.freebase.com/(view|inspect|edit/topic)(/.+)$}
       begin
