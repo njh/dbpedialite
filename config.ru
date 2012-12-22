@@ -1,4 +1,5 @@
-$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'lib')))
+ROOT_DIR = File.expand_path(File.dirname(__FILE__))
+$:.unshift(ROOT_DIR, File.join(ROOT_DIR, 'lib'))
 
 require 'rubygems'
 require 'bundler'
