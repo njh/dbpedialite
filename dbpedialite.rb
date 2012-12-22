@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-require 'wikipedia_thing'
-require 'wikipedia_category'
+require 'thing'
+require 'category'
 require 'wikidata_api'
 require 'formats'
 
@@ -199,7 +199,7 @@ class DbpediaLite < Sinatra::Base
 
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     begin
-      @thing = WikipediaThing.load(pageid)
+      @thing = Thing.load(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/things/#{redirect.pageid}", 301)
     rescue MediaWikiApi::NotFound
@@ -215,7 +215,7 @@ class DbpediaLite < Sinatra::Base
 
   get %r{^/categories/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
     begin
-      @category = WikipediaCategory.load(pageid)
+      @category = Category.load(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/categories/#{redirect.pageid}", 301)
     rescue MediaWikiApi::NotFound

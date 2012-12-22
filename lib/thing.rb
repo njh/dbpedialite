@@ -3,7 +3,7 @@ require 'freebase_api'
 require 'base_model'
 
 
-class WikipediaThing < BaseModel
+class Thing < BaseModel
   identifier_path "things"
 
   has :abstract, :kind => String, :default => nil

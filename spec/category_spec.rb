@@ -1,15 +1,15 @@
 require 'spec_helper'
-require 'wikipedia_category'
+require 'category'
 
-describe WikipediaCategory do
+describe Category do
 
   context "creating a category from a page id" do
     before :each do
-      @category = WikipediaCategory.new(4309010)
+      @category = Category.new(4309010)
     end
 
-    it "should return an object of type WikipediaCategory" do
-      @category.class.should == WikipediaCategory
+    it "should return an object of type Category" do
+      @category.class.should == Category
     end
 
     it "should have the correct URI" do
@@ -23,7 +23,7 @@ describe WikipediaCategory do
 
   context "create a category from a hash" do
     before :each do
-      @category = WikipediaCategory.new(
+      @category = Category.new(
         'pageid' => 4309010,
         'ns' => 14,
         'title' => 'Category:Villages in Fife',
@@ -31,8 +31,8 @@ describe WikipediaCategory do
       )
     end
 
-    it "should return an object of type WikipediaCategory" do
-      @category.class.should == WikipediaCategory
+    it "should return an object of type Category" do
+      @category.class.should == Category
     end
 
     it "should have the correct URI" do
@@ -71,7 +71,7 @@ describe WikipediaCategory do
       ]
       WikipediaApi.expects(:page_info).with(:pageids => 4309010).once.returns(page_info)
       WikipediaApi.expects(:category_members).with(4309010).once.returns(category_members)
-      @category = WikipediaCategory.load(4309010)
+      @category = Category.load(4309010)
     end
 
     it "should have the correct page id" do
@@ -94,8 +94,8 @@ describe WikipediaCategory do
       @category.things.count.should == 2
     end
 
-    it "should have a first thing of class WikipediaThing" do
-      @category.things.first.class.should == WikipediaThing
+    it "should have a first thing of class Thing" do
+      @category.things.first.class.should == Thing
     end
 
     it "should have a first thing with title Aberdour" do
@@ -106,8 +106,8 @@ describe WikipediaCategory do
       @category.subcategories.count.should == 1
     end
 
-    it "should have a first subcategory of class WikipediaCategory" do
-      @category.subcategories.first.class.should == WikipediaCategory
+    it "should have a first subcategory of class Category" do
+      @category.subcategories.first.class.should == Category
     end
 
     it "should have a first subcategory with label Villages with greens" do
@@ -131,7 +131,7 @@ describe WikipediaCategory do
     end
 
     it "should return raise a PageNotFound exception" do
-      lambda {WikipediaCategory.load(52780)}.should raise_error(
+      lambda {Category.load(52780)}.should raise_error(
         MediaWikiApi::NotFound,
         'Page 52780 is not a category'
       )
@@ -140,16 +140,16 @@ describe WikipediaCategory do
 
   context "converting a category to RDF" do
     before :each do
-      @category = WikipediaCategory.new(4309010,
+      @category = Category.new(4309010,
         :title => 'Category:Villages in Fife',
         :displaytitle => 'Category:Villages in Fife',
         :abstract => "Villages located in Fife, Scotland.",
         :things => [
-          WikipediaThing.new(1137426, :title => "Anstruther"),
-          WikipediaThing.new(52780, :title => "Ceres, Fife")
+          Thing.new(1137426, :title => "Anstruther"),
+          Thing.new(52780, :title => "Ceres, Fife")
         ],
         :subcategories => [
-          WikipediaCategory.new(1234567,
+          Category.new(1234567,
             :title => 'Category:Hamlets in Fife',
             :displaytitle => 'Category:Hamlets in Fife'
           )

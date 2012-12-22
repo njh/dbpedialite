@@ -1,12 +1,12 @@
 require 'base_model'
 require 'wikipedia_api'
-require 'wikipedia_thing'
+require 'thing'
 
-class WikipediaCategory < BaseModel
+class Category < BaseModel
   identifier_path "categories"
 
-  has :things, :collect => WikipediaThing
-  has :subcategories, :collect => WikipediaCategory
+  has :things, :collect => Thing
+  has :subcategories, :collect => Category
 
   def load
     data = WikipediaApi.page_info(:pageids => pageid)
@@ -23,9 +23,9 @@ class WikipediaCategory < BaseModel
     data.each do |member|
       case member['ns']
         when 0
-          self.things << WikipediaThing.new(member)
+          self.things << Thing.new(member)
         when 14
-          self.subcategories << WikipediaCategory.new(member)
+          self.subcategories << Category.new(member)
       end
     end
 

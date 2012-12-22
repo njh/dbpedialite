@@ -1,15 +1,15 @@
 require 'spec_helper'
-require 'wikipedia_thing'
+require 'thing'
 
-describe WikipediaThing do
+describe Thing do
 
   context "creating an article from a page id" do
     before :each do
-      @thing = WikipediaThing.new(52780)
+      @thing = Thing.new(52780)
     end
 
-    it "should return an object of type WikipediaThing" do
-      @thing.class.should == WikipediaThing
+    it "should return an object of type Thing" do
+      @thing.class.should == Thing
     end
 
     it "should have the correct URI" do
@@ -23,7 +23,7 @@ describe WikipediaThing do
 
   context "creating an thing with data provided" do
     before :each do
-      @thing = WikipediaThing.new(
+      @thing = Thing.new(
         :pageid => '934787',
         :title => 'Ceres, Fife',
         :displaytitle => 'Ceres, Fife',
@@ -34,8 +34,8 @@ describe WikipediaThing do
       )
     end
 
-    it "should return an object of type WikipediaThing" do
-      @thing.class.should == WikipediaThing
+    it "should return an object of type Thing" do
+      @thing.class.should == Thing
     end
 
     it "should have a pageid method to get the page id from the uri" do
@@ -81,7 +81,7 @@ describe WikipediaThing do
 
   context "changing the URI of the document" do
     before :each do
-      @thing = WikipediaThing.new(1234)
+      @thing = Thing.new(1234)
     end
 
     it "should have the correct default URI for the document" do
@@ -106,11 +106,11 @@ describe WikipediaThing do
         'externallinks' => ['http://www.fife.50megs.com/ceres-history.htm']
       }
       WikipediaApi.expects(:parse).once.returns(wikipedia_data)
-      @thing = WikipediaThing.load(934787)
+      @thing = Thing.load(934787)
     end
 
-    it "should return a WikipediaThing" do
-      @thing.class.should == WikipediaThing
+    it "should return a Thing" do
+      @thing.class.should == Thing
     end
 
     it "should have the correct page id" do
@@ -220,7 +220,7 @@ describe WikipediaThing do
     end
 
     it "should return raise a PageNotFound exception" do
-      lambda {WikipediaThing.load(999999)}.should raise_error(
+      lambda {Thing.load(999999)}.should raise_error(
         MediaWikiApi::NotFound,
         'There is no page with ID 999999'
       )
@@ -236,7 +236,7 @@ describe WikipediaThing do
         'name' => 'U2',
       })
       WikipediaApi.expects(:parse).never
-      @thing = WikipediaThing.new(52780,
+      @thing = Thing.new(52780,
         :title => 'U2',
         :displaytitle => 'U2',
         :abstract => "U2 are an Irish rock band.",
