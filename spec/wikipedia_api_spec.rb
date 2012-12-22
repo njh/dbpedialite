@@ -538,7 +538,7 @@ describe WikipediaApi do
     end
 
     it "should raise an exception" do
-      expect { WikipediaApi.get('query') }.should raise_error(
+      expect { WikipediaApi.get('query') }.to raise_error(
         MediaWikiApi::Exception,
         'Response from MediaWiki API was not of type application/json.'
       )
