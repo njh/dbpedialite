@@ -1,4 +1,5 @@
 require 'wikipedia_api'
+require 'wikidata_api'
 require 'freebase_api'
 require 'base_model'
 
