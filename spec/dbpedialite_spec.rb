@@ -236,6 +236,11 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
+        :get, 'http://wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=Ceres,%20Fife',
+        :body => fixture_data('wbgetentities-ceres.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
         :get, %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-934787.json'),
         :content_type => 'application/json'
@@ -503,6 +508,11 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
+        :get, 'http://wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=IMac',
+        :body => fixture_data('wbgetentities-imac.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
         :get, %r[http://api.freebase.com/api/service/mqlread],
         :body => fixture_data('freebase-mqlread-21492980.json'),
         :content_type => 'application/json'
@@ -567,11 +577,16 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing an HTML thing for something that doesn't exist in Freebase" do
+  context "GETing an HTML thing for something that doesn't exist in Freebase or Wikidata" do
     before :each do
       FakeWeb.register_uri(
         :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=2008435&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-2008435.json'),
+        :content_type => 'application/json'
+      )
+      FakeWeb.register_uri(
+        :get, 'http://wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=IMAC',
+        :body => fixture_data('wbgetentities-notfound.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
@@ -598,7 +613,8 @@ describe 'dbpedia lite' do
     end
 
     it "should write an error message to stderr" do
-      @stderr_buffer.string.should == "Error while reading from Freebase: Freebase query failed return no results\n"
+      @stderr_buffer.string.should == "Error while reading from Freebase: Freebase query failed return no results\n"+
+                                      "Error while reading from Wikidata: Failed to lookup title in Wikidata\n"
     end
   end
 

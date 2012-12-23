@@ -235,11 +235,24 @@ describe Thing do
         'mid' => '/m/0dw4g',
         'name' => 'U2',
       })
+      WikidataApi.expects(:find_by_title).once.returns({
+        'id' => 'q396',
+        'title'=> 'Q396',
+        'pageid' => 602,
+        'labels' => {'en' => {'language' => 'en', 'value' => 'U2'}},
+        'descriptions' =>
+          {'en' =>
+            {'language' => 'en', 'value' => 'Irish rock band from Dublin formed in 1976'}},
+        'lastrevid' => 1416446,
+        'ns' => 0,
+        'type' => 'item',
+        'modified' => '2012-12-13T08:20:29Z',
+      })
       WikipediaApi.expects(:parse).never
       @thing = Thing.new(52780,
         :title => 'U2',
         :displaytitle => 'U2',
-        :abstract => "U2 are an Irish rock band.",
+        :abstract => 'U2 are an Irish rock band.',
         :updated_at => DateTime.parse('2010-05-08T17:20:04Z')
       )
       @graph = @thing.to_rdf
@@ -249,8 +262,8 @@ describe Thing do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 11 triples" do
-      @graph.count.should == 11
+    it "should return a graph with 15 triples" do
+      @graph.count.should == 15
     end
 
     it "should include an rdf:type triple for the thing" do
@@ -290,6 +303,14 @@ describe Thing do
         RDF::URI("http://dbpedialite.org/things/52780#id"),
         RDF::FOAF.isPrimaryTopicOf,
         RDF::URI("http://en.wikipedia.org/wiki/U2")
+      ])
+    end
+
+    it "should include a foaf:page triple for Wikidata page" do
+      @graph.should have_triple([
+        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::FOAF.page,
+        RDF::URI('http://wikidata.org/wiki/Q396')
       ])
     end
 
