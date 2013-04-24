@@ -3,7 +3,7 @@ require 'mediawiki_api'
 class WikidataApi < MediaWikiApi
 
   def self.api_uri
-    URI.parse('http://wikidata.org/w/api.php')
+    URI.parse('http://www.wikidata.org/w/api.php')
   end
 
   def self.get_sitelink(id, site='enwiki')
@@ -15,7 +15,7 @@ class WikidataApi < MediaWikiApi
     })
 
     key = id.downcase
-    if data['entities'].nil?
+    if data['entities'].nil?find_by_title
       raise MediaWikiApi::Exception.new('Empty response')
     elsif data['entities'][key].nil?
       raise MediaWikiApi::NotFound.new('Wikidata identifier does not exist')

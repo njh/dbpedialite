@@ -236,7 +236,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=Ceres,%20Fife',
+        :get, 'http://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=Ceres,%20Fife',
         :body => fixture_data('wbgetentities-ceres.json'),
         :content_type => 'application/json'
       )
@@ -508,7 +508,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=IMac',
+        :get, 'http://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=IMac',
         :body => fixture_data('wbgetentities-imac.json'),
         :content_type => 'application/json'
       )
@@ -585,7 +585,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=IMAC',
+        :get, 'http://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=IMAC',
         :body => fixture_data('wbgetentities-notfound.json'),
         :content_type => 'application/json'
       )

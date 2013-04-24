@@ -82,7 +82,7 @@ class Thing < BaseModel
 
   def wikidata_url
     if wikidata_id
-      @wikidata_url ||= RDF::URI.parse("http://wikidata.org/wiki/"+wikidata_id)
+      @wikidata_url ||= RDF::URI.parse("http://www.wikidata.org/wiki/"+wikidata_id)
     end
   end
 
