@@ -1,15 +1,12 @@
 {
-  "code":          "/api/status/ok",
-  "result": {
-    "guid": "#9202a8c04000641f80000000002f8906",
-    "id":   "/en/new_york",
-    "key": {
-      "namespace": "/wikipedia/en_id",
-      "value":     "645042"
-    },
-    "mid":  "/m/02_286",
-    "name": "New York City"
-  },
-  "status":        "200 OK",
-  "transaction_id": "cache;cache03.p01.sjc1:8101;2012-05-06T21:48:31Z;0052"
+"result": {
+"guid": "#9202a8c04000641f80000000002f8906", 
+"mid": "/m/02_286", 
+"key": {
+"value": "645042", 
+"namespace": "/wikipedia/en_id"
+}, 
+"name": "New York City", 
+"id": "/en/new_york"
+}
 }

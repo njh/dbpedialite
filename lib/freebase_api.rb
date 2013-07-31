@@ -1,9 +1,10 @@
+require 'net/https'
 require 'uri'
 require 'cgi'
 
 module FreebaseApi
   USER_AGENT = 'DbpediaLite/1'
-  MQLREAD_URI = URI.parse('http://api.freebase.com/api/service/mqlread')
+  MQLREAD_URI = URI.parse('https://www.googleapis.com/freebase/v1/mqlread')
   RDF_BASE_URI = URI.parse('http://rdf.freebase.com/rdf/')
   HTTP_TIMEOUT = 2
 
@@ -15,24 +16,30 @@ module FreebaseApi
 
   def self.mqlread(query)
     uri = MQLREAD_URI.clone
-    uri.query = 'query='+CGI::escape(JSON.dump({'query' => query}))
-    res = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.open_timeout = HTTP_TIMEOUT
-      http.read_timeout = HTTP_TIMEOUT
-      http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
+    uri.query = 'query='+CGI::escape(JSON.dump(query))
+    
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = HTTP_TIMEOUT
+    http.read_timeout = HTTP_TIMEOUT
+    
+    if uri.scheme == 'https'
+      http.use_ssl = true 
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     end
+    
+    res = http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
 
     # Throw an exception if HTTP request was unsuccessful
     res.value
 
     # Throw and exception if the JSON response was unsuccessful
     data = JSON.parse(res.body)
-    unless data['code'] == '/api/status/ok'
-      raise FreebaseApi::Exception.new("Freebase query failed: #{data['messages'][0]['message']}")
+    if data.has_key?('error')
+      raise FreebaseApi::Exception.new("Freebase query failed: #{data['error']['message']}")
     end
 
     if data['result'].nil?
-      raise FreebaseApi::NotFound.new("Freebase query failed return no results")
+      raise FreebaseApi::NotFound.new("Freebase query returned no results")
     end
 
     data['result']

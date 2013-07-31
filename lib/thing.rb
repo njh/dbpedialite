@@ -59,9 +59,6 @@ class Thing < BaseModel
   end
 
   def fetch_freebase_uris
-    # FIXME: change to new FreeBase API
-    return
-
     # Only make call to freebase once
     unless @called_freebase
       @called_freebase = true

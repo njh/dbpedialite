@@ -1,6 +1,3 @@
 {
-  "code": "/api/status/ok",
-  "result": null,
-  "status": "200 OK",
-  "transaction_id": "cache;cache02.p01.sjc1:8101;2010-12-27T12:17:04Z;0012"
+"result": null
 }

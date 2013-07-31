@@ -1,12 +1,9 @@
 {
-  "code": "/api/status/ok",
-  "result": {
-    "guid": "#9202a8c04000641f800000000009ab9b",
-    "id": "/en/imac",
-    "key": null,
-    "mid": "/m/0mbxw",
-    "name": "iMac"
-  },
-  "status": "200 OK",
-  "transaction_id": "cache;cache04.p01.sjc1:8101;2012-05-07T14:00:16Z;0002"
+"result": {
+"mid": "/m/0mbxw", 
+"id": "/en/imac", 
+"guid": "#9202a8c04000641f800000000009ab9b", 
+"name": "iMac", 
+"key": null
+}
 }

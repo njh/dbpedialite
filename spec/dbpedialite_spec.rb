@@ -241,7 +241,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, %r[http://api.freebase.com/api/service/mqlread],
+        :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
         :body => fixture_data('freebase-mqlread-934787.json'),
         :content_type => 'application/json'
       )
@@ -513,7 +513,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, %r[http://api.freebase.com/api/service/mqlread],
+        :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
         :body => fixture_data('freebase-mqlread-21492980.json'),
         :content_type => 'application/json'
       )
@@ -590,7 +590,7 @@ describe 'dbpedia lite' do
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, %r[http://api.freebase.com/api/service/mqlread],
+        :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
         :body => fixture_data('freebase-mqlread-notfound.json'),
         :content_type => 'application/json'
       )
@@ -613,7 +613,7 @@ describe 'dbpedia lite' do
     end
 
     it "should write an error message to stderr" do
-      @stderr_buffer.string.should == "Error while reading from Freebase: Freebase query failed return no results\n"+
+      @stderr_buffer.string.should == "Error while reading from Freebase: Freebase query returned no results\n"+
                                       "Error while reading from Wikidata: Failed to lookup title in Wikidata\n"
     end
   end
@@ -850,7 +850,7 @@ describe 'dbpedia lite' do
     context "flipping from a Freebase page" do
       before :each do
         FakeWeb.register_uri(
-          :get, %r[http://api.freebase.com/api/service/mqlread],
+          :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
           :body => fixture_data('freebase-mqlread-en-new-york.json'),
           :content_type => 'application/json'
         )
