@@ -310,7 +310,7 @@ describe Thing do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/things/52780#id"),
         RDF::FOAF.page,
-        RDF::URI('http://www.wikidata.org/wiki/Q396')
+        RDF::URI('http://www.wikidata.org/entity/Q396')
       ])
     end
 
