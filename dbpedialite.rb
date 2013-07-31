@@ -13,6 +13,11 @@ class DbpediaLite < Sinatra::Base
   APP_LAST_UPDATED = File.mtime(root).gmtime
   GIT_LAST_COMMIT = ENV['COMMIT_HASH'] || `git rev-parse HEAD`
 
+  PREFIXES = {
+    :wikibase => 'http://www.wikidata.org/ontology#',
+    :schema => 'http://schema.org/'
+  }
+
   def self.extract_vocabularies(graph)
     vocabs = {}
     graph.predicates.each do |predicate|
@@ -45,13 +50,13 @@ class DbpediaLite < Sinatra::Base
         graph.dump(:json)
       when 'turtle', 'ttl', 'text/turtle', 'application/turtle' then
         content_type 'text/turtle'
-        graph.dump(:turtle, :standard_prefixes => true)
+        graph.dump(:turtle, :standard_prefixes => true,  :prefixes => PREFIXES)
       when 'nt', 'ntriples', 'text/plain' then
         content_type 'text/plain'
         graph.dump(:ntriples)
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
-        graph.dump(:rdfxml, :standard_prefixes => true, :stylesheet => '/rdfxml.xsl')
+        graph.dump(:rdfxml, :standard_prefixes => true, :prefixes => PREFIXES, :stylesheet => '/rdfxml.xsl')
       when 'trix', 'application/trix' then
         content_type 'application/trix'
         graph.dump(:trix)

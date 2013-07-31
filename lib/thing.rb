@@ -80,9 +80,9 @@ class Thing < BaseModel
     @wikidata_id
   end
 
-  def wikidata_url
+  def wikidata_uri
     if wikidata_id
-      @wikidata_url ||= RDF::URI.parse("http://www.wikidata.org/entity/"+wikidata_id)
+      @wikidata_uri ||= RDF::URI.parse("http://www.wikidata.org/entity/"+wikidata_id)
     end
   end
 
@@ -118,6 +118,9 @@ class Thing < BaseModel
     displaytitle || title
   end
 
+  WIKIBASE = RDF::Vocabulary.new('http://www.wikidata.org/ontology#')
+  SCHEMA = RDF::Vocabulary.new('http://schema.org/')
+
   def to_rdf
     RDF::Graph.new do |graph|
       # Triples about the Document
@@ -137,12 +140,21 @@ class Thing < BaseModel
       graph << [self.uri, RDF::GEO.lat, latitude] unless latitude.nil?
       graph << [self.uri, RDF::GEO.long, longitude] unless longitude.nil?
 
+      # Triples about the Wikipedia page
+      graph << [wikipedia_uri, RDF.type, SCHEMA.Article]
+      graph << [wikipedia_uri, SCHEMA.about, self.uri]
+      graph << [wikipedia_uri, SCHEMA.inLanguage, 'en']
+
       # Link to WikiData
       unless wikidata_id.nil?
-        graph << [self.uri, RDF::FOAF.page, wikidata_url]
-        graph << [wikidata_url, RDF.type, RDF::FOAF.Document]
-        graph << [wikidata_url, RDF::RDFS.label, wikidata_label] unless wikidata_label.nil?
-        graph << [wikidata_url, RDF::RDFS.comment, wikidata_description] unless wikidata_description.nil?
+        literal_label = RDF::Literal.new(wikidata_label, :language => :en) unless wikidata_label.nil?
+        literal_description = RDF::Literal.new(wikidata_description, :language => :en) unless wikidata_description.nil?
+        graph << [self.uri, RDF::OWL.sameAs, wikidata_uri]
+        graph << [wikidata_uri, RDF.type, WIKIBASE.Item]
+        graph << [wikidata_uri, RDF::RDFS.label, literal_label] unless literal_label.nil?
+        graph << [wikidata_uri, SCHEMA.name, literal_label] unless literal_label.nil?
+        graph << [wikidata_uri, SCHEMA.description, literal_description] unless literal_description.nil?
+        graph << [wikipedia_uri, SCHEMA.about, wikidata_uri]
       end
 
       # External links

@@ -263,7 +263,7 @@ describe Thing do
     end
 
     it "should return a graph with 15 triples" do
-      @graph.count.should == 15
+      @graph.count.should == 20
     end
 
     it "should include an rdf:type triple for the thing" do
@@ -309,7 +309,7 @@ describe Thing do
     it "should include a foaf:page triple for Wikidata page" do
       @graph.should have_triple([
         RDF::URI("http://dbpedialite.org/things/52780#id"),
-        RDF::FOAF.page,
+        RDF::OWL.sameAs,
         RDF::URI('http://www.wikidata.org/entity/Q396')
       ])
     end
