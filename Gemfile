@@ -1,5 +1,5 @@
 source "http://rubygems.org"
-#ruby "1.8.7"
+ruby "1.9.3"
 
 gem 'sinatra'
 gem 'sinatra-contrib', :require => 'sinatra/content_for'
@@ -25,7 +25,7 @@ group :test do
   gem 'rspec', '>=2.7.0'
   gem 'mocha'
   gem 'fakeweb'
-  gem 'rcov'
+  gem 'simplecov'
   gem 'rack-test', :require => 'rack/test'
   gem 'rdf-rdfa', :require => 'rdf/rdfa'
   gem 'equivalent-xml'

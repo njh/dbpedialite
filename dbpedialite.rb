@@ -154,7 +154,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   before do
-    if production? and request.host != DEFAULT_HOST
+    if settings.production? and request.host != DEFAULT_HOST
       headers 'Cache-Control' => 'public,max-age=3600'
       redirect "http://" + DEFAULT_HOST + request.path, 301
     end

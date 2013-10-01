@@ -4,8 +4,6 @@ require 'dbpedialite'
 
 ## Note: these are integration tests. Mocking is done using FakeWeb.
 
-set :environment, :test
-
 describe 'dbpedia lite' do
   include Rack::Test::Methods
 
@@ -16,6 +14,7 @@ describe 'dbpedia lite' do
   before :each do
     app.enable :raise_errors
     app.disable :show_exceptions
+    app.settings.set :environment, :test
   end
 
   context "GETing the homepage" do
@@ -46,12 +45,8 @@ describe 'dbpedia lite' do
 
     context "in a production environment" do
       before :each do
-        set :environment, :production
+        app.settings.set :environment, :production
         get '/'
-      end
-
-      after :each do
-        set :environment, :test
       end
 
       it "should redirect" do
