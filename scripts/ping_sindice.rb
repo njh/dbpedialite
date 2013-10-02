@@ -102,7 +102,7 @@ class WikipediaUpdater
 
         # Enqueue the URI for submission
         if data['ns'] == 0
-          uq.enq "http://dbpedialite.org/things/#{data['pageid']}.rdf"
+          uq.enq "http://www.dbpedialite.org/things/#{data['pageid']}.rdf"
         else
           puts "Unknown namespace for #{title}"
         end

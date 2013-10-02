@@ -13,7 +13,7 @@ describe Thing do
     end
 
     it "should have the correct URI" do
-      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/52780#id')
+      @thing.uri.should == RDF::URI('http://www.dbpedialite.org/things/52780#id')
     end
 
     it "should not have co-ordinates" do
@@ -43,11 +43,11 @@ describe Thing do
     end
 
     it "should have the correct URI for the thing" do
-      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/934787#id')
+      @thing.uri.should == RDF::URI('http://www.dbpedialite.org/things/934787#id')
     end
 
     it "should have the correct URI for the document" do
-     @thing.doc_uri.should == RDF::URI('http://dbpedialite.org/things/934787')
+     @thing.doc_uri.should == RDF::URI('http://www.dbpedialite.org/things/934787')
     end
 
     it "should have the correct title" do
@@ -85,7 +85,7 @@ describe Thing do
     end
 
     it "should have the correct default URI for the document" do
-      @thing.doc_uri.should == RDF::URI('http://dbpedialite.org/things/1234')
+      @thing.doc_uri.should == RDF::URI('http://www.dbpedialite.org/things/1234')
     end
 
     it "should return the new document URI after changing it" do
@@ -118,7 +118,7 @@ describe Thing do
     end
 
     it "should have the correct uri" do
-      @thing.uri.should == RDF::URI('http://dbpedialite.org/things/934787#id')
+      @thing.uri.should == RDF::URI('http://www.dbpedialite.org/things/934787#id')
     end
 
     it "should have the correct title" do
@@ -267,7 +267,7 @@ describe Thing do
 
     it "should include an rdf:type triple for the thing" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF.type,
         RDF::URI("http://www.w3.org/2002/07/owl#Thing")
       ])
@@ -275,7 +275,7 @@ describe Thing do
 
     it "should include a rdfs:label triple for the thing" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::RDFS.label,
         RDF::Literal("U2"),
       ])
@@ -283,7 +283,7 @@ describe Thing do
 
     it "should include a rdfs:comment triple for the thing" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::RDFS.comment,
         RDF::Literal("U2 are an Irish rock band."),
       ])
@@ -291,7 +291,7 @@ describe Thing do
 
     it "should include a owl:sameAs triple for the Dbpedia URI" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::OWL.sameAs,
         RDF::URI("http://dbpedia.org/resource/U2")
       ])
@@ -299,7 +299,7 @@ describe Thing do
 
     it "should include a isPrimaryTopicOf triple for the Wikipedia page" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::FOAF.isPrimaryTopicOf,
         RDF::URI("http://en.wikipedia.org/wiki/U2")
       ])
@@ -307,7 +307,7 @@ describe Thing do
 
     it "should include a foaf:page triple for Wikidata page" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::OWL.sameAs,
         RDF::URI('http://www.wikidata.org/entity/Q396')
       ])
@@ -315,7 +315,7 @@ describe Thing do
 
     it "should include a owl:sameAs triple for the FreeBase Machine ID" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::OWL.sameAs,
         RDF::URI("http://rdf.freebase.com/ns/m.0dw4g")
       ])
@@ -323,7 +323,7 @@ describe Thing do
 
     it "should include a owl:sameAs triple for the FreeBase GUID" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::OWL.sameAs,
         RDF::URI("http://rdf.freebase.com/ns/guid.9202a8c04000641f8000000000066c8e")
       ])
@@ -331,7 +331,7 @@ describe Thing do
 
     it "should include a rdf:type triple for the document" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF::URI("http://www.dbpedialite.org/things/52780"),
         RDF.type,
         RDF::URI("http://xmlns.com/foaf/0.1/Document")
       ])
@@ -339,15 +339,15 @@ describe Thing do
 
     it "should include a foaf:primaryTopic triple linking the document to the thing" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF::URI("http://www.dbpedialite.org/things/52780"),
         RDF::FOAF.primaryTopic,
-        RDF::URI("http://dbpedialite.org/things/52780#id")
+        RDF::URI("http://www.dbpedialite.org/things/52780#id")
       ])
     end
 
     it "should include a dc:title triple for the document" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF::URI("http://www.dbpedialite.org/things/52780"),
         RDF::URI("http://purl.org/dc/terms/title"),
         RDF::Literal('dbpedia lite thing - U2')
       ])
@@ -355,7 +355,7 @@ describe Thing do
 
     it "should include a dc:modified triple for the document" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780"),
+        RDF::URI("http://www.dbpedialite.org/things/52780"),
         RDF::URI("http://purl.org/dc/terms/modified"),
         RDF::Literal(DateTime.parse('2010-05-08T17:20:04Z'))
       ])

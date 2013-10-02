@@ -284,7 +284,7 @@ describe 'dbpedia lite' do
 
       it "should have the title of the thing as RDFa" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
                                        RDF::RDFS.label,
                                        RDF::Literal("Ceres, Fife")
                                       ])
@@ -292,7 +292,7 @@ describe 'dbpedia lite' do
 
       it "should have a link to the Wikipedia page in the RDFa" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
                                        RDF::FOAF.isPrimaryTopicOf,
                                        RDF::URI("http://en.wikipedia.org/wiki/Ceres,_Fife"),
                                       ])
@@ -300,7 +300,7 @@ describe 'dbpedia lite' do
 
       it "should have a link to an external link in the RDFa" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
                                        RDF::FOAF.page,
                                        RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
                                       ])
@@ -308,15 +308,15 @@ describe 'dbpedia lite' do
 
       it "should have an RDFa triple linking the document to the thing" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787"),
                                        RDF::FOAF.primaryTopic,
-                                       RDF::URI("http://dbpedialite.org/things/934787#id"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
                                       ])
       end
 
       it "should have an dc:modified RDFa triple for the document" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787"),
                                        RDF::URI("http://purl.org/dc/terms/modified"),
                                        RDF::Literal('2012-05-05T04:35:21Z')
                                       ])
@@ -324,9 +324,9 @@ describe 'dbpedia lite' do
 
       it "should have an RDFa triple linking the altenate RDF/XML format" do
         rdfa_graph.should have_triple([
-                                       RDF::URI("http://dbpedialite.org/things/934787"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787"),
                                        RDF::URI("http://www.w3.org/1999/xhtml/vocab#alternate"),
-                                       RDF::URI("http://dbpedialite.org/things/934787.rdf"),
+                                       RDF::URI("http://www.dbpedialite.org/things/934787.rdf"),
                                       ])
       end
 
@@ -665,11 +665,11 @@ describe 'dbpedia lite' do
       end
 
       it "should have a triple for the name of the category" do
-        last_response.body.should =~ %r|<http://dbpedialite.org/categories/4309010#id> <http://www.w3.org/2000/01/rdf-schema#label> "Villages in Fife" \.|
+        last_response.body.should =~ %r|<http://www.dbpedialite.org/categories/4309010#id> <http://www.w3.org/2000/01/rdf-schema#label> "Villages in Fife" \.|
       end
 
       it "should have a triple for Ceres being in the category" do
-        last_response.body.should =~ %r|<http://dbpedialite.org/things/934787#id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedialite.org/categories/4309010#id> \.|
+        last_response.body.should =~ %r|<http://www.dbpedialite.org/things/934787#id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.dbpedialite.org/categories/4309010#id> \.|
       end
     end
   end
@@ -877,7 +877,7 @@ describe 'dbpedia lite' do
   end
 
   def rdfa_graph
-    base_uri = "http://dbpedialite.org#{last_request.path}"
+    base_uri = "http://www.dbpedialite.org#{last_request.path}"
     RDF::Graph.new(base_uri) do |graph|
       RDF::Reader::for(:rdfa).new(last_response.body, :base_uri => base_uri) do |reader|
         reader.each_statement do |statement|

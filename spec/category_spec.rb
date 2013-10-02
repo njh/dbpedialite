@@ -13,7 +13,7 @@ describe Category do
     end
 
     it "should have the correct URI" do
-      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#id')
+      @category.uri.should == RDF::URI('http://www.dbpedialite.org/categories/4309010#id')
     end
 
     it "should not have any things yet" do
@@ -36,7 +36,7 @@ describe Category do
     end
 
     it "should have the correct URI" do
-      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#id')
+      @category.uri.should == RDF::URI('http://www.dbpedialite.org/categories/4309010#id')
     end
 
     it "should have the correct title" do
@@ -79,7 +79,7 @@ describe Category do
     end
 
     it "should have the correct uri" do
-      @category.uri.should == RDF::URI('http://dbpedialite.org/categories/4309010#id')
+      @category.uri.should == RDF::URI('http://www.dbpedialite.org/categories/4309010#id')
     end
 
     it "should have the correct title" do
@@ -168,7 +168,7 @@ describe Category do
 
     it "should include an rdf:type triple for the category" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/4309010#id"),
+        RDF::URI("http://www.dbpedialite.org/categories/4309010#id"),
         RDF.type,
         RDF::OWL.Class
       ])
@@ -176,7 +176,7 @@ describe Category do
 
     it "should include a rdfs:label triple for the category" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/4309010#id"),
+        RDF::URI("http://www.dbpedialite.org/categories/4309010#id"),
         RDF::RDFS.label,
         RDF::Literal("Villages in Fife"),
       ])
@@ -184,7 +184,7 @@ describe Category do
 
     it "should include a rdf:type triple for the document" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/4309010"),
+        RDF::URI("http://www.dbpedialite.org/categories/4309010"),
         RDF.type,
         RDF::URI("http://xmlns.com/foaf/0.1/Document")
       ])
@@ -192,7 +192,7 @@ describe Category do
 
     it "should include a dc:title triple for the document" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/4309010"),
+        RDF::URI("http://www.dbpedialite.org/categories/4309010"),
         RDF::URI("http://purl.org/dc/terms/title"),
         RDF::Literal('dbpedia lite category - Villages in Fife')
       ])
@@ -200,25 +200,25 @@ describe Category do
 
     it "should include a foaf:primaryTopic triple linking the document to the category" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/4309010"),
+        RDF::URI("http://www.dbpedialite.org/categories/4309010"),
         RDF::FOAF.primaryTopic,
-        RDF::URI("http://dbpedialite.org/categories/4309010#id")
+        RDF::URI("http://www.dbpedialite.org/categories/4309010#id")
       ])
     end
 
     it "should have a RDF:type triple relating Ceres to Villages in Fife" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/things/52780#id"),
+        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF.type,
-        RDF::URI("http://dbpedialite.org/categories/4309010#id")
+        RDF::URI("http://www.dbpedialite.org/categories/4309010#id")
       ])
     end
 
     it "should have a RDFS:subClassOf triple subclassing Hamlets from Villages" do
       @graph.should have_triple([
-        RDF::URI("http://dbpedialite.org/categories/1234567#id"),
+        RDF::URI("http://www.dbpedialite.org/categories/1234567#id"),
         RDF::RDFS.subClassOf,
-        RDF::URI("http://dbpedialite.org/categories/4309010#id")
+        RDF::URI("http://www.dbpedialite.org/categories/4309010#id")
       ])
     end
   end

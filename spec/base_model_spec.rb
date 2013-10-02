@@ -13,11 +13,11 @@ describe BaseModel do
     end
 
     it "should respond to 'uri' with an example URI" do
-      @obj.uri.should == RDF::URI('http://dbpedialite.org/base/52780#id')
+      @obj.uri.should == RDF::URI('http://www.dbpedialite.org/base/52780#id')
     end
 
     it "should respond to 'doc_uri' with an example URI for the document" do
-      @obj.doc_uri.should == RDF::URI('http://dbpedialite.org/base/52780')
+      @obj.doc_uri.should == RDF::URI('http://www.dbpedialite.org/base/52780')
     end
 
     it "should respond to 'doc_path' with a path for the default format" do

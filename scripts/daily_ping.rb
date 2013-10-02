@@ -70,7 +70,7 @@ links.each do |link|
     puts "  ns=#{info['ns']} pageid=#{info['pageid']}"
     #lastmod = Time.parse(info['touched'])
     if info['ns'] == 0
-      rdf_url = "http://dbpedialite.org/things/#{info['pageid']}.rdf"
+      rdf_url = "http://www.dbpedialite.org/things/#{info['pageid']}.rdf"
       rdf_urls << rdf_url
     end
   rescue MediaWikiApi::NotFound

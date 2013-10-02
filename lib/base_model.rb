@@ -36,7 +36,7 @@ class BaseModel < Doodle
   end
 
   def uri
-    @uri ||= RDF::URI.parse("http://dbpedialite.org/#{self.class.identifier_path}/#{pageid}#id")
+    @uri ||= RDF::URI.parse("http://www.dbpedialite.org/#{self.class.identifier_path}/#{pageid}#id")
   end
 
   def doc_uri=(uri)
@@ -44,7 +44,7 @@ class BaseModel < Doodle
   end
 
   def doc_uri
-    @doc_uri || RDF::URI.parse("http://dbpedialite.org/#{self.class.identifier_path}/#{pageid}")
+    @doc_uri || RDF::URI.parse("http://www.dbpedialite.org/#{self.class.identifier_path}/#{pageid}")
   end
 
   def doc_path(format=nil)
