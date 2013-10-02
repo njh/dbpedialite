@@ -34,9 +34,11 @@ class DbpediaLite < Sinatra::Base
     vocabs
   end
 
+	# FIXME: do proper content negotiation using Sinatra::Request::AcceptEntry
+	# and Rack's MIME registry
   def negotiate_content(graph, format, html_view)
     if format.empty?
-      format = request.accept.first || ''
+      format = request.accept.first.to_s || ''
       format.sub!(/;.+$/,'')
     end
 
