@@ -9,7 +9,7 @@ require 'formats'
 class DbpediaLite < Sinatra::Base
   set :public_folder, File.join(root, 'public')
 
-  DEFAULT_HOST = 'dbpedialite.org'
+  CANONICAL_HOST = 'www.dbpedialite.org'
   APP_LAST_UPDATED = File.mtime(root).gmtime
   GIT_LAST_COMMIT = ENV['COMMIT_HASH'] || `git rev-parse HEAD`
 
@@ -156,9 +156,9 @@ class DbpediaLite < Sinatra::Base
   end
 
   before do
-    if settings.production? and request.host != DEFAULT_HOST
+    if settings.production? and request.host != CANONICAL_HOST
       headers 'Cache-Control' => 'public,max-age=3600'
-      redirect "http://" + DEFAULT_HOST + request.path, 301
+      redirect "http://" + CANONICAL_HOST + request.path, 301
     end
   end
 

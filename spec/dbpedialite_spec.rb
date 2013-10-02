@@ -53,7 +53,7 @@ describe 'dbpedia lite' do
 
       it "should redirect" do
         last_response.status.should == 301
-        last_response.location.should == 'http://dbpedialite.org/'
+        last_response.location.should == 'http://www.dbpedialite.org/'
       end
 
       it "should be cachable" do
