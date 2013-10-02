@@ -23,7 +23,6 @@ end
 
 group :test do
   gem 'rspec', '>=2.7.0'
-  gem 'mocha'
   gem 'fakeweb'
   gem 'simplecov'
   gem 'rack-test', :require => 'rack/test'

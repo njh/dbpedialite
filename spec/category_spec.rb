@@ -69,8 +69,8 @@ describe Category do
         {'pageid' => 934787, 'ns' => 0, 'title' => 'Ceres, Fife', 'displaytitle' => 'Ceres, Fife'},
         {'pageid' => 986129, 'ns' => 14, 'title' => 'Category:Villages with greens', 'displaytitle' => 'Category:Villages with greens'}
       ]
-      WikipediaApi.expects(:page_info).with(:pageids => 4309010).once.returns(page_info)
-      WikipediaApi.expects(:category_members).with(4309010).once.returns(category_members)
+      allow(WikipediaApi).to receive(:page_info).with(:pageids => 4309010).and_return(page_info)
+      allow(WikipediaApi).to receive(:category_members).with(4309010).and_return(category_members)
       @category = Category.load(4309010)
     end
 
@@ -127,7 +127,7 @@ describe Category do
         'counter' => 787,
         'length' => 78367
       }
-      WikipediaApi.expects(:page_info).with(:pageids => 52780).once.returns(page_info)
+      allow(WikipediaApi).to receive(:page_info).with(:pageids => 52780).and_return(page_info)
     end
 
     it "should return raise a PageNotFound exception" do

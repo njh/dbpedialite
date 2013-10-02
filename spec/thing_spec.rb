@@ -105,7 +105,7 @@ describe Thing do
         'images' => ['http://upload.wikimedia.org/wikipedia/commons/0/04/Ceres%2C_Fife.jpg'],
         'externallinks' => ['http://www.fife.50megs.com/ceres-history.htm']
       }
-      WikipediaApi.expects(:parse).once.returns(wikipedia_data)
+      allow(WikipediaApi).to receive(:parse).and_return(wikipedia_data)
       @thing = Thing.load(934787)
     end
 
@@ -157,7 +157,7 @@ describe Thing do
           'mid' => '/m/03rf2x',
           'name' => 'Ceres',
         }
-        FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns(freebase_data)
+        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_return(freebase_data)
       end
 
       it "should have a machine id property" do
@@ -179,7 +179,7 @@ describe Thing do
 
     context "when freebase times out" do
       it "should send a message to stderr" do
-        FreebaseApi.expects(:lookup_wikipedia_pageid).raises(Timeout::Error)
+        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_raise(Timeout::Error)
         previous_stderr, $stderr = $stderr, StringIO.new
 
         @thing.freebase_mid_uri
@@ -191,7 +191,7 @@ describe Thing do
 
     context "when FreebaseApi raises an a NotFound exception" do
       it "should send a message to stderr" do
-        FreebaseApi.expects(:lookup_wikipedia_pageid).raises(FreebaseApi::NotFound)
+        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_raise(FreebaseApi::NotFound)
         previous_stderr, $stderr = $stderr, StringIO.new
 
         @thing.freebase_mid_uri
@@ -212,14 +212,14 @@ describe Thing do
 
   context "loading a non-existant page from wikipedia" do
     before :each do
-      WikipediaApi.expects(:parse).once.raises(
+      allow(WikipediaApi).to receive(:parse).and_raise(
         MediaWikiApi::NotFound,
         'There is no page with ID 999999'
       )
-      FreebaseApi.expects(:lookup_wikipedia_pageid).never
     end
 
     it "should return raise a PageNotFound exception" do
+      expect(FreebaseApi).to_not receive(:lookup_wikipedia_pageid)
       lambda {Thing.load(999999)}.should raise_error(
         MediaWikiApi::NotFound,
         'There is no page with ID 999999'
@@ -229,13 +229,13 @@ describe Thing do
 
   context "converting a thing to RDF" do
     before :each do
-      FreebaseApi.expects(:lookup_wikipedia_pageid).once.returns({
+      allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_return({
         'guid' => '#9202a8c04000641f8000000000066c8e',
         'id' => '/en/u2',
         'mid' => '/m/0dw4g',
         'name' => 'U2',
       })
-      WikidataApi.expects(:find_by_title).once.returns({
+      allow(WikidataApi).to receive(:find_by_title).and_return({
         'id' => 'q396',
         'title'=> 'Q396',
         'pageid' => 602,
@@ -248,7 +248,6 @@ describe Thing do
         'type' => 'item',
         'modified' => '2012-12-13T08:20:29Z',
       })
-      WikipediaApi.expects(:parse).never
       @thing = Thing.new(52780,
         :title => 'U2',
         :displaytitle => 'U2',
