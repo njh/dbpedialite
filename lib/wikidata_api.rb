@@ -15,7 +15,7 @@ class WikidataApi < MediaWikiApi
     })
 
     key = id.downcase
-    if data['entities'].nil?find_by_title
+    if data['entities'].nil?
       raise MediaWikiApi::Exception.new('Empty response')
     elsif data['entities'][key].nil?
       raise MediaWikiApi::NotFound.new('Wikidata identifier does not exist')
