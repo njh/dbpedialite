@@ -6,8 +6,9 @@ require 'bundler'
 
 Bundler.require(:default, :test)
 
-# This is needed by rcov
-require 'rspec/autorun'
+unless RUBY_VERSION =~ /^1\.8/
+  SimpleCov.start
+end
 
 RSpec.configure do |config|
   config.before(:each) do
