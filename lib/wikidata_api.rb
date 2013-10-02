@@ -14,7 +14,7 @@ class WikidataApi < MediaWikiApi
       :languages => 'en'
     })
 
-    key = id.downcase
+    key = id.upcase
     if data['entities'].nil?
       raise MediaWikiApi::Exception.new('Empty response')
     elsif data['entities'][key].nil?
