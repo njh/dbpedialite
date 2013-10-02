@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'spec_helper'
 require 'dbpedialite'
 
@@ -14,7 +16,7 @@ describe 'dbpedia lite' do
   before :each do
     app.enable :raise_errors
     app.disable :show_exceptions
-    app.settings.set :environment, :test
+    app.set :environment, :test
   end
 
   context "GETing the homepage" do
@@ -45,7 +47,7 @@ describe 'dbpedia lite' do
 
     context "in a production environment" do
       before :each do
-        app.settings.set :environment, :production
+        app.set :environment, :production
         get '/'
       end
 

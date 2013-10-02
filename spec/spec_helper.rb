@@ -22,5 +22,5 @@ def fixture(filename)
 end
 
 def fixture_data(filename)
-  File.read(fixture(filename))
+  File.read(fixture(filename)).force_encoding('UTF-8')
 end

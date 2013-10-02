@@ -19,7 +19,7 @@ class MediaWikiApi
   end
 
   def self.escape_title(title)
-    URI::escape(title.gsub(' ','_'), ' ?#%"+=')
+    URI::escape(title.gsub(' ','_'), ' ?#%"+=').force_encoding('UTF-8')
   end
 
   def self.get(action, args={})

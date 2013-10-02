@@ -40,7 +40,7 @@ describe WikipediaApi do
     end
 
     it "should not convert '—We Also Walk Dogs' to '—We_Also_Walk_Dogs'" do
-      WikipediaApi.escape_title('—We Also Walk Dogs').should == '—We_Also_Walk_Dogs'
+      WikipediaApi.escape_title('—We Also Walk Dogs').force_encoding('utf-8').should == '—We_Also_Walk_Dogs'
     end
   end
 
