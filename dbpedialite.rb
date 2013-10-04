@@ -53,7 +53,7 @@ class DbpediaLite < Sinatra::Base
       when 'turtle', 'ttl', 'text/turtle', 'application/turtle' then
         content_type 'text/turtle'
         graph.dump(:turtle, :standard_prefixes => true,  :prefixes => PREFIXES)
-      when 'nt', 'ntriples', 'text/plain' then
+      when 'nt', 'ntriples', 'application/n-triples', 'text/plain' then
         content_type 'text/plain'
         graph.dump(:ntriples)
       when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
