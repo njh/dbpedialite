@@ -482,6 +482,38 @@ describe 'dbpedia lite' do
       end
     end
 
+    context "as a JSON-LD document" do
+      before :each do
+        get '/things/934787.jsonld'
+      end
+
+      it "should be successful" do
+      	File.open('934787.jsonld', 'wb') do |file|
+      		file.write last_response.body
+      	end
+        last_response.should be_ok
+      end
+
+      it "should be of type application/trix" do
+        last_response.content_type.should == 'application/json;charset=utf-8'
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should define a @graph element" do
+      	data = JSON.load(last_response.body)
+        data.should have_key('@graph')
+      end
+
+      it "should define the title of the thing" do
+      	data = JSON.load(last_response.body)
+        thing = data['@graph'].find {|t| t['@id'] == 'http://www.dbpedialite.org/things/934787#id'}
+        thing['rdfs:label'].should == 'Ceres, Fife'
+      end
+    end
+
     context "as an unsupport format" do
       before :each do
         get '/things/934787.ratrat'

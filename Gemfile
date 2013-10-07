@@ -15,6 +15,7 @@ gem 'rdf-json', :require => 'rdf/json'
 gem 'rdf-turtle', :require => 'rdf/turtle'
 gem 'rdf-rdfxml', ">=0.3.7", :require => 'rdf/rdfxml'
 gem 'rdf-trix', :require => 'rdf/trix'
+gem 'json-ld', :require => 'json/ld'
 
 group :development do
   gem 'rake'

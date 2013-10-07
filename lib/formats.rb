@@ -6,6 +6,11 @@ class Dbpedialite
       :suffix => 'json'
     },
     {
+      :name => 'JSON-LD',
+      :mime => 'application/ld+json',
+      :suffix => 'jsonld'
+    },
+    {
       :name => 'Turtle',
       :mime => 'text/turtle',
       :suffix => 'ttl'

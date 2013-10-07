@@ -50,6 +50,9 @@ class DbpediaLite < Sinatra::Base
       when 'json', 'application/json', 'text/json' then
         content_type 'application/json'
         graph.dump(:json)
+      when 'jsonld', 'application/ld+json' then
+        content_type 'application/json'
+        graph.dump(:jsonld, :standard_prefixes => true)
       when 'turtle', 'ttl', 'text/turtle', 'application/turtle' then
         content_type 'text/turtle'
         graph.dump(:turtle, :standard_prefixes => true,  :prefixes => PREFIXES)
