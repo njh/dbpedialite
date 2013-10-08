@@ -40,9 +40,9 @@ class DbpediaLite < Sinatra::Base
     if format.empty?
       format = request.accept.first.to_s || ''
       format.sub!(/;.+$/,'')
+      headers 'Vary' => 'Accept'
     end
 
-    headers 'Vary' => 'Accept'
     case format
       when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
         content_type 'text/html'

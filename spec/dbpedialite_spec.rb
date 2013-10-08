@@ -261,7 +261,7 @@ describe 'dbpedia lite' do
       )
     end
 
-    context "as an HTML document" do
+    context "as an HTML document using content negotiation" do
       before :each do
         header "Accept", "text/html"
         get '/things/934787'
@@ -277,6 +277,10 @@ describe 'dbpedia lite' do
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should have set the Vary header to Accept" do
+        last_response.headers['Vary'].should == 'Accept'
       end
 
       it "should contain the first paragraph of the abstract for the thing" do
@@ -377,6 +381,10 @@ describe 'dbpedia lite' do
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
+
+      it "should have set the Vary header to Accept" do
+        last_response.headers['Vary'].should == 'Accept'
+      end
     end
 
     context "as a JSON document" do
@@ -396,6 +404,10 @@ describe 'dbpedia lite' do
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
+
+      it "should have set the Vary header to Accept" do
+        last_response.headers['Vary'].should == 'Accept'
+      end
     end
 
     context "as an Turtle document" do
@@ -414,6 +426,10 @@ describe 'dbpedia lite' do
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should have set the Vary header to Accept" do
+        last_response.headers['Vary'].should == 'Accept'
       end
 
       it "should set the RDFS prefix correctly" do
@@ -447,6 +463,10 @@ describe 'dbpedia lite' do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
 
+      it "should have set the Vary header to Accept" do
+        last_response.headers['Vary'].should == 'Accept'
+      end
+
       it "should have a XML declaration in the first line of the response" do
         lines = last_response.body.split(/[\r\n]+/)
         lines.first.should == '<?xml version="1.0" encoding="UTF-8"?>'
@@ -470,6 +490,10 @@ describe 'dbpedia lite' do
 
       it "should be successful" do
         last_response.should be_ok
+      end
+
+      it "should not have set the Vary header" do
+        last_response.headers['Vary'].should be_nil
       end
 
       it "should be of type application/rdf+xml" do
@@ -501,6 +525,10 @@ describe 'dbpedia lite' do
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
+
+      it "should not have set the Vary header" do
+        last_response.headers['Vary'].should be_nil
+      end
     end
 
     context "as a JSON-LD document" do
@@ -523,6 +551,10 @@ describe 'dbpedia lite' do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
 
+      it "should not have set the Vary header" do
+        last_response.headers['Vary'].should be_nil
+      end
+
       it "should define a @graph element" do
         data = JSON.load(last_response.body)
         data.should have_key('@graph')
@@ -542,6 +574,14 @@ describe 'dbpedia lite' do
 
       it "should return a 400 error" do
         last_response.should be_client_error
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
+
+      it "should not have set the Vary header" do
+        last_response.headers['Vary'].should be_nil
       end
 
       it "should include the text 'Unsupported format' in the body" do
