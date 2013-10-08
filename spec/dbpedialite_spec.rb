@@ -40,8 +40,13 @@ describe 'dbpedia lite' do
       it "should contain the readme text" do
         last_response.body.should =~ /takes some of the structured data/
       end
+
       it "should contain the bookmarklet" do
         last_response.body.should =~ %r|javascript:location.href='http://example.org/flipr\?url=|
+      end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
     end
 
@@ -109,6 +114,10 @@ describe 'dbpedia lite' do
 
     it "should contain the search term" do
       last_response.body.should =~ %r[Rat]
+    end
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
     end
   end
 
@@ -204,6 +213,10 @@ describe 'dbpedia lite' do
     it "should return 404 Not Found" do
       last_response.should be_not_found
     end
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+    end
   end
 
   context "GETing a title that isn't a thing" do
@@ -217,11 +230,15 @@ describe 'dbpedia lite' do
     end
 
     it "should be an error" do
-      last_response.should be_server_error
+      last_response.should be_client_error
     end
 
     it "should inform the user that the namespace isn't supported" do
       last_response.body.should =~ /Unsupported Wikipedia namespace/
+    end
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
     end
   end
 
@@ -480,6 +497,10 @@ describe 'dbpedia lite' do
       it "should contain the URI of the document we requested" do
         last_response.body.should =~ %r[<uri>http://example.org/things/934787.trix</uri>]
       end
+
+      it "should be cachable" do
+        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
+      end
     end
 
     context "as a JSON-LD document" do
@@ -488,9 +509,9 @@ describe 'dbpedia lite' do
       end
 
       it "should be successful" do
-      	File.open('934787.jsonld', 'wb') do |file|
-      		file.write last_response.body
-      	end
+        File.open('934787.jsonld', 'wb') do |file|
+          file.write last_response.body
+        end
         last_response.should be_ok
       end
 
@@ -503,12 +524,12 @@ describe 'dbpedia lite' do
       end
 
       it "should define a @graph element" do
-      	data = JSON.load(last_response.body)
+        data = JSON.load(last_response.body)
         data.should have_key('@graph')
       end
 
       it "should define the title of the thing" do
-      	data = JSON.load(last_response.body)
+        data = JSON.load(last_response.body)
         thing = data['@graph'].find {|t| t['@id'] == 'http://www.dbpedialite.org/things/934787#id'}
         thing['rdfs:label'].should == 'Ceres, Fife'
       end
@@ -603,6 +624,10 @@ describe 'dbpedia lite' do
 
     it "should include the text 'Thing not found' in the body" do
       last_response.body.should =~ /Thing not found/i
+    end
+
+    it "should be cachable" do
+      last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
     end
   end
 

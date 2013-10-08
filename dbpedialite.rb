@@ -34,15 +34,15 @@ class DbpediaLite < Sinatra::Base
     vocabs
   end
 
-	# FIXME: do proper content negotiation using Sinatra::Request::AcceptEntry
-	# and Rack's MIME registry
+  # FIXME: do proper content negotiation using Sinatra::Request::AcceptEntry
+  # and Rack's MIME registry
   def negotiate_content(graph, format, html_view)
     if format.empty?
       format = request.accept.first.to_s || ''
       format.sub!(/;.+$/,'')
     end
 
-    headers 'Vary' => 'Accept', 'Cache-Control' => 'public,max-age=600'
+    headers 'Vary' => 'Accept'
     case format
       when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
         content_type 'text/html'
@@ -75,13 +75,11 @@ class DbpediaLite < Sinatra::Base
       data = WikipediaApi.page_info(:titles => title)
       case data['ns']
         when 0 then
-          headers 'Cache-Control' => 'public,max-age=600'
           redirect "/things/#{data['pageid']}", 301
         when 14 then
-          headers 'Cache-Control' => 'public,max-age=600'
           redirect "/categories/#{data['pageid']}", 301
         else
-          error 500, "Unsupported Wikipedia namespace: #{data['ns']}"
+          error 400, "Unsupported Wikipedia namespace: #{data['ns']}"
       end
     rescue MediaWikiApi::NotFound
       not_found "Wikipedia page title not found."
@@ -160,7 +158,7 @@ class DbpediaLite < Sinatra::Base
 
   before do
     if settings.production? and request.host != CANONICAL_HOST
-      headers 'Cache-Control' => 'public,max-age=3600'
+      headers 'Cache-Control' => 'public,max-age=86400'
       redirect "http://" + CANONICAL_HOST + request.path, 301
     end
   end
@@ -196,18 +194,22 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/titles/:title' do |title|
+    headers 'Cache-Control' => 'public,max-age=600'
     redirect_from_title(title)
   end
 
   get %r{^/wikidata/([qQ]\d+)$} do |id|
+    headers 'Cache-Control' => 'public,max-age=600'
     redirect_from_wikidata(id)
   end
 
   get %r{^/things/([Qq]\d+)$} do |id|
+    headers 'Cache-Control' => 'public,max-age=600'
     redirect_from_wikidata(id)
   end
 
   get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
+    headers 'Cache-Control' => 'public,max-age=600'
     begin
       @thing = Thing.load(pageid)
     rescue WikipediaApi::Redirect => redirect
@@ -224,6 +226,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   get %r{^/categories/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
+    headers 'Cache-Control' => 'public,max-age=600'
     begin
       @category = Category.load(pageid)
     rescue WikipediaApi::Redirect => redirect
@@ -246,7 +249,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/flipr' do
-    headers 'Cache-Control' => 'public,max-age=3600'
+    headers 'Cache-Control' => 'public,max-age=600'
     redirect "/", 301 if params[:url].nil? or params[:url].empty?
 
     if params[:url] =~ %r{^https?://(\w+)\.wikipedia.org/wiki/(.+)(\#\w*)?$}
