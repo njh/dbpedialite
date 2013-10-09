@@ -3,6 +3,7 @@
 require 'thing'
 require 'category'
 require 'wikidata_api'
+require 'extra_vocabs'
 
 
 class DbpediaLite < Sinatra::Base
@@ -11,11 +12,6 @@ class DbpediaLite < Sinatra::Base
   CANONICAL_HOST = 'www.dbpedialite.org'
   APP_LAST_UPDATED = File.mtime(root).gmtime
   GIT_LAST_COMMIT = ENV['COMMIT_HASH'] || `git rev-parse HEAD`
-
-  PREFIXES = {
-    :wikibase => 'http://www.wikidata.org/ontology#',
-    :schema => 'http://schema.org/'
-  }
 
   FORMATS = [
     JSON::LD::Format,
@@ -63,14 +59,14 @@ class DbpediaLite < Sinatra::Base
         graph.dump(:jsonld, :standard_prefixes => true)
       when 'turtle', 'ttl', 'text/turtle', 'application/turtle' then
         content_type 'text/turtle'
-        graph.dump(:turtle, :standard_prefixes => true,  :prefixes => PREFIXES)
+        graph.dump(:turtle, :standard_prefixes => true)
       when 'nt', 'ntriples', 'application/n-triples', 'text/plain' then
         content_type 'text/plain'
         graph.dump(:ntriples)
-      when 'rdf', 'xml', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
+      when 'rdf', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
         content_type 'application/rdf+xml'
-        graph.dump(:rdfxml, :standard_prefixes => true, :prefixes => PREFIXES, :stylesheet => '/rdfxml.xsl')
-      when 'trix', 'application/trix' then
+        graph.dump(:rdfxml, :standard_prefixes => true, :stylesheet => '/rdfxml.xsl')
+      when 'trix', 'xml', 'application/trix' then
         content_type 'application/trix'
         graph.dump(:trix)
       else
