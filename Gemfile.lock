@@ -1,3 +1,21 @@
+GIT
+  remote: git://github.com/ruby-rdf/json-ld.git
+  revision: 2a1bf315464081ebc9134d7cef6c120e2a0a2780
+  branch: develop
+  specs:
+    json-ld (1.0.7)
+      json (>= 1.7.5)
+      rdf (>= 1.0.8)
+
+GIT
+  remote: git://github.com/ruby-rdf/rdf-rdfxml.git
+  revision: 6ad4d90e8fafce5fcc706df8bd8c3a02f177cb6a
+  branch: master
+  specs:
+    rdf-rdfxml (1.0.2)
+      rdf (>= 1.0)
+      rdf-xsd (>= 1.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -17,9 +35,6 @@ GEM
       tilt
     htmlentities (4.3.1)
     json (1.8.0)
-    json-ld (1.0.7)
-      json (>= 1.7.5)
-      rdf (>= 1.0.8)
     json_pure (1.8.0)
     mini_portile (0.5.1)
     multi_json (1.8.1)
@@ -40,9 +55,6 @@ GEM
       haml (>= 4.0)
       htmlentities (>= 4.3.1)
       rdf (>= 1.0.5)
-      rdf-xsd (>= 1.0)
-    rdf-rdfxml (1.0.2)
-      rdf (>= 1.0)
       rdf-xsd (>= 1.0)
     rdf-trix (1.0.0)
       rdf (>= 1.0)
@@ -90,7 +102,7 @@ DEPENDENCIES
   emk-sinatra-url-for
   equivalent-xml
   fakeweb
-  json-ld
+  json-ld!
   json_pure
   nokogiri
   rack-test
@@ -98,7 +110,7 @@ DEPENDENCIES
   rdf (>= 0.3.1)
   rdf-json
   rdf-rdfa
-  rdf-rdfxml (>= 0.3.7)
+  rdf-rdfxml!
   rdf-trix
   rdf-turtle
   rdiscount

@@ -13,9 +13,9 @@ gem 'doodle'
 gem 'rdf', ">=0.3.1"
 gem 'rdf-json', :require => 'rdf/json'
 gem 'rdf-turtle', :require => 'rdf/turtle'
-gem 'rdf-rdfxml', ">=0.3.7", :require => 'rdf/rdfxml'
 gem 'rdf-trix', :require => 'rdf/trix'
-gem 'json-ld', :require => 'json/ld'
+gem 'rdf-rdfxml', :github => 'ruby-rdf/rdf-rdfxml', :branch => 'master', :require => 'rdf/rdfxml'
+gem 'json-ld', :github => 'ruby-rdf/json-ld', :branch => 'develop', :require => 'json/ld'
 
 group :development do
   gem 'rake'
