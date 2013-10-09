@@ -1,6 +1,8 @@
 source "http://rubygems.org"
 ruby "1.9.3"
 
+gem 'thin'
+
 gem 'sinatra'
 gem 'sinatra-contrib', :require => 'sinatra/content_for'
 gem 'emk-sinatra-url-for', :require => 'sinatra/url_for'
