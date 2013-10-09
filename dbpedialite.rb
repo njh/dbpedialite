@@ -3,7 +3,6 @@
 require 'thing'
 require 'category'
 require 'wikidata_api'
-require 'formats'
 
 
 class DbpediaLite < Sinatra::Base
@@ -17,6 +16,15 @@ class DbpediaLite < Sinatra::Base
     :wikibase => 'http://www.wikidata.org/ontology#',
     :schema => 'http://schema.org/'
   }
+
+  FORMATS = [
+    JSON::LD::Format,
+    RDF::JSON::Format,
+    RDF::NTriples::Format,
+    RDF::RDFXML::Format,
+    RDF::TriX::Format,
+    RDF::Turtle::Format,
+  ]
 
   def self.extract_vocabularies(graph)
     vocabs = {}
