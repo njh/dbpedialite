@@ -37,6 +37,10 @@ describe 'dbpedia lite' do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
 
+      it "should have CORS enabled" do
+        last_response.headers['Access-Control-Allow-Origin'].should == '*'
+      end
+
       it "should contain the readme text" do
         last_response.body.should =~ /takes some of the structured data/
       end

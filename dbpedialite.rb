@@ -165,6 +165,7 @@ class DbpediaLite < Sinatra::Base
       headers 'Cache-Control' => 'public,max-age=86400'
       redirect "http://" + CANONICAL_HOST + request.path, 301
     end
+    headers 'Access-Control-Allow-Origin' => '*'
   end
 
   get '/' do
