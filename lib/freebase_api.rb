@@ -6,6 +6,7 @@ module FreebaseApi
   USER_AGENT = 'DbpediaLite/1'
   MQLREAD_URI = URI.parse('https://www.googleapis.com/freebase/v1/mqlread')
   RDF_BASE_URI = URI.parse('http://rdf.freebase.com/rdf/')
+  GOOGLE_API_KEY = ENV['GOOGLE_API_KEY']
   HTTP_TIMEOUT = 2
 
   class Exception < Exception
@@ -17,16 +18,20 @@ module FreebaseApi
   def self.mqlread(query)
     uri = MQLREAD_URI.clone
     uri.query = 'query='+CGI::escape(JSON.dump(query))
-    
+
+    unless GOOGLE_API_KEY.nil?
+      uri.query += "&key=#{GOOGLE_API_KEY}"
+    end
+
     http = Net::HTTP.new(uri.host, uri.port)
     http.open_timeout = HTTP_TIMEOUT
     http.read_timeout = HTTP_TIMEOUT
-    
+
     if uri.scheme == 'https'
-      http.use_ssl = true 
+      http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     end
-    
+
     res = http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
 
     # Throw an exception if HTTP request was unsuccessful

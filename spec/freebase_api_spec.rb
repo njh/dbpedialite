@@ -69,6 +69,31 @@ describe FreebaseApi do
       @data['key']['value'].should == '645042'
     end
   end
+    
+  context "making a request with a Google API key" do
+    before :each do
+      FreebaseApi.send(:remove_const, 'GOOGLE_API_KEY')
+      FreebaseApi.const_set('GOOGLE_API_KEY', 'mykey')
+      FakeWeb.register_uri(:get,
+        %r[https://www.googleapis.com/freebase/v1/mqlread],
+        :body => fixture_data('freebase-mqlread-en-new-york.json')
+      )
+      @data = FreebaseApi.lookup_by_id('/en/new_york')
+    end
+
+    after :each do
+      FreebaseApi.send(:remove_const, 'GOOGLE_API_KEY')
+      FreebaseApi.const_set('GOOGLE_API_KEY', nil)
+    end
+    
+    it "should put the Google API key in the query string" do
+      FakeWeb.last_request.path.should match(/key=mykey/)
+    end
+
+    it "should return the name of the topic" do
+      @data['name'].should == 'New York City'
+    end
+  end
 
   context "lookup up a Wikipedia pageid that doesn't exist in Freebase" do
     before :each do
