@@ -71,6 +71,8 @@ class Thing < BaseModel
         $stderr.puts "Timed out while reading from Freebase: #{e.message}"
       rescue FreebaseApi::Exception => e
         $stderr.puts "Error while reading from Freebase: #{e.message}"
+      rescue Net::HTTPServerException => e
+        $stderr.puts "Error while making HTTP request to Freebase: #{e.message}"
       end
     end
   end

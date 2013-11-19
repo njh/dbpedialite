@@ -201,6 +201,19 @@ describe Thing do
       end
     end
 
+    context "when FreebaseApi raises an a HTTPServerException exception" do
+      it "should send a message to stderr" do
+        response = Net::HTTPForbidden.new("1.1", "403", "Forbidden")
+        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_raise(Net::HTTPServerException.new('403 "Forbidden"', response))
+        previous_stderr, $stderr = $stderr, StringIO.new
+
+        @thing.freebase_mid_uri
+        $stderr.string.should == "Error while making HTTP request to Freebase: 403 \"Forbidden\"\n"
+
+        $stderr = previous_stderr
+      end
+    end
+
     it "should have a single external like of type RDF::URI" do
       @thing.externallinks.should == [RDF::URI('http://www.fife.50megs.com/ceres-history.htm')]
     end
