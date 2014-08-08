@@ -274,8 +274,8 @@ describe Thing do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 15 triples" do
-      @graph.count.should == 20
+    it "should return a graph with 22 triples" do
+      @graph.count.should == 22
     end
 
     it "should include an rdf:type triple for the thing" do
@@ -373,6 +373,23 @@ describe Thing do
         RDF::Literal(DateTime.parse('2010-05-08T17:20:04Z'))
       ])
     end
+
+    it "should include a cc:license, CC-BY-SA 3.0, triple for the document" do
+      @graph.should have_triple([
+        RDF::URI("http://www.dbpedialite.org/things/52780"),
+        RDF::URI("http://creativecommons.org/ns#license"),
+        RDF::URI("http://creativecommons.org/licenses/by-sa/3.0/")
+      ])
+    end
+
+    it "should include a cc:license, GNU FDL 1.3, triple for the document" do
+      @graph.should have_triple([
+        RDF::URI("http://www.dbpedialite.org/things/52780"),
+        RDF::URI("http://creativecommons.org/ns#license"),
+        RDF::URI("http://gnu.org/licenses/fdl-1.3.html")
+      ])
+    end
+
 
   end
 end

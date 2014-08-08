@@ -122,6 +122,10 @@ class Thing < BaseModel
 
   WIKIBASE = RDF::Vocabulary.new('http://www.wikidata.org/ontology#')
   SCHEMA = RDF::Vocabulary.new('http://schema.org/')
+  CC = RDF::Vocabulary.new('http://creativecommons.org/ns#')
+
+  CC_BY_SA_30 = RDF::URI("http://creativecommons.org/licenses/by-sa/3.0/")
+  GNU_FDL_13 = RDF::URI("http://gnu.org/licenses/fdl-1.3.html")
 
   def to_rdf
     RDF::Graph.new do |graph|
@@ -130,6 +134,8 @@ class Thing < BaseModel
       graph << [doc_uri, RDF::DC.title, "dbpedia lite thing - #{label}"]
       graph << [doc_uri, RDF::DC.modified, updated_at] unless updated_at.nil?
       graph << [doc_uri, RDF::FOAF.primaryTopic, self.uri]
+      graph << [doc_uri, CC.license, CC_BY_SA_30]
+      graph << [doc_uri, CC.license, GNU_FDL_13]
 
       # Triples about the Thing
       graph << [self.uri, RDF.type, RDF::OWL.Thing]
