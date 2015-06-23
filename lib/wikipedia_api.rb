@@ -17,7 +17,7 @@ class WikipediaApi < MediaWikiApi
   end
 
   def self.api_uri
-    URI.parse('http://en.wikipedia.org/w/api.php')
+    URI.parse('https://en.wikipedia.org/w/api.php')
   end
 
   def self.title_to_dbpedia_key(title)

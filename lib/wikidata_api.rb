@@ -3,7 +3,7 @@ require 'mediawiki_api'
 class WikidataApi < MediaWikiApi
 
   def self.api_uri
-    URI.parse('http://www.wikidata.org/w/api.php')
+    URI.parse('https://www.wikidata.org/w/api.php')
   end
 
   def self.get_sitelink(id, site='enwiki')

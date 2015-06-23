@@ -7,7 +7,7 @@ describe WikidataApi do
   context "getting Wikipedia page title from a Wikidata identifier" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q9531&languages=en&props=sitelinks&sites=enwiki',
+        :get, 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q9531&languages=en&props=sitelinks&sites=enwiki',
         :body => fixture_data('wbgetentities-Q9531.json'),
         :content_type => 'application/json'
       )
@@ -30,7 +30,7 @@ describe WikidataApi do
   context "getting an entity from Wikidata from an Wikipedia page title" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=Ceres,%20Fife',
+        :get, 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=Ceres,%20Fife',
         :body => fixture_data('wbgetentities-ceres.json'),
         :content_type => 'application/json'
       )

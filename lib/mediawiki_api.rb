@@ -33,11 +33,15 @@ class MediaWikiApi
 
     uri = self.api_uri
     uri.query = items.join('&')
-    res = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.read_timeout = HTTP_TIMEOUT
-      http.open_timeout = HTTP_TIMEOUT
-      http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    if uri.scheme == 'https'
+      http.use_ssl = true 
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE ## FIXME: bad
     end
+    http.read_timeout = HTTP_TIMEOUT
+    http.open_timeout = HTTP_TIMEOUT
+    res = http.get(uri.request_uri, {'User-Agent' => USER_AGENT})
 
     # Throw exception if unsuccessful
     res.value

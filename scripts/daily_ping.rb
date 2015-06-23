@@ -62,7 +62,7 @@ end
 
 
 rdf_urls = []
-links = get_links("http://en.wikipedia.org/wiki/Main_Page")
+links = get_links("https://en.wikipedia.org/wiki/Main_Page")
 links.each do |link|
   puts "Looking up: #{link}"
   begin

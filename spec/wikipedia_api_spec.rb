@@ -13,7 +13,7 @@ describe WikipediaApi do
   context "parsing a page" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-934787.json'),
         :content_type => 'application/json'
       )
@@ -69,7 +69,7 @@ describe WikipediaApi do
   context "parsing a page titled with a lowercase first letter" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=21492980&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=21492980&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-21492980.json'),
         :content_type => 'application/json'
       )
@@ -101,7 +101,7 @@ describe WikipediaApi do
   context "parsing a page with HTML in the display title" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6268880&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6268880&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-6268880.json'),
         :content_type => 'application/json'
       )
@@ -128,7 +128,7 @@ describe WikipediaApi do
   context "parsing a page with <p> in the infobox" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=26471&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=26471&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-26471.json'),
         :content_type => 'application/json'
       )
@@ -160,7 +160,7 @@ describe WikipediaApi do
   context "parsing a page with a superscript in the title and abstract" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=10841865&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=10841865&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-10841865.json'),
         :content_type => 'application/json'
       )
@@ -183,7 +183,7 @@ describe WikipediaApi do
   context "parsing a page with multiple paragraphs" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=18624945&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=18624945&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-18624945.json'),
         :content_type => 'application/json'
       )
@@ -214,7 +214,7 @@ describe WikipediaApi do
   context "removing pronunciation from abstracts" do
     it "should remove the IPA pronunciation from the article about London" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=17867&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=17867&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-17867.json'),
         :content_type => 'application/json'
       )
@@ -224,7 +224,7 @@ describe WikipediaApi do
 
     it "should remove the IPA pronunciation from the article about Paris" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=22989&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=22989&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-22989.json'),
         :content_type => 'application/json'
       )
@@ -234,7 +234,7 @@ describe WikipediaApi do
 
     it "should remove the IPA pronunciation from the article about Berlin" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=3354&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-3354.json'),
         :content_type => 'application/json'
       )
@@ -244,7 +244,7 @@ describe WikipediaApi do
 
     it "should remove the IPA pronunciation from the article about Lyon" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=8638634&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=8638634&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-8638634.json'),
         :content_type => 'application/json'
       )
@@ -254,7 +254,7 @@ describe WikipediaApi do
 
     it "should remove the pronunciation audio link from the article about Auchtertool" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=9259027&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=9259027&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-9259027.json'),
         :content_type => 'application/json'
       )
@@ -264,7 +264,7 @@ describe WikipediaApi do
 
     it "should remove the pronunciation audio link from the article about Canada" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=5042916&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=5042916&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-5042916.json'),
         :content_type => 'application/json'
       )
@@ -274,7 +274,7 @@ describe WikipediaApi do
 
     it "should remove the pronunciation from the article about Albert Camus" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=983&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=983&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-983.json'),
         :content_type => 'application/json'
       )
@@ -284,7 +284,7 @@ describe WikipediaApi do
 
     it "should remove the pronunciation from the article about Anton Corbijn" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=1073796&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=1073796&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-1073796.json'),
         :content_type => 'application/json'
       )
@@ -294,7 +294,7 @@ describe WikipediaApi do
 
     it "should remove the pronunciation from the article about Sara Beth Bareilles article" do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6100815&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=6100815&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-6100815.json'),
         :content_type => 'application/json'
       )
@@ -306,7 +306,7 @@ describe WikipediaApi do
   context "parsing a page with an edit link in the page" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=32838&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=32838&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-32838.json'),
         :content_type => 'application/json'
       )
@@ -335,12 +335,12 @@ describe WikipediaApi do
   context "parsing a redirect page" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=440555&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-440555.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=Bovine%20spongiform%20encephalopathy',
         :body => fixture_data('pageinfo-bse.json'),
         :content_type => 'application/json'
       )
@@ -356,7 +356,7 @@ describe WikipediaApi do
   context "parsing a non-existant page" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text%7Cdisplaytitle',
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=504825766&prop=text%7Cdisplaytitle',
         :body => fixture_data('parse-504825766.json'),
         :content_type => 'application/json'
       )
@@ -373,7 +373,7 @@ describe WikipediaApi do
   context "getting information about a page by title" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=U2',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=U2',
         :body => fixture_data('pageinfo-u2.json'),
         :content_type => 'application/json'
       )
@@ -404,7 +404,7 @@ describe WikipediaApi do
   context "getting information about a page by pageid" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=4309010&prop=info&redirects=1',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=4309010&prop=info&redirects=1',
         :body => fixture_data('pageinfo-4309010.json'),
         :content_type => 'application/json'
       )
@@ -435,7 +435,7 @@ describe WikipediaApi do
   context "getting information about a page with HTML in the display title" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=18624945&prop=info&redirects=1',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=18624945&prop=info&redirects=1',
         :body => fixture_data('pageinfo-18624945.json'),
         :content_type => 'application/json'
       )
@@ -467,7 +467,7 @@ describe WikipediaApi do
   context "getting information about a page title that doesn't exist" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=zsefpfs',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&prop=info&redirects=1&titles=zsefpfs',
         :body => fixture_data('pageinfo-zsefpfs.json'),
         :content_type => 'application/json'
       )
@@ -483,7 +483,7 @@ describe WikipediaApi do
   context "a call to Wikipedia API returns something that isn't JSON" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json',
         :body => "<h1>There was an error</h1>",
         :content_type => 'text/html'
       )
@@ -500,7 +500,7 @@ describe WikipediaApi do
   context "searching for Rat" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srlimit=20&srprop=snippet%7Ctitlesnippet&srsearch=Rat',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srlimit=20&srprop=snippet%7Ctitlesnippet&srsearch=Rat',
         :body => fixture_data('search-rat.json'),
         :content_type => 'application/json'
       )
@@ -527,7 +527,7 @@ describe WikipediaApi do
   context "getting the members of a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&gcmlimit=500&gcmnamespace=0%7C14&gcmpageid=4309010&generator=categorymembers&inprop=displaytitle&prop=info',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&gcmlimit=500&gcmnamespace=0%7C14&gcmpageid=4309010&generator=categorymembers&inprop=displaytitle&prop=info',
         :body => fixture_data('categorymembers-4309010.json'),
         :content_type => 'application/json'
       )
@@ -559,7 +559,7 @@ describe WikipediaApi do
   context "getting the categories that something is a member of" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'http://en.wikipedia.org/w/api.php?action=query&format=json&gcllimit=500&generator=categories&inprop=displaytitle&pageids=934787&prop=info',
+        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&gcllimit=500&generator=categories&inprop=displaytitle&pageids=934787&prop=info',
         :body => fixture_data('categories-934787.json'),
         :content_type => 'application/json'
       )
