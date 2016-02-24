@@ -5,7 +5,7 @@ require 'wikipedia_api'
 describe WikipediaApi do
   context "escaping a page title to a DBpedia key" do
     it "should apply the encoding rules from dbpedia.org" do
-      WikipediaApi.title_to_dbpedia_key('Mozambique (Portugal)').should == 'Mozambique_%28Portugal%29'
+      WikipediaApi.title_to_dbpedia_key('Mozambique (Portugal)').should == 'Mozambique_(Portugal)'
       WikipediaApi.title_to_dbpedia_key('S/2012_P_1').should == 'S/2012_P_1'
     end
   end
