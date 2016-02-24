@@ -4,7 +4,7 @@ class WikipediaApi < MediaWikiApi
 
   ABSTRACT_MAX_LENGTH = 500
   ABSTRACT_TRUNCATE_LENGTH = 700
-  DBPEDIA_UNSAFE_REGEXP = Regexp.new('[^a-zA-Z0-9\.\-*/:_,&]', false, 'N').freeze
+  DBPEDIA_UNSAFE_REGEXP = Regexp.new('[^!\$&\'\(\)*\+,\-\./0-9:;=@A-Z_a-z~]', false, 'N').freeze
 
   class Redirect < MediaWikiApi::Exception
     attr_reader :pageid
@@ -21,7 +21,7 @@ class WikipediaApi < MediaWikiApi
   end
 
   def self.title_to_dbpedia_key(title)
-    # From http://dbpedia.org/URIencoding
+    # From http://dbpedia.org/uri-encoding
     URI::escape(title.gsub(' ', '_').squeeze('_'), DBPEDIA_UNSAFE_REGEXP)
   end
 

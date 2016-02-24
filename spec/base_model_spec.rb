@@ -74,7 +74,7 @@ describe BaseModel do
     end
 
     it "should respond to 'dbpedia_uri' with the dbpedia URI" do
-      @obj.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Keith_Allen_%28actor%29')
+      @obj.dbpedia_uri.should == RDF::URI('http://dbpedia.org/resource/Keith_Allen_(actor)')
     end
   end
 
