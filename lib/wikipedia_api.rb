@@ -107,7 +107,7 @@ class WikipediaApi < MediaWikiApi
     end
 
     # Get the last modified time for the comment at the end of the page
-    comment = text.at('body').children.last
+    comment = text.at('body').children.select{|e| e.class == Nokogiri::XML::Comment}.last
     if comment.inner_text.match(/Saved in parser cache with key (.+) and timestamp (\d+)/)
       data['updated_at'] = DateTime.strptime($2, "%Y%m%d%H%M%S")
     end
