@@ -402,7 +402,7 @@ describe 'dbpedia lite' do
       end
 
       it "should be of type application/json" do
-        last_response.content_type.should == 'application/json;charset=utf-8'
+        last_response.content_type.should == 'application/json'
       end
 
       it "should be cachable" do
@@ -548,7 +548,7 @@ describe 'dbpedia lite' do
       end
 
       it "should be of type application/trix" do
-        last_response.content_type.should == 'application/json;charset=utf-8'
+        last_response.content_type.should == 'application/json'
       end
 
       it "should be cachable" do

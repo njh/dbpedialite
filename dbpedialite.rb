@@ -174,7 +174,7 @@ class DbpediaLite < Sinatra::Base
     erb :index
   end
 
-  get %r{^/search\.?([a-z]*)$} do |format|
+  get %r{/search\.?([a-z]*)} do |format|
     headers 'Cache-Control' => 'public,max-age=600'
     redirect '/' if params[:term].nil? or params[:term].empty?
 
@@ -203,17 +203,17 @@ class DbpediaLite < Sinatra::Base
     redirect_from_title(title)
   end
 
-  get %r{^/wikidata/([qQ]\d+)$} do |id|
+  get %r{/wikidata/([qQ]\d+)} do |id|
     headers 'Cache-Control' => 'public,max-age=600'
     redirect_from_wikidata(id)
   end
 
-  get %r{^/things/([Qq]\d+)$} do |id|
+  get %r{/things/([Qq]\d+)} do |id|
     headers 'Cache-Control' => 'public,max-age=600'
     redirect_from_wikidata(id)
   end
 
-  get %r{^/things/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
+  get %r{/things/(\d+)\.?([a-z0-9]*)} do |pageid,format|
     headers 'Cache-Control' => 'public,max-age=600'
     begin
       @thing = Thing.load(pageid)
@@ -230,7 +230,7 @@ class DbpediaLite < Sinatra::Base
     negotiate_content(@graph, format, :thing)
   end
 
-  get %r{^/categories/(\d+)\.?([a-z0-9]*)$} do |pageid,format|
+  get %r{/categories/(\d+)\.?([a-z0-9]*)} do |pageid,format|
     headers 'Cache-Control' => 'public,max-age=600'
     begin
       @category = Category.load(pageid)

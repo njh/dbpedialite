@@ -1,5 +1,5 @@
-source "http://rubygems.org"
-ruby "1.9.3"
+source "https://rubygems.org"
+ruby File.read('.ruby-version').chomp
 
 gem 'thin'
 
@@ -12,12 +12,12 @@ gem 'nokogiri'
 gem 'rdiscount'
 gem 'doodle'
 
-gem 'rdf', ">=0.3.1"
-gem 'rdf-json', :require => 'rdf/json'
-gem 'rdf-turtle', :require => 'rdf/turtle'
-gem 'rdf-trix', :require => 'rdf/trix'
-gem 'rdf-rdfxml', :github => 'ruby-rdf/rdf-rdfxml', :branch => 'master', :require => 'rdf/rdfxml'
-gem 'json-ld', :github => 'ruby-rdf/json-ld', :branch => 'develop', :require => 'json/ld'
+gem 'rdf', "~>1.0.8"
+gem 'rdf-json', "~>1.0.0", :require => 'rdf/json'
+gem 'rdf-turtle', "~>1.0.9", :require => 'rdf/turtle'
+gem 'rdf-trix', "~>1.0.0", :require => 'rdf/trix'
+gem 'rdf-rdfxml', "~>1.0.2"
+gem 'json-ld', "~>1.0.7"
 
 group :development do
   gem 'rake'
