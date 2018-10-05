@@ -156,7 +156,7 @@ class DbpediaLite < Sinatra::Base
     if @thing.wikidata_uri.nil?
       not_found("Thing not found in Wikidata.")
     else
-      redirect(@thing.wikidata_uri, 303)
+      redirect(@thing.wikidata_uri, 301)
     end
   end
 
@@ -173,7 +173,7 @@ class DbpediaLite < Sinatra::Base
     if @category.wikidata_uri.nil?
       not_found("Category not found in Wikidata.")
     else
-      redirect(@category.wikidata_uri, 303)
+      redirect(@category.wikidata_uri, 301)
     end
   end
 
