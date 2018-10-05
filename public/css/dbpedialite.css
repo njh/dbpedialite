@@ -19,6 +19,14 @@ abbr  { border: none; }
 cite  { font-style: normal; }
 a img { border: none; padding: 0; margin: 0; }
 
+.gone
+{
+  border: 2px #F00 solid;
+  padding: 10px;
+  margin: 10px;
+  font-family: "lucida grande";
+  font-size: 18pt;
+}
 
 /*--------------------------------------------------------------
  Header
