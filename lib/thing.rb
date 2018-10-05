@@ -1,6 +1,5 @@
 require 'wikipedia_api'
 require 'wikidata_api'
-require 'freebase_api'
 require 'base_model'
 
 
@@ -12,8 +11,6 @@ class Thing < BaseModel
   has :latitude, :kind => Float, :default => nil
   has :externallinks, :kind => Array, :default => []
   has :updated_at, :kind => DateTime, :default => nil
-  has :freebase_guid, :kind => String, :default => nil
-  has :freebase_mid, :kind => String, :default => nil
   has :wikidata_id, :kind => String, :default => nil
   has :wikidata_label, :kind => String, :default => nil
   has :wikidata_description, :kind => String, :default => nil
@@ -32,49 +29,6 @@ class Thing < BaseModel
     #if data.has_key?('images')
     #  self.images = data['images'].map {|img| RDF::URI.parse(img)}
     #end
-  end
-
-  def freebase_guid
-    fetch_freebase_uris
-    @freebase_guid
-  end
-
-  def freebase_mid
-    fetch_freebase_uris
-    @freebase_mid
-  end
-
-  def freebase_guid_uri
-    fetch_freebase_uris
-    if freebase_guid
-      @freebase_guid_uri ||= RDF::URI.parse("http://rdf.freebase.com/ns/"+freebase_guid.sub('#','guid.'))
-    end
-  end
-
-  def freebase_mid_uri
-    fetch_freebase_uris
-    if freebase_mid
-      @freebase_mid_uri ||= RDF::URI.parse("http://rdf.freebase.com/ns/"+freebase_mid.sub('/m/','m.'))
-    end
-  end
-
-  def fetch_freebase_uris
-    # Only make call to freebase once
-    unless @called_freebase
-      @called_freebase = true
-      # Attempt to match to Freebase, but silently fail on error
-      begin
-        data = FreebaseApi.lookup_wikipedia_pageid(pageid)
-        self.freebase_mid = data['mid']
-        self.freebase_guid = data['guid']
-      rescue Timeout::Error => e
-        $stderr.puts "Timed out while reading from Freebase: #{e.message}"
-      rescue FreebaseApi::Exception => e
-        $stderr.puts "Error while reading from Freebase: #{e.message}"
-      rescue Net::HTTPServerException => e
-        $stderr.puts "Error while making HTTP request to Freebase: #{e.message}"
-      end
-    end
   end
 
   def wikidata_id
@@ -143,8 +97,6 @@ class Thing < BaseModel
       graph << [self.uri, RDF::RDFS.comment, abstract]
       graph << [self.uri, RDF::FOAF.isPrimaryTopicOf, wikipedia_uri]
       graph << [self.uri, RDF::OWL.sameAs, dbpedia_uri]
-      graph << [self.uri, RDF::OWL.sameAs, freebase_guid_uri] unless freebase_guid_uri.nil?
-      graph << [self.uri, RDF::OWL.sameAs, freebase_mid_uri] unless freebase_mid_uri.nil?
       graph << [self.uri, RDF::GEO.lat, latitude] unless latitude.nil?
       graph << [self.uri, RDF::GEO.long, longitude] unless longitude.nil?
 

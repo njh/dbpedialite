@@ -258,11 +258,6 @@ describe 'dbpedia lite' do
         :body => fixture_data('wbgetentities-ceres.json'),
         :content_type => 'application/json'
       )
-      FakeWeb.register_uri(
-        :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
-        :body => fixture_data('freebase-mqlread-934787.json'),
-        :content_type => 'application/json'
-      )
     end
 
     context "as an HTML document using content negotiation" do
@@ -290,11 +285,6 @@ describe 'dbpedia lite' do
         FakeWeb.register_uri(
           :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=934787&prop=text',
           :body => fixture_data('parse-934787.json'),
-          :content_type => 'application/json'
-        )
-        FakeWeb.register_uri(
-          :get, %r[http://api.freebase.com/api/service/mqlread],
-          :body => fixture_data('freebase-mqlread-934787.json'),
           :content_type => 'application/json'
         )
         header "Accept", "text/plain"
@@ -449,11 +439,6 @@ describe 'dbpedia lite' do
         :body => fixture_data('wbgetentities-imac.json'),
         :content_type => 'application/json'
       )
-      FakeWeb.register_uri(
-        :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
-        :body => fixture_data('freebase-mqlread-21492980.json'),
-        :content_type => 'application/json'
-      )
     end
 
     context "as an HTML document" do
@@ -518,7 +503,7 @@ describe 'dbpedia lite' do
     end
   end
 
-  context "GETing an HTML thing for something that doesn't exist in Freebase or Wikidata" do
+  context "GETing an HTML thing for something that doesn't exist in Wikidata" do
     before :each do
       FakeWeb.register_uri(
         :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=2008435&prop=text%7Cdisplaytitle',
@@ -528,11 +513,6 @@ describe 'dbpedia lite' do
       FakeWeb.register_uri(
         :get, 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=IMAC',
         :body => fixture_data('wbgetentities-notfound.json'),
-        :content_type => 'application/json'
-      )
-      FakeWeb.register_uri(
-        :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
-        :body => fixture_data('freebase-mqlread-notfound.json'),
         :content_type => 'application/json'
       )
       @stderr_buffer = StringIO.new
@@ -733,26 +713,6 @@ describe 'dbpedia lite' do
       it "should redirect to the coresponding wikipedia page" do
         last_response.status.should == 301
         last_response.location.should == 'http://example.org/things/26471'
-      end
-
-      it "should be cachable" do
-        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-    end
-
-    context "flipping from a Freebase page" do
-      before :each do
-        FakeWeb.register_uri(
-          :get, %r[https://www.googleapis.com/freebase/v1/mqlread],
-          :body => fixture_data('freebase-mqlread-en-new-york.json'),
-          :content_type => 'application/json'
-        )
-        get '/flipr?url=http%3A%2F%2Fwww.freebase.com%2Fview%2Fen%2Fnew_york'
-      end
-
-      it "should redirect to the coresponding Dbpedia lite thing page" do
-        last_response.status.should == 301
-        last_response.location.should == 'http://example.org/things/645042'
       end
 
       it "should be cachable" do

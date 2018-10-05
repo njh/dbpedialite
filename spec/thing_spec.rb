@@ -149,71 +149,6 @@ describe Thing do
       @thing.abstract.should =~ /^Ceres is a village in Fife, Scotland/
     end
 
-    context "when freebase responds with a parsable response" do
-      before :each do
-        freebase_data = {
-          'guid' => '#9202a8c04000641f80000000003bb45c',
-          'id' => '/en/ceres_united_kingdom',
-          'mid' => '/m/03rf2x',
-          'name' => 'Ceres',
-        }
-        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_return(freebase_data)
-      end
-
-      it "should have a machine id property" do
-        @thing.freebase_mid.should == '/m/03rf2x'
-      end
-
-      it "should have a GUID property" do
-        @thing.freebase_guid.should == '#9202a8c04000641f80000000003bb45c'
-      end
-
-      it "should have a freebase URI based on the machine id" do
-        @thing.freebase_mid_uri.should == RDF::URI('http://rdf.freebase.com/ns/m.03rf2x')
-      end
-
-      it "should have a freebase URI based on the guid" do
-        @thing.freebase_guid_uri.should == RDF::URI('http://rdf.freebase.com/ns/guid.9202a8c04000641f80000000003bb45c')
-      end
-    end
-
-    context "when freebase times out" do
-      it "should send a message to stderr" do
-        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_raise(Timeout::Error)
-        previous_stderr, $stderr = $stderr, StringIO.new
-
-        @thing.freebase_mid_uri
-        $stderr.string.should == "Timed out while reading from Freebase: Timeout::Error\n"
-
-        $stderr = previous_stderr
-      end
-    end
-
-    context "when FreebaseApi raises an a NotFound exception" do
-      it "should send a message to stderr" do
-        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_raise(FreebaseApi::NotFound)
-        previous_stderr, $stderr = $stderr, StringIO.new
-
-        @thing.freebase_mid_uri
-        $stderr.string.should == "Error while reading from Freebase: FreebaseApi::NotFound\n"
-
-        $stderr = previous_stderr
-      end
-    end
-
-    context "when FreebaseApi raises an a HTTPServerException exception" do
-      it "should send a message to stderr" do
-        response = Net::HTTPForbidden.new("1.1", "403", "Forbidden")
-        allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_raise(Net::HTTPServerException.new('403 "Forbidden"', response))
-        previous_stderr, $stderr = $stderr, StringIO.new
-
-        @thing.freebase_mid_uri
-        $stderr.string.should == "Error while making HTTP request to Freebase: 403 \"Forbidden\"\n"
-
-        $stderr = previous_stderr
-      end
-    end
-
     it "should have a single external like of type RDF::URI" do
       @thing.externallinks.should == [RDF::URI('http://www.fife.50megs.com/ceres-history.htm')]
     end
@@ -230,24 +165,10 @@ describe Thing do
         'There is no page with ID 999999'
       )
     end
-
-    it "should return raise a PageNotFound exception" do
-      expect(FreebaseApi).to_not receive(:lookup_wikipedia_pageid)
-      lambda {Thing.load(999999)}.should raise_error(
-        MediaWikiApi::NotFound,
-        'There is no page with ID 999999'
-      )
-    end
   end
 
   context "converting a thing to RDF" do
     before :each do
-      allow(FreebaseApi).to receive(:lookup_wikipedia_pageid).and_return({
-        'guid' => '#9202a8c04000641f8000000000066c8e',
-        'id' => '/en/u2',
-        'mid' => '/m/0dw4g',
-        'name' => 'U2',
-      })
       allow(WikidataApi).to receive(:find_by_title).and_return({
         'id' => 'q396',
         'title'=> 'Q396',
@@ -274,8 +195,8 @@ describe Thing do
       @graph.class.should == RDF::Graph
     end
 
-    it "should return a graph with 22 triples" do
-      @graph.count.should == 22
+    it "should return a graph with 20 triples" do
+      @graph.count.should == 20
     end
 
     it "should include an rdf:type triple for the thing" do
@@ -323,22 +244,6 @@ describe Thing do
         RDF::URI("http://www.dbpedialite.org/things/52780#id"),
         RDF::OWL.sameAs,
         RDF::URI('http://www.wikidata.org/entity/Q396')
-      ])
-    end
-
-    it "should include a owl:sameAs triple for the FreeBase Machine ID" do
-      @graph.should have_triple([
-        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
-        RDF::OWL.sameAs,
-        RDF::URI("http://rdf.freebase.com/ns/m.0dw4g")
-      ])
-    end
-
-    it "should include a owl:sameAs triple for the FreeBase GUID" do
-      @graph.should have_triple([
-        RDF::URI("http://www.dbpedialite.org/things/52780#id"),
-        RDF::OWL.sameAs,
-        RDF::URI("http://rdf.freebase.com/ns/guid.9202a8c04000641f8000000000066c8e")
       ])
     end
 

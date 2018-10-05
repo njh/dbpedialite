@@ -193,13 +193,6 @@ class DbpediaLite < Sinatra::Base
       redirect_from_title($2)
     elsif params[:url] =~ %r{^https?://(www\.)?wikidata.org/(wiki|entity)/(Q\d+)$}
       redirect_from_wikidata($3)
-    elsif params[:url] =~ %r{^https?://www.freebase.com/(view|inspect|edit/topic)(/.+)$}
-      begin
-        data = FreebaseApi.lookup_by_id($2)
-        redirect "/things/#{data['key']['value']}", 301
-      rescue FreebaseApi::NotFound
-        not_found("No Wikipedia page id found for Freebase topic")
-      end
     elsif params[:url] =~ %r{^https?://([\w\.\-\:]+)/(things|categories)/(\d+)(\#\w*)?$}
       begin
         data = WikipediaApi.page_info(:pageids => $3)
