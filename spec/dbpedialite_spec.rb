@@ -42,7 +42,7 @@ describe 'dbpedia lite' do
       end
 
       it "should contain the readme text" do
-        last_response.body.should =~ /takes some of the structured data/
+        last_response.body.should =~ /take some of the structured data/
       end
 
       it "should contain the bookmarklet" do
