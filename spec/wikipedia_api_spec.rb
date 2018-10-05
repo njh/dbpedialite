@@ -428,7 +428,7 @@ describe WikipediaApi do
     end
 
     it "should return the last modified date" do
-      @data['touched'].should == "2012-05-07T12:15:28Z"
+      @data['touched'].should == "2018-09-19T14:17:35Z"
     end
   end
 

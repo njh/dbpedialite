@@ -31,6 +31,17 @@ class Thing < BaseModel
     #end
   end
 
+  def self.info(pageid)
+    object = self.new(pageid)
+    object.info ? object : nil
+  end
+
+  def info
+    data = WikipediaApi.page_info(:pageids => pageid)
+    update(data)
+    true
+  end
+
   def wikidata_id
     fetch_wikidata
     @wikidata_id

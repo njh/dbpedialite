@@ -146,7 +146,7 @@ class DbpediaLite < Sinatra::Base
   get %r{/things/(\d+)\.?([a-z0-9]*)} do |pageid,format|
     headers 'Cache-Control' => 'public,max-age=31536000'
     begin
-      @thing = Thing.load(pageid)
+      @thing = Thing.info(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/things/#{redirect.pageid}", 301)
     rescue MediaWikiApi::NotFound
@@ -163,7 +163,7 @@ class DbpediaLite < Sinatra::Base
   get %r{/categories/(\d+)\.?([a-z0-9]*)} do |pageid,format|
     headers 'Cache-Control' => 'public,max-age=31536000'
     begin
-      @category = Thing.load(pageid)
+      @category = Thing.info(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/categories/#{redirect.pageid}", 301)
     rescue MediaWikiApi::NotFound
