@@ -3,7 +3,6 @@
 require 'thing'
 require 'category'
 require 'wikidata_api'
-require 'extra_vocabs'
 
 
 class DbpediaLite < Sinatra::Base
@@ -12,67 +11,6 @@ class DbpediaLite < Sinatra::Base
   CANONICAL_HOST = 'www.dbpedialite.org'
   APP_LAST_UPDATED = File.mtime(root).gmtime
   GIT_LAST_COMMIT = ENV['COMMIT_HASH'] || `git rev-parse HEAD`
-
-  FORMATS = [
-    JSON::LD::Format,
-    RDF::JSON::Format,
-    RDF::NTriples::Format,
-    RDF::RDFXML::Format,
-    RDF::TriX::Format,
-    RDF::Turtle::Format,
-  ]
-
-  def self.extract_vocabularies(graph)
-    vocabs = {}
-    graph.predicates.each do |predicate|
-      RDF::Vocabulary.each do |vocab|
-        if predicate.to_s.index(vocab.to_uri.to_s) == 0
-          vocab_name = vocab.__name__.split('::').last.downcase
-          unless vocab_name.empty?
-            vocabs[vocab_name.to_sym] = vocab
-            break
-          end
-        end
-      end
-    end
-    vocabs
-  end
-
-  # FIXME: do proper content negotiation using Sinatra::Request::AcceptEntry
-  # and Rack's MIME registry
-  def negotiate_content(graph, format, html_view)
-    if format.empty?
-      format = request.accept.first.to_s || ''
-      format.sub!(/;.+$/,'')
-      headers 'Vary' => 'Accept'
-    end
-
-    case format
-      when '', '*/*', 'html', 'application/xml', 'application/xhtml+xml', 'text/html' then
-        content_type 'text/html'
-        erb html_view
-      when 'json', 'application/json', 'text/json' then
-        content_type 'application/json'
-        graph.dump(:json)
-      when 'jsonld', 'application/ld+json' then
-        content_type 'application/json'
-        graph.dump(:jsonld, :standard_prefixes => true)
-      when 'turtle', 'ttl', 'text/turtle', 'application/turtle' then
-        content_type 'text/turtle'
-        graph.dump(:turtle, :standard_prefixes => true)
-      when 'nt', 'ntriples', 'application/n-triples', 'text/plain' then
-        content_type 'text/plain'
-        graph.dump(:ntriples)
-      when 'rdf', 'rdfxml', 'application/rdf+xml', 'text/rdf' then
-        content_type 'application/rdf+xml'
-        graph.dump(:rdfxml, :standard_prefixes => true, :stylesheet => '/rdfxml.xsl')
-      when 'trix', 'xml', 'application/trix' then
-        content_type 'application/trix'
-        graph.dump(:trix)
-      else
-        error 400, "Unsupported format: #{format}\n"
-    end
-  end
 
   def redirect_from_title(title)
     begin
@@ -93,15 +31,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   def redirect_from_wikidata(id)
-    begin
-      sitelink = WikidataApi.get_sitelink(id)
-      redirect_from_title sitelink['title']
-    rescue MediaWikiApi::NotFound => e
-      not_found e.to_s
-    rescue MediaWikiApi::Exception => e
-      error 500, "Wikidata API excpetion: #{e}"
-    end
-    redirect_from_title(title)
+    redirect("http://www.wikidata.org/entity/"+id, 301)
   end
 
   helpers do
@@ -175,7 +105,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   get %r{/search\.?([a-z]*)} do |format|
-    headers 'Cache-Control' => 'public,max-age=600'
+    headers 'Cache-Control' => 'public,max-age=31536000'
     redirect '/' if params[:term].nil? or params[:term].empty?
 
     @results = WikipediaApi.search(params[:term], :srlimit => 20)
@@ -199,22 +129,22 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/titles/:title' do |title|
-    headers 'Cache-Control' => 'public,max-age=600'
+    headers 'Cache-Control' => 'public,max-age=31536000'
     redirect_from_title(title)
   end
 
   get %r{/wikidata/([qQ]\d+)} do |id|
-    headers 'Cache-Control' => 'public,max-age=600'
+    headers 'Cache-Control' => 'public,max-age=31536000'
     redirect_from_wikidata(id)
   end
 
   get %r{/things/([Qq]\d+)} do |id|
-    headers 'Cache-Control' => 'public,max-age=600'
+    headers 'Cache-Control' => 'public,max-age=31536000'
     redirect_from_wikidata(id)
   end
 
   get %r{/things/(\d+)\.?([a-z0-9]*)} do |pageid,format|
-    headers 'Cache-Control' => 'public,max-age=600'
+    headers 'Cache-Control' => 'public,max-age=31536000'
     begin
       @thing = Thing.load(pageid)
     rescue WikipediaApi::Redirect => redirect
@@ -222,29 +152,29 @@ class DbpediaLite < Sinatra::Base
     rescue MediaWikiApi::NotFound
       not_found("Thing not found.")
     end
-
-    @thing.doc_uri = request.url
-    @graph = @thing.to_rdf
-    @vocabularies = DbpediaLite.extract_vocabularies(@graph)
-
-    negotiate_content(@graph, format, :thing)
+    
+    if @thing.wikidata_uri.nil?
+      not_found("Thing not found in Wikidata.")
+    else
+      redirect(@thing.wikidata_uri, 303)
+    end
   end
 
   get %r{/categories/(\d+)\.?([a-z0-9]*)} do |pageid,format|
-    headers 'Cache-Control' => 'public,max-age=600'
+    headers 'Cache-Control' => 'public,max-age=31536000'
     begin
-      @category = Category.load(pageid)
+      @category = Thing.load(pageid)
     rescue WikipediaApi::Redirect => redirect
       redirect("/categories/#{redirect.pageid}", 301)
     rescue MediaWikiApi::NotFound
       not_found("Category not found.")
     end
 
-    @category.doc_uri = request.url
-    @graph = @category.to_rdf
-    @vocabularies = DbpediaLite.extract_vocabularies(@graph)
-
-    negotiate_content(@graph, format, :category)
+    if @category.wikidata_uri.nil?
+      not_found("Category not found in Wikidata.")
+    else
+      redirect(@category.wikidata_uri, 303)
+    end
   end
 
   get '/gems' do
@@ -254,7 +184,7 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/flipr' do
-    headers 'Cache-Control' => 'public,max-age=600'
+    headers 'Cache-Control' => 'public,max-age=31536000'
     redirect "/", 301 if params[:url].nil? or params[:url].empty?
 
     if params[:url] =~ %r{^https?://(\w+)\.wikipedia.org/wiki/(.+)(\#\w*)?$}

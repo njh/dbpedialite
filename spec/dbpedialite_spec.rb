@@ -271,90 +271,17 @@ describe 'dbpedia lite' do
         get '/things/934787'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type text/html" do
-        last_response.content_type.should == 'text/html;charset=utf-8'
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
       end
-
-      it "should have set the Vary header to Accept" do
-        last_response.headers['Vary'].should == 'Accept'
-      end
-
-      it "should contain the first paragraph of the abstract for the thing" do
-        last_response.body.should =~ /Ceres is a village in Fife, Scotland/
-      end
-
-      it "should contain not contain the paragraph after the table of contents" do
-        last_response.body.should_not =~ /It is one of the most historic and picturesque villages in Scotland/
-      end
-
-      it "should have a Google Map on the page" do
-        last_response.body.should =~ %r[<div id="map"></div>]
-      end
-
-      it "should include the title of the thing in the page title" do
-        last_response.body.should =~ %r[<title>dbpedia lite - Ceres, Fife</title>]
-      end
-
-      it "should include a <meta> description tag with a truncated abstract" do
-        last_response.body.should =~ %r[<meta name="description" content="Ceres is a village in Fife, Scotland]
-      end
-
-      it "should have the title of the thing as RDFa" do
-        rdfa_graph.should have_triple([
-                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
-                                       RDF::RDFS.label,
-                                       RDF::Literal("Ceres, Fife")
-                                      ])
-      end
-
-      it "should have a link to the Wikipedia page in the RDFa" do
-        rdfa_graph.should have_triple([
-                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
-                                       RDF::FOAF.isPrimaryTopicOf,
-                                       RDF::URI("http://en.wikipedia.org/wiki/Ceres,_Fife"),
-                                      ])
-      end
-
-      it "should have a link to an external link in the RDFa" do
-        rdfa_graph.should have_triple([
-                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
-                                       RDF::FOAF.page,
-                                       RDF::URI("http://www.fife.50megs.com/ceres-history.htm"),
-                                      ])
-      end
-
-      it "should have an RDFa triple linking the document to the thing" do
-        rdfa_graph.should have_triple([
-                                       RDF::URI("http://www.dbpedialite.org/things/934787"),
-                                       RDF::FOAF.primaryTopic,
-                                       RDF::URI("http://www.dbpedialite.org/things/934787#id"),
-                                      ])
-      end
-
-      it "should have an dc:modified RDFa triple for the document" do
-        rdfa_graph.should have_triple([
-                                       RDF::URI("http://www.dbpedialite.org/things/934787"),
-                                       RDF::URI("http://purl.org/dc/terms/modified"),
-                                       RDF::Literal('2012-05-05T04:35:21Z')
-                                      ])
-      end
-
-      it "should have an RDFa triple linking the altenate RDF/XML format" do
-        rdfa_graph.should have_triple([
-                                       RDF::URI("http://www.dbpedialite.org/things/934787"),
-                                       RDF::URI("http://www.w3.org/1999/xhtml/vocab#alternate"),
-                                       RDF::URI("http://www.dbpedialite.org/things/934787.rdf"),
-                                      ])
-      end
-
     end
 
 
@@ -374,20 +301,16 @@ describe 'dbpedia lite' do
         get '/things/934787'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type text/plain" do
-        last_response.content_type.should == 'text/plain;charset=utf-8'
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should have set the Vary header to Accept" do
-        last_response.headers['Vary'].should == 'Accept'
       end
     end
 
@@ -397,20 +320,16 @@ describe 'dbpedia lite' do
         get '/things/934787'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type application/json" do
-        last_response.content_type.should == 'application/json'
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should have set the Vary header to Accept" do
-        last_response.headers['Vary'].should == 'Accept'
       end
     end
 
@@ -420,32 +339,16 @@ describe 'dbpedia lite' do
         get '/things/934787'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type text/turtle" do
-        last_response.content_type.should == 'text/turtle;charset=utf-8'
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should have set the Vary header to Accept" do
-        last_response.headers['Vary'].should == 'Accept'
-      end
-
-      it "should set the RDFS prefix correctly" do
-        last_response.body.should =~ %r[@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \.]
-      end
-
-      it "should set the FOAF prefix correctly" do
-        last_response.body.should =~ %r[@prefix foaf: <http://xmlns.com/foaf/0.1/> \.]
-      end
-
-      it "should contain a rdfs:label triple" do
-        last_response.body.should =~ %r[rdfs:label "Ceres, Fife";]
       end
     end
 
@@ -455,34 +358,16 @@ describe 'dbpedia lite' do
         get '/things/934787'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type application/rdf+xml" do
-        last_response.content_type.should == 'application/rdf+xml'
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should have set the Vary header to Accept" do
-        last_response.headers['Vary'].should == 'Accept'
-      end
-
-      it "should have a XML declaration in the first line of the response" do
-        lines = last_response.body.split(/[\r\n]+/)
-        lines.first.should == '<?xml version="1.0" encoding="UTF-8"?>'
-      end
-
-      it "should have a stylesheet processing instruction in the second line of the response" do
-        lines = last_response.body.split(/[\r\n]+/)
-        lines[1].should == '<?xml-stylesheet type="text/xsl" href="/rdfxml.xsl"?>'
-      end
-
-      it "should contain the URI of the document we requested" do
-        last_response.body.should =~ %r[<foaf:Document rdf:about="http://example.org/things/934787">]
       end
     end
 
@@ -492,20 +377,12 @@ describe 'dbpedia lite' do
         get '/things/934787.rdf'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should not have set the Vary header" do
-        last_response.headers['Vary'].should be_nil
-      end
-
-      it "should be of type application/rdf+xml" do
-        last_response.content_type.should == 'application/rdf+xml'
-      end
-
-      it "should contain the URI of the document we requested" do
-        last_response.body.should =~ %r[<foaf:Document rdf:about="http://example.org/things/934787.rdf">]
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
     end
 
@@ -514,24 +391,12 @@ describe 'dbpedia lite' do
         get '/things/934787.trix'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type application/trix" do
-        last_response.content_type.should == 'application/trix'
-      end
-
-      it "should contain the URI of the document we requested" do
-        last_response.body.should =~ %r[<uri>http://example.org/things/934787.trix</uri>]
-      end
-
-      it "should be cachable" do
-        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should not have set the Vary header" do
-        last_response.headers['Vary'].should be_nil
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
     end
 
@@ -540,34 +405,16 @@ describe 'dbpedia lite' do
         get '/things/934787.jsonld'
       end
 
-      it "should be successful" do
-        File.open('934787.jsonld', 'wb') do |file|
-          file.write last_response.body
-        end
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type application/trix" do
-        last_response.content_type.should == 'application/json'
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should not have set the Vary header" do
-        last_response.headers['Vary'].should be_nil
-      end
-
-      it "should define a @graph element" do
-        data = JSON.load(last_response.body)
-        data.should have_key('@graph')
-      end
-
-      it "should define the title of the thing" do
-        data = JSON.load(last_response.body)
-        thing = data['@graph'].find {|t| t['@id'] == 'http://www.dbpedialite.org/things/934787#id'}
-        thing['rdfs:label'].should == 'Ceres, Fife'
       end
     end
 
@@ -576,20 +423,16 @@ describe 'dbpedia lite' do
         get '/things/934787.ratrat'
       end
 
-      it "should return a 400 error" do
-        last_response.should be_client_error
+      it "should return be a reidrect" do
+        last_response.should be_redirect
+      end
+
+      it "should redirect to wikidata Q33980" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q33980'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should not have set the Vary header" do
-        last_response.headers['Vary'].should be_nil
-      end
-
-      it "should include the text 'Unsupported format' in the body" do
-        last_response.body.should =~ /Unsupported format/i
       end
     end
   end
@@ -618,12 +461,12 @@ describe 'dbpedia lite' do
         get '/things/21492980'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should have the alternate title in the <title> element" do
-        last_response.body.should =~ %r|<title>dbpedia lite - iMac</title>|
+      it "should redirect to wikidata Q14091" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q14091'
       end
     end
   end
@@ -643,7 +486,7 @@ describe 'dbpedia lite' do
       get '/things/440555'
     end
 
-    it "should return a redirect status" do
+    it "should return a redirect" do
       last_response.should be_redirect
     end
 
@@ -698,34 +541,25 @@ describe 'dbpedia lite' do
       $stderr = previous_stderr
     end
 
-    it "should be successful" do
-      last_response.should be_ok
-    end
-
-    it "should have the correct title in the <title> element" do
-      last_response.body.should =~ %r|<title>dbpedia lite - IMAC</title>|
-    end
-
-    it "should not contain a link to FreeBase" do
-      last_response.body.should_not =~ %r|rdf\.freebase\.com|
+    it "should be a not found page" do
+      last_response.should be_not_found
     end
 
     it "should write an error message to stderr" do
-      @stderr_buffer.string.should == "Error while reading from Freebase: Freebase query returned no results\n"+
-                                      "Error while reading from Wikidata: Failed to lookup title in Wikidata\n"
+      @stderr_buffer.string.should == "Error while reading from Wikidata: Failed to lookup title in Wikidata\n"
     end
   end
 
   context "GETing a category" do
     before :each do
       FakeWeb.register_uri(
-        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&inprop=displaytitle&pageids=4309010&prop=info&redirects=1',
-        :body => fixture_data('pageinfo-4309010.json'),
+        :get, 'https://en.wikipedia.org/w/api.php?action=parse&format=json&pageid=4309010&prop=text%7Cdisplaytitle',
+        :body => fixture_data('parse-4309010.json'),
         :content_type => 'application/json'
       )
       FakeWeb.register_uri(
-        :get, 'https://en.wikipedia.org/w/api.php?action=query&format=json&gcmlimit=500&gcmnamespace=0%7C14&gcmpageid=4309010&generator=categorymembers&inprop=displaytitle&prop=info',
-        :body => fixture_data('categorymembers-4309010.json'),
+        :get, 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&languages=en&props=info%7Caliases%7Clabels%7Cdescriptions&sites=enwiki&titles=Category:Villages%20in%20Fife',
+        :body => fixture_data('wbgetentities-category-villages-in-fife.json'),
         :content_type => 'application/json'
       )
     end
@@ -735,12 +569,12 @@ describe 'dbpedia lite' do
         get '/categories/4309010'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type text/html" do
-        last_response.content_type.should == 'text/html;charset=utf-8'
+      it "should redirect to wikidata Q8898842" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q8898842'
       end
 
       it "should be cachable" do
@@ -753,24 +587,16 @@ describe 'dbpedia lite' do
         get '/categories/4309010.nt'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
+      it "should be a redirect" do
+        last_response.should be_redirect
       end
 
-      it "should be of type text/html" do
-        last_response.content_type.should == 'text/plain;charset=utf-8'
+      it "should redirect to wikidata Q8898842" do
+        last_response.location.should == 'http://www.wikidata.org/entity/Q8898842'
       end
 
       it "should be cachable" do
         last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should have a triple for the name of the category" do
-        last_response.body.should =~ %r|<http://www.dbpedialite.org/categories/4309010#id> <http://www.w3.org/2000/01/rdf-schema#label> "Villages in Fife" \.|
-      end
-
-      it "should have a triple for Ceres being in the category" do
-        last_response.body.should =~ %r|<http://www.dbpedialite.org/things/934787#id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.dbpedialite.org/categories/4309010#id> \.|
       end
     end
   end
@@ -790,37 +616,6 @@ describe 'dbpedia lite' do
 
     it "should include a summary for the Sinatra gem" do
       last_response.body.should =~ /Classy web-development dressed in a DSL/
-    end
-  end
-
-  context "extracting vocabularies" do
-    before :each do
-      @graph = RDF::Graph.new do |g|
-        g << [RDF::URI('http://a.com/'), RDF::DC.title, "A"]
-        g << [RDF::URI('http://b.com/'), RDF::FOAF.name, "B"]
-        g << [RDF::URI('http://c.com/'), RDF::FOAF.nick, "C"]
-      end
-      @vocabularies = app.extract_vocabularies(@graph)
-    end
-
-    it "should extract 2 vocabularies" do
-      @vocabularies.length.should == 2
-    end
-
-    it "should have a key for the FOAF vocabulary" do
-      @vocabularies.should have_key :foaf
-    end
-
-    it "should have a key for the FOAF vocabulary" do
-      @vocabularies.should have_key :foaf
-    end
-
-    it "should have the right namespace the FOAF vocabulary" do
-      @vocabularies[:foaf].should == RDF::FOAF
-    end
-
-    it "should have the right namespace the DC vocabulary" do
-      @vocabularies[:dc].should == RDF::DC
     end
   end
 
