@@ -99,9 +99,10 @@ class DbpediaLite < Sinatra::Base
   end
 
   get '/' do
-    headers 'Cache-Control' => 'public,max-age=3600'
-    @readme = RDiscount.new(File.read(File.join(File.dirname(__FILE__), 'README.md')))
-    erb :index
+    headers 'Cache-Control' => 'public,max-age=31536000'
+    redirect "https://github.com/njh/dbpedialite", 301
+    #@readme = RDiscount.new(File.read(File.join(File.dirname(__FILE__), 'README.md')))
+    #erb :index
   end
 
   get %r{/search\.?([a-z]*)} do |format|

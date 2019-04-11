@@ -25,28 +25,9 @@ describe 'dbpedia lite' do
         get '/'
       end
 
-      it "should be successful" do
-        last_response.should be_ok
-      end
-
-      it "should be of type text/html" do
-        last_response.content_type.should == 'text/html;charset=utf-8'
-      end
-
-      it "should be cachable" do
-        last_response.headers['Cache-Control'].should =~ /max-age=([1-9]+)/
-      end
-
-      it "should have CORS enabled" do
-        last_response.headers['Access-Control-Allow-Origin'].should == '*'
-      end
-
-      it "should contain the readme text" do
-        last_response.body.should =~ /take some of the structured data/
-      end
-
-      it "should contain the bookmarklet" do
-        last_response.body.should =~ %r|javascript:location.href='http://example.org/flipr\?url=|
+      it "should redirect" do
+        last_response.status.should == 301
+        last_response.location.should == 'https://github.com/njh/dbpedialite'
       end
 
       it "should be cachable" do
